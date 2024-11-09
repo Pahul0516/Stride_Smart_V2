@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Walk Safe Map</title>
+    <script type="module" src="https://unpkg.com/@googlemaps/extended-component-library"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles/map-style.css"/>
+</head>
+<body>
+
+<div class="side-panel" id="side-panel">
+    <button id="side-panel-close-button" class="side-panel-close-button">×</button>
+    <div class="row">
+        <a href="#" onclick="navigateTo('index.html')" class="custom-button">Main Page</a>
+    </div>
+    <h2 class="side-panel-menu">Filter your route by:</h2>
+    <div class="grid-container">
+        <div class="row">
+            <div class="icon-container">
+                <img src="../icons/temperature-transformed2.png" alt="Temperature Icon" class="temperature-icon">
+            </div>
+            <button id="temperature-button" class="custom-button">Temperature</button>
+        </div>
+        <div class="row">
+            <div class="icon-container">
+                <img src="../icons/air-quality-transformed2.png" alt="Air Quality Icon" class="air-icon">
+            </div>
+            <button id="air-quality-button" class="custom-button">Air Quality</button>
+        </div>
+        <div class="row">
+            <div class="icon-container">
+                <img src="../icons/parks-transformed.png" alt="Green Areas" class="green-icon">
+            </div>
+            <button id="green-button" class="custom-button">Green Areas</button>
+        </div>
+        <div class="row">
+            <div class="icon-container">
+                <img src="../icons/safety-transformed.png" alt="Safety" class="safety-icon">
+            </div>
+            <button id="safety-button" class="custom-button">Safety</button>
+        </div>
+        <div class="row">
+            <div class="icon-container">
+                <img src="../icons/accessibility2-transformed.png" alt="Accessibility" class="access-icon">
+            </div>
+            <button id="accessibility-button" class="custom-button">Accessibility</button>
+        </div>
+        <div class="row">
+            <div class="icon-container">
+                <img src="../icons/travel-transformed.png" alt="Tourist Mode" class="tourist-icon">
+            </div>
+            <button id="tourist-button" class="custom-button">Tourist Route</button>
+        </div>
+    </div>
+</div>
+<button id="side-panel-open-button">☰</button>
+
+<div class="map-container">
+    <gmpx-api-loader key="API-KEY" libraries="places" solution-channel="GMP_GE_mapsandplacesautocomplete_v1">
+    </gmpx-api-loader>
+    <gmp-map center="46.770439,23.591423" zoom="15" map-id="WALK_SAFE_MAP">
+        <div slot="control-block-start-inline-start" class="place-picker-container">
+            <gmpx-place-picker id="place-picker" country="ro" for-map="my-map" placeholder="Enter a place"></gmpx-place-picker>
+            <gmpx-place-overview id="place-overview" size="medium" travel-mode="walking">
+                <gmpx-icon-button variant="outlined" id="direction-button" slot="action">
+                    Directions
+                </gmpx-icon-button>
+                <gmpx-icon-button variant="outlined" id="exit-button" slot="action">
+                    Close
+                </gmpx-icon-button>
+            </gmpx-place-overview>
+        </div>
+        <gmp-advanced-marker></gmp-advanced-marker>
+    </gmp-map>
+</div>
+<script>
+    function navigateTo(url) {
+        window.location.href = url;
+    }
+</script>
+<script src="../scripts/map-script.js"></script>
+</body>
+</html>

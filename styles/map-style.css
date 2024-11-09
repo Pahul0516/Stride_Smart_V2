@@ -1,0 +1,181 @@
+body, html {
+    font-family: 'Rubik', sans-serif;
+}
+
+body {
+    display: flex;
+    margin: 0;
+    height: 100vh;
+}
+
+.map-container {
+    flex-grow: 1;
+    position: relative;
+}
+
+gmp-map {
+    width: 100%;
+    height: 100%;
+}
+
+.place-picker-container {
+    font-family: 'Rubik', sans-serif;
+    display: flex;
+    position: fixed;
+    justify-content: center;
+    width: 100%;
+    padding-top: 35px;
+    border-color: transparent;
+}
+
+.grid-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    align-items: center;
+    margin-bottom: 0;
+}
+
+.side-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 300px;
+    height: 100%;
+    padding: 20px;
+    background: rgba(217, 157, 120, 0.11);
+    backdrop-filter: blur(8px);
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+    transform: translateX(-100%);
+}
+
+.side-panel.open {
+    transform: translateX(0);
+}
+
+.side-panel.closed {
+    transform: translateX(-100%);
+}
+
+.side-panel-menu {
+    font-family: 'Rubik', sans-serif;
+    font-size: 30px;
+    font-weight: bolder;
+    color: rgba(117, 156, 87, 0.92);
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    padding-top: 30px;
+}
+
+.custom-button {
+    display: block;
+    text-decoration: none;
+    width: 85%;
+    padding: 12px;
+    font-family: 'Rubik', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    color: white;
+    background: rgba(117, 156, 87, 0.92);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+    text-align: center;
+}
+
+.custom-button:hover {
+    background: rgba(117, 156, 87, 0.92);
+    transform: translateY(-2px);
+}
+
+.custom-button:active {
+    transform: translateY(1px);
+}
+
+.side-panel-close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    color: #ffffff;
+    cursor: pointer;
+    padding: 5px;
+    line-height: 1;
+    font-weight: bold;
+    transition: color 0.2s;
+}
+
+.side-panel-close-button:hover {
+    color: #ff6666;
+}
+
+#side-panel-open-button {
+    display: block;
+    position: fixed;
+    width: 50px;
+    padding: 12px;
+    top: 25px;
+    left: 20px;
+    font-family: 'Rubik', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: white;
+    background: rgba(117, 156, 87, 0.92);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+    z-index: 100;
+    text-align: center;
+}
+
+#side-panel-open-button:hover {
+    background: rgba(117, 156, 87, 0.92);
+    transform: translateY(-2px);
+}
+
+#side-panel-open-button:active {
+    transform: translateY(1px);
+}
+
+.temperature-icon{
+    width: 85%;
+    height: 85%;
+}
+
+.air-icon{
+    width: 75%;
+    height: 75%;
+    padding-left: 5px;
+}
+
+.green-icon {
+    width: 85%;
+    height: 85%;
+}
+
+.safety-icon{
+    width: 75%;
+    padding-left: 7px;
+}
+
+.access-icon{
+    width: 60%;
+    padding: 15px;
+}
+
+.tourist-icon{
+    width: 85%;
+    padding-top: 25px;
+}
