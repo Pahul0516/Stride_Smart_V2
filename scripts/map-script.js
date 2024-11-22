@@ -184,6 +184,50 @@ async function init() {
         overview.place = null;
         directionsRenderer.setDirections({routes: []});
     }
+
+    //function to build heatmap with data from given file
+    async function addHeatmap(geojsonFile) {
+        const response = await fetch(geojsonFile);
+        console.log("heatmap fetched");
+        const geojsonData = await response.json();
+        console.log("heatmap fetched");
+
+        map.innerMap.data.addGeoJson(geojsonData);
+        console.log('data loaded');
+
+        map.innerMap.data.setStyle({
+           fillColor: "green",
+           strokeColor: "black",
+           strokeWeight: 1,
+           fillOpacity: 0.6,
+        });
+}
+
+async function loadOSMGeoJson(osmGeoJsonPath) {
+    const response=await fetch(osmGeoJsonPath);
+    console.log("fetched");
+    const geojsonData = await response.json();
+    console.log("OSM data fetched");
+
+    // Add the GeoJSON data to the map
+    map.innerMap.data.addGeoJson(geojsonData);
+
+    // Style the data (optional)
+    map.innerMap.data.setStyle({
+        strokeColor: "blue",  // Set edge color
+        strokeWeight: 2,      // Set edge width
+        fillOpacity: 0,       // No fill for roads
+    });
+}
+
+document.querySelector('gmp-map').addEventListener('map-ready', (event) => {
+    map = event.detail.map; // Get the Google Maps API map instance
+});
+
+document.getElementById("green-button").addEventListener("click",()=>{
+    //loadOSMGeoJson("osm_edges.geojson");
+    addHeatmap("fixed_polygons.geojson");
+});
 }
 
 document.addEventListener('DOMContentLoaded', init);
