@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Walk Safe Map</title>
     <script type="module" src="https://unpkg.com/@googlemaps/extended-component-library"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Turf.js/6.5.0/turf.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../styles/map-style.css"/>
 </head>
@@ -48,16 +49,15 @@
         </div>
         <div class="row">
             <div class="icon-container">
-                <img src="../icons/travel-transformed.png" alt="Tourist Mode" class="tourist-icon">
+                <img src="../icons/travel-transformed2.png" alt="Tourist Mode" class="tourist-icon">
             </div>
             <button id="tourist-button" class="custom-button">Tourist Route</button>
         </div>
     </div>
 </div>
 <button id="side-panel-open-button">☰</button>
-
-<div class="map-container">
-    <gmpx-api-loader key="AIzaSyDeWZJsxg8T_5RLbGGa_VlWADwJousvjXk" libraries="places,js" solution-channel="GMP_GE_mapsandplacesautocomplete_v1">
+<div class="map-container" id="map-container">
+    <gmpx-api-loader key="API_KEY" libraries="places,visualization" solution-channel="GMP_GE_mapsandplacesautocomplete_v1">
     </gmpx-api-loader>
     <gmp-map center="46.770439,23.591423" zoom="15" map-id="WALK_SAFE_MAP">
         <div slot="control-block-start-inline-start" class="place-picker-container">
@@ -73,7 +73,24 @@
         </div>
         <gmp-advanced-marker></gmp-advanced-marker>
     </gmp-map>
+    <canvas id="comfort-overlay" class="map-overlay"></canvas>
+    <canvas id="discomfort-overlay" class="map-overlay"></canvas>
 </div>
+
+<div id="weather-display" class="weather-info">
+    <div class="weather-header">
+        <img id="weather-icon" class="weather-icon" src="" alt="Weather Icon" />
+        <h2 id="weather-condition">Loading...</h2>
+    </div>
+    <div class="weather-details">
+        <p id="temperature">Temperature: --°C</p>
+        <p id="feels-like">Feels like: --°C</p>
+        <p id="humidity">Humidity: --%</p>
+        <p id="wind-speed">Wind speed: -- km/h</p>
+    </div>
+</div>
+
+
 <script>
     function navigateTo(url) {
         window.location.href = url;

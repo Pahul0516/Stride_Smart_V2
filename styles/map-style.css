@@ -16,6 +16,41 @@ body {
 gmp-map {
     width: 100%;
     height: 100%;
+    position: relative;
+}
+.map-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 4;
+    pointer-events: none;
+}
+
+input[type="checkbox"] {
+    accent-color: #6d8149;
+}
+
+#dropdown-menu {
+    position: absolute;
+    background-color: rgba(117, 156, 87, 0.92);
+    color: white;
+    font-family: 'Rubik', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    margin-top: 3px;
+    padding: 11px;
+    border-radius: 8px;
+    z-index: 100;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+#dropdown-menu.show {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .place-picker-container {
@@ -51,7 +86,7 @@ gmp-map {
     background: rgba(217, 157, 120, 0.11);
     backdrop-filter: blur(8px);
     box-shadow: 4px 0 10px rgba(0, 0, 0, 0.2);
-    z-index: 1;
+    z-index: 5;
     overflow-y: auto;
     transition: transform 0.3s ease;
     transform: translateX(-100%);
@@ -72,7 +107,8 @@ gmp-map {
     color: rgba(117, 156, 87, 0.92);
     margin-bottom: 15px;
     padding-bottom: 10px;
-    padding-top: 30px;
+    padding-top: 10px;
+    z-index: 5;
 }
 
 .custom-button {
@@ -90,6 +126,7 @@ gmp-map {
     cursor: pointer;
     transition: background 0.3s, transform 0.2s;
     text-align: center;
+    z-index: 5;
 }
 
 .custom-button:hover {
@@ -114,6 +151,7 @@ gmp-map {
     line-height: 1;
     font-weight: bold;
     transition: color 0.2s;
+    z-index: 5;
 }
 
 .side-panel-close-button:hover {
@@ -136,7 +174,7 @@ gmp-map {
     border-radius: 8px;
     cursor: pointer;
     transition: background 0.3s, transform 0.2s;
-    z-index: 100;
+    z-index: 10;
     text-align: center;
 }
 
@@ -152,30 +190,88 @@ gmp-map {
 .temperature-icon{
     width: 85%;
     height: 85%;
+    z-index: 5;
 }
 
 .air-icon{
     width: 75%;
     height: 75%;
     padding-left: 5px;
+    z-index: 5;
 }
 
 .green-icon {
     width: 85%;
     height: 85%;
+    z-index: 5;
 }
 
 .safety-icon{
     width: 75%;
     padding-left: 7px;
+    z-index: 5;
 }
 
 .access-icon{
     width: 60%;
     padding: 15px;
+    z-index: 5;
 }
 
 .tourist-icon{
     width: 85%;
-    padding-top: 25px;
+    padding-top: 10px;
+    z-index: 5;
+}
+
+.weather-info {
+    position: absolute;
+    bottom: 20px;
+    right: 12px;
+    padding: 20px;
+    width: 200px;
+    background: rgba(217, 157, 120, 0.11);
+    backdrop-filter: blur(8px);
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
+    font-family: 'Rubik', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    z-index: 10;
+    color: #333;
+}
+
+.weather-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+    z-index: 10;
+    color: #6d8149;
+}
+
+.weather-icon {
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+    z-index: 10;
+    color: #6d8149;
+}
+
+.weather-condition {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+    z-index: 10;
+    color: #6d8149;
+}
+
+.weather-details p {
+    margin: 2px 0;
+    z-index: 10;
+}
+
+.weather-details p span {
+    font-weight: bold;
+    color: #6d8149;
+    z-index: 10;
 }

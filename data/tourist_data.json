@@ -1,0 +1,338 @@
+[
+  {
+    "name": "Biserica Sfântul Mihail",
+    "latitude": 46.7699529,
+    "longitude": 23.589777,
+    "category": "landmark"
+  },
+  {
+    "name": "Statuia lui Matia Corvin",
+    "latitude": 46.769585,
+    "longitude": 23.590130,
+    "category": "landmark"
+  },
+  {
+    "name": "Muzeul de Artă",
+    "latitude": 46.77057454,
+    "longitude": 23.590486,
+    "category": "museum"
+  },
+  {
+    "name": "Grădina Botanică Alexandru Borza",
+    "latitude": 46.76261001,
+    "longitude": 23.5889844,
+    "category": "landmark"
+  },
+  {
+    "name": "Parcul Central",
+    "latitude": 46.76915015,
+    "longitude": 23.577399,
+    "category": "landmark"
+  },
+  {
+    "name": "Catedrala Mitropolitană „Adormirea Maicii Domnului”",
+    "latitude": 46.77181284,
+    "longitude": 23.5968628,
+    "category": "landmark"
+  },
+  {
+    "name": "Biserica Piariștilor",
+    "latitude": 46.7679533,
+    "longitude": 23.590946,
+    "category": "landmark"
+  },
+  {
+    "name": "Parcul Etnografic Național „Romulus Vuia”",
+    "latitude": 46.7772619,
+    "longitude": 23.5612244,
+    "category": "landmark"
+  },
+  {
+    "name": "Biserica Reformată 1 Matia",
+    "latitude": 46.76856232,
+    "longitude": 23.597161,
+    "category": "landmark"
+  },
+  {
+    "name": "Casa lui Matei Corvin",
+    "latitude": 46.77114275,
+    "longitude": 23.587499,
+    "category": "landmark"
+  },
+  {
+    "name": "Iulius Mall Cluj",
+    "latitude": 46.77171,
+    "longitude": 23.6256866,
+    "category": "entertainment"
+  },
+  {
+    "name": "VIVO! Cluj-Napoca",
+    "latitude": 46.750302,
+    "longitude": 23.534209,
+    "category": "entertainment"
+  },
+  {
+    "name": "Cluj Arena",
+    "latitude": 46.76877402,
+    "longitude": 23.572034,
+    "category": "landmark"
+  },
+  {
+    "name": "Opera Națională",
+    "latitude": 46.770460304,
+    "longitude": 23.596168,
+    "category": "landmark"
+  },
+  {
+    "name": "Casino - Centrul de Cultură Urbană",
+    "latitude": 46.7689818,
+    "longitude": 23.577941,
+    "category": "landmark"
+  },
+  {
+    "name": "Piața Muzeului",
+    "latitude": 46.7719225,
+    "longitude": 23.5878385,
+    "category": "landmark"
+  },
+  {
+    "name": "Parcul Cetățuia",
+    "latitude": 46.7754295,
+    "longitude": 23.5822307,
+    "category": "landmark"
+  },
+  {
+    "name": "Olivo Coffee Culture",
+    "latitude": 46.771825,
+    "longitude": 23.5869933,
+    "category": "caffe"
+  },
+  {
+    "name": "Eggcetera",
+    "latitude": 46.7681248,
+    "longitude": 23.588749,
+    "category": "caffe"
+  },
+  {
+    "name": "Roots Urban Tastery",
+    "latitude": 46.77412263,
+    "longitude": 23.6208590,
+    "category": "caffe"
+  },
+  {
+    "name": "Captain Bean The Office",
+    "latitude": 46.77603477,
+    "longitude": 23.606598,
+    "category": "caffe"
+  },
+  {
+    "name": "Meron",
+    "latitude": 46.774806,
+    "longitude": 23.5869078,
+    "category": "caffe"
+  },
+  {
+    "name": "Demmers Teehaus",
+    "latitude": 46.76883919,
+    "longitude": 23.5898709,
+    "category": "caffe"
+  },
+  {
+    "name": "Victor. Fresh To Go",
+    "latitude": 46.76495062,
+    "longitude": 23.5874434,
+    "category": "caffe"
+  },
+  {
+    "name": "Tucano Coffee Puerto Rico",
+    "latitude": 46.77008599,
+    "longitude": 23.593343,
+    "category": "caffe"
+  },
+  {
+    "name": "Tamper Coffee",
+    "latitude": 46.768623,
+    "longitude": 23.5994989,
+    "category": "caffe"
+  },
+  {
+    "name": "Restaurant Roata",
+    "latitude": 46.77029,
+    "longitude": 23.583968,
+    "category": "restaurant"
+  },
+  {
+    "name": "Via",
+    "latitude": 46.76759661,
+    "longitude": 23.5892323,
+    "category": "restaurant"
+  },
+  {
+    "name": "Tokyo Japanese Restaurant",
+    "latitude": 46.76303000,
+    "longitude": 23.583870,
+    "category": "restaurant"
+  },
+  {
+    "name": "Tortelli",
+    "latitude": 46.770824,
+    "longitude": 23.58722362,
+    "category": "restaurant"
+  },
+  {
+    "name": "Miko",
+    "latitude": 46.76469010,
+    "longitude": 23.577375,
+    "category": "restaurant"
+  },
+  {
+    "name": "Adi’s Steakhouse",
+    "latitude": 46.766871,
+    "longitude": 23.60076,
+    "category": "restaurant"
+  },
+  {
+    "name": "Ciao New York",
+    "latitude": 46.775000,
+    "longitude": 23.587023,
+    "category": "restaurant"
+  },
+  {
+    "name": "Pasta Nostra",
+    "latitude": 46.773965,
+    "longitude": 23.6066335,
+    "category": "restaurant"
+  },
+  {
+    "name": "Jaxx",
+    "latitude": 46.771440940,
+    "longitude": 23.58487,
+    "category": "restaurant"
+  },
+  {
+    "name": "Winners Sports Club",
+    "latitude": 46.763830,
+    "longitude": 23.554712,
+    "category": "entertainment"
+  },
+  {
+    "name": "Casa de Padel",
+    "latitude": 46.7793575,
+    "longitude": 23.6569111,
+    "category": "entertainment"
+  },
+  {
+    "name": "FreeWall Climbing Gym",
+    "latitude": 46.763998862,
+    "longitude": 23.570195,
+    "category": "entertainment"
+  },
+  {
+    "name": "Gravity Climbing Gym",
+    "latitude": 46.748872,
+    "longitude": 23.542013,
+    "category": "entertainment"
+  },
+  {
+    "name": "Club Transilvania",
+    "latitude": 46.7622728,
+    "longitude": 23.5472805,
+    "category": "entertainment"
+  },
+  {
+    "name": "Tenis Club Cluj 'Ciprian Porumb'",
+    "latitude": 46.7755760,
+    "longitude": 23.5780670,
+    "category": "entertainment"
+  },
+  {
+    "name": "Parcul Sportiv 'Iuliu Hațieganu'",
+    "latitude": 46.7658100,
+    "longitude": 23.559948,
+    "category": "entertainment"
+  },
+  {
+    "name": "Carturesti",
+    "latitude": 46.77117196,
+    "longitude": 23.589804,
+    "category": "entertainment"
+  },
+  {
+    "name": "Refo Cafe",
+    "latitude": 46.7728,
+    "longitude": 23.5956,
+    "category": "caffe"
+  },
+  {
+    "name": "Koffer",
+    "latitude": 46.772025,
+    "longitude": 23.594201,
+    "category": "caffe"
+  },
+  {
+    "name": "Brewtiful Cafe",
+    "latitude": 46.7711,
+    "longitude": 23.59577,
+    "category": "caffe"
+  },
+  {
+    "name": "Muzeul Etnografic al Transilvaniei",
+    "latitude": 46.7693166,
+    "longitude": 23.58681,
+    "category": "museum"
+  },
+  {
+    "name": "Turnul Croitorilor",
+    "latitude": 46.76807,
+    "longitude": 23.597622,
+    "category": "landmark"
+  },
+  {
+    "name": "Restaurant Valahia",
+    "latitude": 46.757508,
+    "longitude": 23.56697,
+    "category": "restaurant"
+  },
+  {
+    "name": "Turk Kebab",
+    "latitude": 46.769277,
+    "longitude": 23.59359,
+    "category": "restaurant"
+  },
+  {
+    "name": "Casa Maramureșeană",
+    "latitude": 46.774020,
+    "longitude": 23.59990,
+    "category": "restaurant"
+  },
+  {
+    "name": "Muzeul Zoologic - UBB",
+    "latitude": 46.76399,
+    "longitude": 23.58031,
+    "category": "museum"
+  },
+  {
+    "name": "Steampunk Transylvania",
+    "latitude": 46.7722030,
+    "longitude": 23.590144,
+    "category": "museum"
+  },
+  {
+    "name": "Muzeon - Jewish History Museum",
+    "latitude": 46.77086784,
+    "longitude": 23.587661,
+    "category": "museum"
+  },
+  {
+    "name": "Restaurant Little Hanoi",
+    "latitude": 46.769466,
+    "longitude": 23.6177620,
+    "category": "museum"
+  },
+  {
+    "name": "Muzeul Farmaciei",
+    "latitude": 46.771024077,
+    "longitude": 23.589834,
+    "category": "museum"
+  }
+]
