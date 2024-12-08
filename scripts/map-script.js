@@ -15,9 +15,10 @@ const legends = {
         {color: 'rgba(197,227,124,0.8)', label: 'Low Comfort'},
     ],
     air_quality: [
-        {color: 'rgba(25,161,25,0.66)', label: 'Clean air'},
-        {color: 'rgba(228,201,24,0.55)', label: 'Moderately polluted air'},
-        {color: 'rgba(232,44,44,0.61)', label: 'Polluted air'},
+        {color: 'rgba(0,255,0,0.7)', label: 'Clean air'},
+        {color: 'rgba(255,213,0,0.7)', label: 'Moderately polluted air'},
+        {color: 'rgba(236,131,45,0.7)', label: 'Polluted air'},
+        {color: 'rgba(255,47,0,0.7)', label: 'Heavily polluted air'},
     ],
     safety: [
         {color: 'rgba(0,128,0,0.7)', label: 'Low'},
@@ -207,7 +208,7 @@ function resetPlacePicker() {
 }
 
 async function fetchWeatherData(lat, lng) {
-    const apiKey = "API_KEY";
+    const apiKey = "a9decdfd687ef46c99db100348758882";
     const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&appid=${apiKey}&units=metric`;
 
     try {
@@ -392,20 +393,21 @@ async function addOverlayLayer(filepath, layerName) {
 
             if (geometryType === "Point") {
                 if (layerName === "air_quality") {
-                    const airQuality = feature.getProperty("Air mark");
+                    const airQuality = feature.getProperty("AirQuality");
                     const circleColor = getAirQualityColor(airQuality);
-
+                    const circleRadius = airQuality * 25;
                     const coords = geometry.get();
                     const circle = new google.maps.Circle({
                         strokeColor: circleColor,
                         strokeOpacity: 0,
                         strokeWeight: 0,
                         fillColor: circleColor,
-                        fillOpacity: 0.02,
+                        fillOpacity: 0.4,
                         map: map.innerMap,
                         center: {lat: coords.lat(), lng: coords.lng()},
-                        radius: 200,
+                        radius: circleRadius
                     });
+                    console.log("Circle created at: ", coords.lat(), coords.lng());
 
                     if (!circleLayers[layerName]) circleLayers[layerName] = [];
                     circleLayers[layerName].push(circle);
@@ -567,12 +569,11 @@ function getComfortColor(comfortLevel) {
 }
 
 function getAirQualityColor(airQuality) {
-    if (airQuality === 1) return 'rgba(0,255,0,0.2)'; // Good
-    if (airQuality === 2) return 'rgba(255,213,0,0.7)'; // Moderate
-    if (airQuality === 3) return 'rgba(236,45,45,0.9)'; // Unhealthy for Sensitive Groups
-    if (airQuality === 4) return 'rgba(255,69,0,0.6)'; // Unhealthy
-    if (airQuality === 5) return 'rgba(128,0,128,0.6)'; // Very Unhealthy
-    return 'rgba(128,128,128,0.6)'; // Unknown
+    if (airQuality === 1) return 'rgba(0,255,0,0.8)'; //Clean air
+    if (airQuality === 2) return 'rgba(255,213,0,0.8)'; //Moderately polluted air
+    if (airQuality === 3) return 'rgba(236,131,45,0.8)'; //Polluted air
+    if (airQuality === 4) return 'rgba(255,47,0,0.8)'; //Very polluted air
+    return 'rgba(128,128,128,0.6)';
 }
 
 function getSafetyColor(safetyLevel) {
