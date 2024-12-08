@@ -6,10 +6,43 @@ let map;
 let geocoder;
 let overview;
 let marker;
-let overlayVisible = false;
-let comfortOverlayData = null;
-let attractionsData = null;
+
 const categories = ["landmark", "museum", "caffe", "restaurant", "entertainment"];
+const legends = {
+    comfort: [
+        {color: 'rgba(25,161,25,0.84)', label: 'High Comfort'},
+        {color: 'rgba(95,191,103,0.8)', label: 'Medium Comfort'},
+        {color: 'rgba(197,227,124,0.8)', label: 'Low Comfort'},
+    ],
+    air_quality: [
+        {color: 'rgba(25,161,25,0.66)', label: 'Clean air'},
+        {color: 'rgba(228,201,24,0.55)', label: 'Moderately polluted air'},
+        {color: 'rgba(232,44,44,0.61)', label: 'Polluted air'},
+    ],
+    safety: [
+        {color: 'rgba(0,128,0,0.7)', label: 'Low'},
+        {color: 'rgba(255,165,0,0.7)', label: 'Medium'},
+        {color: 'rgba(255,0,0,0.7)', label: 'High'},
+    ],
+    accessibility: [
+        {color: 'rgba(96,145,225,0.4)', label: 'Accessible Area'},
+        {color: 'rgba(214,85,85,0.4)', label: 'Inaccessible Area'},
+    ],
+    inaccessibility: [
+        {color: 'rgba(96,145,225,0.4)', label: 'Accessible Area'},
+        {color: 'rgba(214,85,85,0.4)', label: 'Inaccessible Area'},
+    ],
+    tourist: [
+        {icon: '../icons/landmark.png', label: 'Landmark'},
+        {icon: '../icons/museum.png', label: 'Museum'},
+        {icon: '../icons/coffee.png', label: 'Café'},
+        {icon: '../icons/restaurant.png', label: 'Restaurant'},
+        {icon: '../icons/entertainment.png', label: 'Entertainment'},
+    ],
+};
+
+let overlayLayers = {};
+let circleLayers = {};
 
 async function init() {
     await customElements.whenDefined('gmp-map');
@@ -32,8 +65,25 @@ async function init() {
     setupTouristDropdown();
 
     document.getElementById('temperature-button').addEventListener('click', () => {
-        toggleComfortOverlay()
+        toggleOverlay("../data/filtered_cluj_polygons.geojson", "comfort")
     });
+
+    document.getElementById('air-quality-button').addEventListener('click', () =>
+        toggleOverlay("../data/air_quality.geojson", "air_quality")
+    )
+
+    document.getElementById('green-button').addEventListener('click', () => {
+        toggleOverlay("../data/filtered_cluj_polygons.geojson", "green")
+    })
+
+    document.getElementById('accessibility-button').addEventListener('click', () => {
+        toggleOverlay("../data/zone_accesibile_reprojected.geojson", "accessibility")
+        toggleOverlay("../data/zone_neaccesibile_reprojected.geojson", "inaccessibility");
+    })
+
+    document.getElementById('safety-button').addEventListener('click', () =>
+        toggleOverlay("../data/road_crash_density.geojson", "safety")
+    )
 }
 
 function setupMap() {
@@ -124,6 +174,7 @@ function setupEventListeners() {
                             lng: place.geometry.location.lng(),
                         };
 
+
                         marker.setPosition(destination);
                         map.innerMap.setCenter(destination);
                         map.innerMap.setZoom(15);
@@ -145,7 +196,7 @@ function setupEventListeners() {
 function resetPlacePicker() {
     overview.place = null;
     marker.setPosition(null);
-    map.innerMap.setCenter({lat: 46.770439, lng: 23.591423});
+    map.innerMap.setCenter({lat: userLocation.lat, lng: userLocation.lng});
     map.innerMap.setZoom(15);
     directionsRenderer.setDirections({routes: []});
 
@@ -243,119 +294,237 @@ function closeDirectionsOverview() {
     fetchWeatherData(userLocation.lat, userLocation.lng);
 }
 
-async function toggleComfortOverlay() {
-    if (overlayVisible) {
-        // If the overlay is visible, remove it
-        map.innerMap.data.forEach(feature => {
-            map.innerMap.data.remove(feature);
-        });
-        overlayVisible = false; // Update the state to indicate overlay is not visible
+async function toggleOverlay(filepath, layerName) {
+    if (overlayLayers[layerName]) {
+        overlayLayers[layerName].setMap(null);
+        delete overlayLayers[layerName];
+        if (circleLayers[layerName]) {
+            circleLayers[layerName].forEach(circle => circle.setMap(null));
+            delete circleLayers[layerName];
+        }
+        updateLegend(layerName, false);
     } else {
-        // If the overlay is not visible, add it
-        await addComfortOverlay();
-        overlayVisible = true; // Update the state to indicate overlay is visible
+        await addOverlayLayer(filepath, layerName);
+        updateLegend(layerName, true);
     }
 }
 
-async function addComfortOverlay() {
+function updateLegend(layerName, isVisible) {
+    const legend = document.getElementById('map-legend');
+    const legendItems = document.getElementById('legend-items');
+
+    if (isVisible) {
+        legendItems.innerHTML = legends[layerName]
+            .map(item => {
+                if (item.color) {
+                    return `
+                        <li>
+                            <span class="legend-color" style="background-color: ${item.color};"></span>
+                            ${item.label}
+                        </li>
+                    `;
+                } else if (item.icon) {
+                    return `
+                        <li>
+                            <img class="legend-icon" src="${item.icon}" alt="${item.label}" />
+                            ${item.label}
+                        </li>
+                    `;
+                }
+            })
+            .join('');
+
+        legend.classList.add('active');
+    } else {
+        legend.classList.remove('active');
+    }
+}
+
+async function addOverlayLayer(filepath, layerName) {
     try {
-        const geojsonFile = "../data/filtered_cluj_polygons.geojson";
-        const response = await fetch(geojsonFile);
+        const response = await fetch(filepath);
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
         let geojsonData = await response.json();
 
-        geojsonData.features = geojsonData.features.map(feature => {
-            try {
-                const bufferDistance = 0.0075;
-                let bufferedFeature = turf.buffer(feature, bufferDistance, {units: 'kilometers'});
+        if (layerName === "comfort" || layerName === "green") {
+            geojsonData.features = geojsonData.features.map(feature => {
+                try {
+                    const bufferDistance = 5;
+                    let bufferedFeature = turf.buffer(feature, bufferDistance, {units: 'meters'});
 
-                const tolerance = 0.000000000000001;
-                bufferedFeature = turf.simplify(bufferedFeature, {tolerance, highQuality: true});
+                    const tolerance = 0.0000000000001;
+                    bufferedFeature = turf.simplify(bufferedFeature, {tolerance, highQuality: true});
 
-                return bufferedFeature;
-            } catch (error) {
-                console.error("Error buffering or simplifying feature:", feature, error);
-                return feature;
-            }
-        });
+                    return bufferedFeature;
+                } catch (error) {
+                    console.error("Error buffering or simplifying feature:", feature, error);
+                    return feature;
+                }
+            });
+        }
 
-        map.innerMap.data.addGeoJson(geojsonData);
+        if (layerName === "green") {
+            geojsonData.features = geojsonData.features.filter(feature => {
+                const geometry = feature.geometry;
+                if (!geometry || (geometry.type !== "Polygon" && geometry.type !== "MultiPolygon")) {
+                    return false;
+                }
+                const coordinates = extractCoordinates(geometry, geometry.type);
+                if (!coordinates) return false;
 
-        map.innerMap.data.setStyle(feature => {
+                const comfortLevel = calculateComfortLevel(coordinates);
+                return comfortLevel > 0.3;
+            });
+        }
+
+        const dataLayer = new google.maps.Data();
+        dataLayer.addGeoJson(geojsonData);
+
+        dataLayer.setStyle(feature => {
             const geometry = feature.getGeometry();
             if (!geometry) {
                 console.error("Feature missing geometry:", feature);
-                return {
-                    visible: false
-                };
+                return {visible: false};
             }
 
             const geometryType = geometry.getType();
-            if (geometryType !== "Polygon" && geometryType !== "MultiPolygon") {
-                console.error("Unexpected geometry type:", geometryType);
-                return {
-                    visible: false
-                };
-            }
 
-            let coordinates;
-            if (geometryType === "Polygon") {
-                coordinates = geometry.getAt(0).getArray();
-            } else if (geometryType === "MultiPolygon") {
-                coordinates = geometry.getAt(0).getAt(0).getArray();
-            }
+            if (geometryType === "Point") {
+                if (layerName === "air_quality") {
+                    const airQuality = feature.getProperty("Air mark");
+                    const circleColor = getAirQualityColor(airQuality);
 
-            if (!Array.isArray(coordinates) || coordinates.length === 0) {
-                console.error("Invalid or missing coordinates for feature:", feature);
-                return {
-                    visible: false
-                };
-            }
+                    const coords = geometry.get();
+                    const circle = new google.maps.Circle({
+                        strokeColor: circleColor,
+                        strokeOpacity: 0,
+                        strokeWeight: 0,
+                        fillColor: circleColor,
+                        fillOpacity: 0.02,
+                        map: map.innerMap,
+                        center: {lat: coords.lat(), lng: coords.lng()},
+                        radius: 200,
+                    });
 
-            const formattedCoordinates = coordinates.map(vertex => {
-                if (Array.isArray(vertex) && vertex.length >= 2) {
-                    return [vertex[0], vertex[1]];
-                } else if (vertex.lat && vertex.lng) {
-                    return [vertex.lng(), vertex.lat()];
-                } else {
-                    console.error("Invalid vertex format:", vertex);
-                    return null;
+                    if (!circleLayers[layerName]) circleLayers[layerName] = [];
+                    circleLayers[layerName].push(circle);
+                    return {visible: false};
+                } else if (layerName === "safety") {
+                    const safetyLevel = feature.getProperty("grad");
+                    const fillColor = getSafetyColor(safetyLevel);
+                    const coords = geometry.get();
+                    const circle = new google.maps.Circle({
+                        strokeColor: fillColor,
+                        strokeOpacity: 0,
+                        strokeWeight: 0,
+                        fillColor: fillColor,
+                        fillOpacity: 0.5,
+                        map: map.innerMap,
+                        center: {lat: coords.lat(), lng: coords.lng()},
+                        radius: 75,
+                    });
+
+                    if (!circleLayers[layerName]) circleLayers[layerName] = [];
+                    circleLayers[layerName].push(circle);
+                    return {visible: false};
                 }
-            }).filter(vertex => vertex !== null);
-
-            if (formattedCoordinates.length === 0) {
-                console.error("Formatted coordinates are empty or invalid:", formattedCoordinates);
-                return {
-                    visible: false
-                };
+            } else if (geometryType !== "Polygon" && geometryType !== "MultiPolygon") {
+                console.error("Unexpected geometry type:", geometryType);
+                return {visible: false};
             }
 
-            const comfortLevel = calculateComfortLevel(formattedCoordinates);
-            const fillColor = getComfortColor(comfortLevel);
+            if (layerName === "comfort") {
+                const coordinates = extractCoordinates(geometry, geometryType);
+                if (!coordinates) return {visible: false};
+
+                const comfortLevel = calculateComfortLevel(coordinates);
+                const fillColor = getComfortColor(comfortLevel);
+                return {
+                    fillColor: fillColor,
+                    strokeColor: 'black',
+                    strokeWeight: 0,
+                    fillOpacity: 0.4,
+                };
+            } else if (layerName === "accessibility" || layerName === "inaccessibility") {
+                const fillColor = layerName === "accessibility" ? 'rgba(96,145,225,0.4)' : 'rgba(214,85,85,0.4)';
+                return {
+                    fillColor: fillColor,
+                    strokeColor: 'black',
+                    strokeWeight: 0.1,
+                    fillOpacity: 0.4,
+                };
+            } else if (layerName === "green") {
+                const coordinates = extractCoordinates(geometry, geometryType);
+                if (!coordinates) return {visible: false};
+
+                return {
+                    fillColor: 'rgba(25,161,25,0.84)',
+                    strokeColor: 'black',
+                    strokeWeight: 0,
+                    fillOpacity: 0.4,
+                };
+            }
             return {
-                fillColor: fillColor,
+                fillColor: 'rgba(128, 128, 128, 0.4)',
                 strokeColor: 'black',
-                strokeWeight: 0,
+                strokeWeight: 1,
                 fillOpacity: 0.4,
             };
         });
 
+        dataLayer.setMap(map.innerMap);
+        overlayLayers[layerName] = dataLayer;
+        console.log(overlayLayers);
+        console.log(`Added overlay layer: ${layerName}`);
     } catch (error) {
-        console.error("Error fetching or processing GeoJSON data:", error);
+        console.error(`Error loading overlay layer (${layerName}):`, error);
     }
 }
+
+function extractCoordinates(geometry, geometryType) {
+    try {
+        if (geometryType === "Polygon") {
+            if (geometry.coordinates) {
+                return geometry.coordinates[0];
+            }
+        } else if (geometryType === "MultiPolygon") {
+            if (geometry.coordinates) {
+                return geometry.coordinates[0][0];
+            }
+        }
+
+        if (geometry.getType && geometry.getType() === "Polygon") {
+            const path = geometry.getAt(0);
+            const coordinates = [];
+            for (let i = 0; i < path.getLength(); i++) {
+                const latLng = path.getAt(i);
+                coordinates.push([latLng.lng(), latLng.lat()]);
+            }
+            return coordinates;
+        } else if (geometry.getType && geometry.getType() === "MultiPolygon") {
+            console.error("MultiPolygon extraction is not implemented for Google Maps geometries.");
+            return null;
+        }
+
+        console.error("Unsupported geometry type:", geometryType);
+        return null;
+    } catch (error) {
+        console.error("Error extracting coordinates:", error);
+        return null;
+    }
+}
+
 
 function calculateComfortLevel(coordinates) {
     if (!areCoordinatesEqual(coordinates[0], coordinates[coordinates.length - 1])) {
         coordinates.push(coordinates[0]);
     }
-
     try {
         const turfPolygon = turf.polygon([coordinates]);
         const area = turf.area(turfPolygon);
 
-        return Math.min(area / 50000, 1); // Normalize comfort level between 0 and 1
+        return Math.min(area / 50000, 1);
     } catch (error) {
         console.error("Error creating Turf polygon:", error);
         return 0;
@@ -373,28 +542,44 @@ function getComfortColor(comfortLevel) {
     let fillColor;
 
     if (comfortLevel > 0.9) {
-        fillColor = 'rgba(25,161,25,0.84)'; // Dark green
+        fillColor = 'rgba(25,161,25,0.84)';
     } else if (comfortLevel > 0.8) {
-        fillColor = 'rgba(64,200,64,0.92)'; // Forest green
+        fillColor = 'rgba(64,200,64,0.92)';
     } else if (comfortLevel > 0.7) {
-        fillColor = '#59bc59'; // Standard green
+        fillColor = '#59bc59';
     } else if (comfortLevel > 0.6) {
-        fillColor = '#4baa54'; // Sea green
+        fillColor = '#4baa54';
     } else if (comfortLevel > 0.5) {
-        fillColor = '#44bc51'; // Medium sea green
+        fillColor = '#44bc51';
     } else if (comfortLevel > 0.4) {
-        fillColor = '#5fbf67'; // Light green
+        fillColor = '#5fbf67';
     } else if (comfortLevel > 0.3) {
-        fillColor = '#8ae15d'; // Light green
+        fillColor = '#8ae15d';
     } else if (comfortLevel > 0.2) {
-        fillColor = '#aaec67'; // Pale green
+        fillColor = '#aaec67';
     } else if (comfortLevel > 0.1) {
-        fillColor = '#c9e66f'; // Light mint green
+        fillColor = '#c9e66f';
     } else {
-        fillColor = '#c5e37c'; // Very light green
+        fillColor = '#c5e37c';
     }
 
     return fillColor;
+}
+
+function getAirQualityColor(airQuality) {
+    if (airQuality === 1) return 'rgba(0,255,0,0.2)'; // Good
+    if (airQuality === 2) return 'rgba(255,213,0,0.7)'; // Moderate
+    if (airQuality === 3) return 'rgba(236,45,45,0.9)'; // Unhealthy for Sensitive Groups
+    if (airQuality === 4) return 'rgba(255,69,0,0.6)'; // Unhealthy
+    if (airQuality === 5) return 'rgba(128,0,128,0.6)'; // Very Unhealthy
+    return 'rgba(128,128,128,0.6)'; // Unknown
+}
+
+function getSafetyColor(safetyLevel) {
+    if (safetyLevel === 1) return 'rgba(0,128,0,0.7)';
+    if (safetyLevel === 2) return 'rgba(255,165,0,0.7)';
+    if (safetyLevel === 3) return 'rgba(255,0,0,0.7)';
+    return 'rgba(128,128,128,0.5)'; // Default color for unknown safety levels
 }
 
 function setupTouristDropdown() {
@@ -403,9 +588,9 @@ function setupTouristDropdown() {
     dropdownMenu.id = "dropdown-menu";
     dropdownMenu.classList.add("dropdown-menu");
 
-    // Keep track of dropdown visibility state
     let isDropdownVisible = false;
     let markers = [];
+    let touristLayerVisible = false; // Track if the tourist layer is active
 
     categories.forEach((category) => {
         const label = document.createElement("label");
@@ -418,25 +603,29 @@ function setupTouristDropdown() {
         dropdownMenu.appendChild(label);
         dropdownMenu.appendChild(document.createElement("br"));
 
-        // Add event listener for checkbox change
         checkbox.addEventListener("change", async () => {
             if (checkbox.checked) {
-                // Fetch locations from JSON and add markers for the selected category
                 const locations = await fetchTouristData(category);
                 addMarkers(category, locations);
+
+                touristLayerVisible = true;
+                updateLegend("tourist", true);
             } else {
-                // Remove markers for the unchecked category
                 removeMarkers(category);
+
+                markers = markers.filter(marker => marker.category !== category);
+                if (markers.length === 0) {
+                    touristLayerVisible = false;
+                    updateLegend("tourist", false);
+                }
             }
         });
     });
 
-    // Append the dropdown menu to the button container
     touristRouteButton.parentNode.appendChild(dropdownMenu);
 
-    // Toggle dropdown menu visibility on button click
     touristRouteButton.addEventListener("click", (event) => {
-        event.stopPropagation(); // Prevent the click from propagating to the document
+        event.stopPropagation();
         const rect = touristRouteButton.getBoundingClientRect();
         dropdownMenu.style.top = `${rect.bottom + window.scrollY}px`;
         dropdownMenu.style.left = `${rect.left + window.scrollX}px`;
@@ -450,7 +639,6 @@ function setupTouristDropdown() {
         }
     });
 
-    // Optionally, hide the dropdown if clicking outside of it
     document.addEventListener("click", (event) => {
         if (event.target !== touristRouteButton && !dropdownMenu.contains(event.target)) {
             dropdownMenu.classList.remove("show");
@@ -458,7 +646,6 @@ function setupTouristDropdown() {
         }
     });
 
-    // Fetch tourist data from JSON
     async function fetchTouristData(category) {
         try {
             const response = await fetch('../data/tourist_data.json');
@@ -471,6 +658,72 @@ function setupTouristDropdown() {
             console.error('Error fetching tourist data:', error);
             return [];
         }
+    }
+
+    function addMarkers(category, locations) {
+        const iconUrl = getCategoryIcon(category);
+        const infoWindow = new google.maps.InfoWindow();
+
+        locations.forEach(location => {
+            const marker = new google.maps.Marker({
+                position: {lat: location.latitude, lng: location.longitude},
+                map: map.innerMap,
+                title: location.name,
+                category: location.category,
+                icon: {
+                    url: iconUrl,
+                    scaledSize: new google.maps.Size(25, 25), // Icon size
+                }
+            });
+
+            marker.addListener("click", (event) => {
+                destination = {
+                    lat: event.latLng.lat(),
+                    lng: event.latLng.lng(),
+                };
+
+                geocoder.geocode({location: destination}, (results, status) => {
+                    if (status === google.maps.GeocoderStatus.OK && results[0]) {
+                        overview.place = results[0];
+                        overview.description = results[0].description;
+                    } else {
+                        console.error("Geocoder failed:", status);
+                    }
+
+                    marker.setPosition(destination);
+                    map.innerMap.setCenter(destination);
+                    map.innerMap.setZoom(15);
+                });
+
+                infoWindow.setContent(`
+                <div class="info-window" style="max-width: 200px; max-height: 150px; padding: 8px;">
+                    <h3 style="font-size: 1em; margin-bottom: 5px;">${location.name}</h3>
+                    <p style="margin: 0; font-size: 0.9em;">
+                        <b>Category:</b> ${location.category.charAt(0).toUpperCase() + location.category.slice(1)}
+                    </p>
+                </div>
+            `);
+                infoWindow.open(map.innerMap, marker);
+
+                const closeButton = document.getElementById("exit-button");
+                if (closeButton) {
+                    closeButton.addEventListener("click", () => {
+                        infoWindow.close();
+                    });
+                }
+            });
+            markers.push(marker);
+        });
+    }
+
+    function removeMarkers(category) {
+        markers = markers.filter(marker => {
+            if (marker.category === category) {
+                marker.setMap(null);
+                return false;
+            }
+            return true;
+        });
     }
 
     function getCategoryIcon(category) {
@@ -487,35 +740,7 @@ function setupTouristDropdown() {
                 return '../icons/entertainment.png';
         }
     }
-
-    function addMarkers(category, locations) {
-        const iconUrl = getCategoryIcon(category);
-        locations.forEach(location => {
-            const marker = new google.maps.Marker({
-                position: { lat: location.latitude, lng: location.longitude },
-                map: map.innerMap,
-                title: location.name,
-                category: location.category,
-                icon: {
-                    url: iconUrl,
-                    scaledSize: new google.maps.Size(25, 25), // Set custom icon size to be very small (e.g., 16x16 pixels)
-                    origin: new google.maps.Point(0, 0),     // Origin point of the image
-                    anchor: new google.maps.Point(8, 8)      // Anchor point of the image (adjusts how it's centered on the map)
-                }
-            });
-            markers.push(marker);
-        });
-    }
-
-    function removeMarkers(category) {
-        markers = markers.filter(marker => {
-            if (marker.category === category) {
-                marker.setMap(null);
-                return false;
-            }
-            return true;
-        });
-    }
 }
+
 
 document.addEventListener('DOMContentLoaded', init);

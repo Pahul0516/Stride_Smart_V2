@@ -5,6 +5,9 @@
     <title>Walk Safe Map</title>
     <script type="module" src="https://unpkg.com/@googlemaps/extended-component-library"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Turf.js/6.5.0/turf.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://cdn.jsdelivr.net/npm/heatmap.js@2.0.5/build/heatmap.min.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../styles/map-style.css"/>
 </head>
@@ -21,7 +24,7 @@
             <div class="icon-container">
                 <img src="../icons/temperature-transformed2.png" alt="Temperature Icon" class="temperature-icon">
             </div>
-            <button id="temperature-button" class="custom-button">Temperature</button>
+            <button id="temperature-button" class="custom-button">Thermal Comfort</button>
         </div>
         <div class="row">
             <div class="icon-container">
@@ -39,7 +42,7 @@
             <div class="icon-container">
                 <img src="../icons/safety-transformed.png" alt="Safety" class="safety-icon">
             </div>
-            <button id="safety-button" class="custom-button">Safety</button>
+            <button id="safety-button" class="custom-button">Accident Rate</button>
         </div>
         <div class="row">
             <div class="icon-container">
@@ -73,23 +76,25 @@
         </div>
         <gmp-advanced-marker></gmp-advanced-marker>
     </gmp-map>
-    <canvas id="comfort-overlay" class="map-overlay"></canvas>
-    <canvas id="discomfort-overlay" class="map-overlay"></canvas>
 </div>
-
-<div id="weather-display" class="weather-info">
-    <div class="weather-header">
-        <img id="weather-icon" class="weather-icon" src="" alt="Weather Icon" />
-        <h2 id="weather-condition">Loading...</h2>
+<div class="info-container">
+    <div id="map-legend" class="map-legend">
+        <h3>Legend</h3>
+        <ul id="legend-items"></ul>
     </div>
-    <div class="weather-details">
-        <p id="temperature">Temperature: --°C</p>
-        <p id="feels-like">Feels like: --°C</p>
-        <p id="humidity">Humidity: --%</p>
-        <p id="wind-speed">Wind speed: -- km/h</p>
+    <div id="weather-display" class="weather-info">
+        <div class="weather-header">
+            <img id="weather-icon" class="weather-icon" src="" alt="Weather Icon" />
+            <h2 id="weather-condition">Loading...</h2>
+        </div>
+        <div class="weather-details">
+            <p id="temperature">Temperature: --°C</p>
+            <p id="feels-like">Feels like: --°C</p>
+            <p id="humidity">Humidity: --%</p>
+            <p id="wind-speed">Wind speed: -- km/h</p>
+        </div>
     </div>
 </div>
-
 
 <script>
     function navigateTo(url) {
