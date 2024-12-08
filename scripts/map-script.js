@@ -263,6 +263,33 @@ function setupMenuControls() {
         }, 250);
     });
 
+    document.getElementById('criteria-close-button').addEventListener('click', () => {
+        const content = document.getElementById('criteria-content');
+        const toggleButton = document.getElementById('criteria-close-button');
+
+        if (content.classList.contains('hidden')) {
+            content.classList.remove('hidden');
+            toggleButton.textContent = '-';
+        } else {
+            content.classList.add('hidden');
+            toggleButton.textContent = '+';
+        }
+    });
+
+    document.getElementById('weather-close-button').addEventListener('click', () => {
+        const content = document.getElementById('weather-details');
+        const toggleButton = document.getElementById('weather-close-button');
+
+        if (content.classList.contains('hidden')) {
+            content.classList.remove('hidden');
+            toggleButton.textContent = '-';
+        } else {
+            content.classList.add('hidden');
+            toggleButton.textContent = '+';
+        }
+    });
+
+
     sidePanelOpenButton.addEventListener("click", () => {
         sidePanel.classList.add("open");
         sidePanelOpenButton.style.display = "none";
@@ -418,13 +445,13 @@ async function addOverlayLayer(filepath, layerName) {
                     const coords = geometry.get();
                     const circle = new google.maps.Circle({
                         strokeColor: fillColor,
-                        strokeOpacity: 0,
-                        strokeWeight: 0,
+                        strokeOpacity: 1,
+                        strokeWeight: 1.2,
                         fillColor: fillColor,
-                        fillOpacity: 0.5,
+                        fillOpacity: 0.4,
                         map: map.innerMap,
                         center: {lat: coords.lat(), lng: coords.lng()},
-                        radius: 75,
+                        radius: 125,
                     });
 
                     if (!circleLayers[layerName]) circleLayers[layerName] = [];

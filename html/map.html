@@ -18,7 +18,7 @@
     <div class="row">
         <a href="#" onclick="navigateTo('index.html')" class="custom-button">Main Page</a>
     </div>
-    <h2 class="side-panel-menu">Filter your route by:</h2>
+    <h2 class="side-panel-menu">Visualize on map:</h2>
     <div class="grid-container">
         <div class="row">
             <div class="icon-container">
@@ -82,12 +82,35 @@
         <h3>Legend</h3>
         <ul id="legend-items"></ul>
     </div>
+    <div class="criteria-container">
+        <div class="criteria-header">
+            <h3>Criteria Selection</h3>
+            <button id="criteria-close-button" class="minimize-button">-</button>
+        </div>
+        <div id="criteria-content" class="criteria-content">
+            <label><input type="checkbox" class="criteria-checkbox" data-category="thermal-comfort"> Thermal Comfort</label>
+            <label><input type="checkbox" class="criteria-checkbox" data-category="air-quality"> Air Quality</label>
+            <label><input type="checkbox" class="criteria-checkbox" data-category="green-areas"> Green Areas</label>
+            <label><input type="checkbox" class="criteria-checkbox" data-category="safety"> Safety</label>
+            <label><input type="checkbox" class="criteria-checkbox" data-category="accessibility"> Accessibility</label>
+        </div>
+    </div>
+<!--    <div id="criteria-content" class="criteria-content">-->
+<!--        <button id="criteria-close-button" class="criteria-close-button">-</button>-->
+<!--        <label><input type="checkbox" class="criteria-checkbox" data-category="thermal-comfort"> Thermal Comfort</label>-->
+<!--        <label><input type="checkbox" class="criteria-checkbox" data-category="air-quality"> Air Quality</label>-->
+<!--        <label><input type="checkbox" class="criteria-checkbox" data-category="green-areas"> Green Areas</label>-->
+<!--        <label><input type="checkbox" class="criteria-checkbox" data-category="safety"> Safety</label>-->
+<!--        <label><input type="checkbox" class="criteria-checkbox" data-category="accessibility"> Accessibility</label>-->
+<!--&lt;!&ndash;        <button id="apply-filters" class="custom-button-criteria">Apply Filters</button>&ndash;&gt;-->
+<!--    </div>-->
     <div id="weather-display" class="weather-info">
         <div class="weather-header">
+            <button id="weather-close-button" class="minimize-button">-</button>
             <img id="weather-icon" class="weather-icon" src="" alt="Weather Icon" />
             <h2 id="weather-condition">Loading...</h2>
         </div>
-        <div class="weather-details">
+        <div id="weather-details" class="weather-details">
             <p id="temperature">Temperature: --°C</p>
             <p id="feels-like">Feels like: --°C</p>
             <p id="humidity">Humidity: --%</p>
