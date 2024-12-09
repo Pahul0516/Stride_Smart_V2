@@ -15,10 +15,7 @@
 
 <div class="side-panel" id="side-panel">
     <button id="side-panel-close-button" class="side-panel-close-button">×</button>
-    <div class="row">
-        <a href="#" onclick="navigateTo('index.html')" class="custom-button">Main Page</a>
-    </div>
-    <h2 class="side-panel-menu">Visualize on map:</h2>
+    <h2 class="side-panel-menu">Visualize on the map:</h2>
     <div class="grid-container">
         <div class="row">
             <div class="icon-container">
@@ -56,11 +53,21 @@
             </div>
             <button id="tourist-button" class="custom-button">Tourist Route</button>
         </div>
+        <div class="row">
+            <div class="icon-container">
+                <img src="../icons/report.png" alt="Report Mode" class="report-icon">
+            </div>
+            <button id="report-button" class="custom-button">Reports</button>
+        </div>
+    </div>
+    <div class="row go-back-container" onclick="navigateTo('index.html')">
+        <span class="arrow-left"></span>
+        <span class="go-back-text">Main page</span>
     </div>
 </div>
 <button id="side-panel-open-button">☰</button>
 <div class="map-container" id="map-container">
-    <gmpx-api-loader key="AIzaSyCb3sc8wMxkO3AtrwFlfHuCJLCJqLccHU8" libraries="places,visualization" solution-channel="GMP_GE_mapsandplacesautocomplete_v1">
+    <gmpx-api-loader key="API-KEY" libraries="places,visualization" solution-channel="GMP_GE_mapsandplacesautocomplete_v1">
     </gmpx-api-loader>
     <gmp-map center="46.770439,23.591423" zoom="15" map-id="WALK_SAFE_MAP">
         <div slot="control-block-start-inline-start" class="place-picker-container">
@@ -68,6 +75,9 @@
             <gmpx-place-overview id="place-overview" size="medium" travel-mode="walking">
                 <gmpx-icon-button variant="outlined" id="direction-button" slot="action">
                     Directions
+                </gmpx-icon-button>
+                <gmpx-icon-button variant="outlined" id="report-picker-button" slot="action">
+                    Report
                 </gmpx-icon-button>
                 <gmpx-icon-button variant="outlined" id="exit-button" slot="action">
                     Close
@@ -77,6 +87,52 @@
         <gmp-advanced-marker></gmp-advanced-marker>
     </gmp-map>
 </div>
+<div id="hazard-modal" class="modal hidden">
+    <div class="modal-content">
+        <button id="modal-close-button" class="modal-close" aria-label="Close">&times;</button>
+        <h3>Report the selected location</h3>
+        <form id="hazard-form">
+            <label for="hazard-type">Report Type:</label>
+            <select id="hazard-type" name="report-type" required>
+                <option value="">Select a category</option>
+                <option value="pothole">Pothole</option>
+                <option value="construction">Construction</option>
+                <option value="broken-sidewalk">Broken Sidewalk</option>
+                <option value="other">Other</option>
+            </select>
+
+            <label for="hazard-description">Description:</label>
+            <textarea
+                    id="hazard-description"
+                    name="hazard-description"
+                    rows="4"
+                    placeholder="Report description..."
+                    required
+            ></textarea>
+
+            <div class="file-upload-container">
+                <label for="hazard-image" class="custom-file-label">
+                    <span id="file-upload-text">Upload files (optional):</span>
+                    <input type="file" id="hazard-image" name="hazard-image" accept="image/*" hidden multiple>
+                </label>
+            </div>
+
+            <div id="uploaded-photos-container" class="uploaded-photos-container"></div>
+
+            <button type="submit" id="submit-button" class="custom-button" disabled>Submit</button>
+        </form>
+
+    </div>
+</div>
+
+<div id="custom-alert" class="modal hidden">
+    <div class="modal-content">
+        <button id="alert-close-button" class="modal-close">&times;</button>
+        <p class="alert-message"></p>
+        <button id="alert-ok-button" class="custom-button">OK</button>
+    </div>
+</div>
+
 <div class="info-container">
     <div id="map-legend" class="map-legend">
         <h3>Legend</h3>
@@ -95,15 +151,6 @@
             <label><input type="checkbox" class="criteria-checkbox" data-category="accessibility"> Accessibility</label>
         </div>
     </div>
-<!--    <div id="criteria-content" class="criteria-content">-->
-<!--        <button id="criteria-close-button" class="criteria-close-button">-</button>-->
-<!--        <label><input type="checkbox" class="criteria-checkbox" data-category="thermal-comfort"> Thermal Comfort</label>-->
-<!--        <label><input type="checkbox" class="criteria-checkbox" data-category="air-quality"> Air Quality</label>-->
-<!--        <label><input type="checkbox" class="criteria-checkbox" data-category="green-areas"> Green Areas</label>-->
-<!--        <label><input type="checkbox" class="criteria-checkbox" data-category="safety"> Safety</label>-->
-<!--        <label><input type="checkbox" class="criteria-checkbox" data-category="accessibility"> Accessibility</label>-->
-<!--&lt;!&ndash;        <button id="apply-filters" class="custom-button-criteria">Apply Filters</button>&ndash;&gt;-->
-<!--    </div>-->
     <div id="weather-display" class="weather-info">
         <div class="weather-header">
             <button id="weather-close-button" class="minimize-button">-</button>

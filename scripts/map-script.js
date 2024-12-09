@@ -208,7 +208,7 @@ function resetPlacePicker() {
 }
 
 async function fetchWeatherData(lat, lng) {
-    const apiKey = "a9decdfd687ef46c99db100348758882";
+    const apiKey = "API-KEY";
     const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&appid=${apiKey}&units=metric`;
 
     try {
@@ -241,6 +241,7 @@ function updateWeatherDisplay(weatherData) {
 function setupPlaceOverviewButtons() {
     const directionButton = document.getElementById('direction-button');
     const exitButton = document.getElementById('exit-button');
+    const reportButton = document.getElementById('report-picker-button');
 
     if (directionButton) {
         directionButton.addEventListener('click', showDirections);
@@ -248,6 +249,10 @@ function setupPlaceOverviewButtons() {
 
     if (exitButton) {
         exitButton.addEventListener('click', closeDirectionsOverview);
+    }
+
+    if(reportButton){
+        reportButton.addEventListener('click', showHazardReportForm);
     }
 }
 
@@ -289,10 +294,20 @@ function setupMenuControls() {
         }
     });
 
-
     sidePanelOpenButton.addEventListener("click", () => {
         sidePanel.classList.add("open");
         sidePanelOpenButton.style.display = "none";
+    });
+
+    document.getElementById("modal-close-button").addEventListener("click", () => {
+        document.getElementById("hazard-modal").classList.add("hidden");
+
+        if (window.currentHazardMarker) {
+            window.currentHazardMarker.setMap(null);
+            window.currentHazardMarker = null;
+        }
+
+        window.currentHazardLocation = null;
     });
 }
 
@@ -316,6 +331,147 @@ function showDirections() {
         console.error("User location or destination is not set.");
     }
 }
+
+function showHazardReportForm() {
+    const placeOverview = document.getElementById('place-overview');
+    const currentPlace = placeOverview.place;
+
+    // Ensure a valid place is selected
+    if (!currentPlace || !currentPlace.geometry || !currentPlace.geometry.location) {
+        alert("No place selected to report a hazard.");
+        return;
+    }
+
+    // Store the selected location globally
+    const location = {
+        lat: currentPlace.geometry.location.lat(),
+        lng: currentPlace.geometry.location.lng(),
+    };
+    window.currentHazardLocation = location;
+
+    // Show the hazard modal
+    const modal = document.getElementById('hazard-modal');
+    modal.classList.remove('hidden');
+
+    // Set up the hazard form listeners
+    setupHazardFormListeners();
+}
+
+// Setup listeners for the form inputs and file uploads
+function setupHazardFormListeners() {
+    const uploadedPhotosContainer = document.getElementById("uploaded-photos-container");
+    const hazardImageInput = document.getElementById("hazard-image");
+    const form = document.getElementById("hazard-form");
+    const maxPhotos = 3;
+    let selectedPhotos = []; // Store the selected photos
+
+    // Add event listener for photo uploads
+    hazardImageInput.addEventListener("change", function () {
+        const files = Array.from(this.files);
+
+        if (selectedPhotos.length + files.length > maxPhotos) {
+            showCustomAlert("You can only upload up to 3 photos.");
+            return;
+        }
+
+        // Add valid files to the selectedPhotos array and display them
+        files.forEach((file) => {
+            if (selectedPhotos.length < maxPhotos) {
+                selectedPhotos.push(file);
+                displayPhoto(file);
+            }
+        });
+
+        // Clear the file input to allow re-selection of the same file
+        hazardImageInput.value = "";
+        checkFormValidity();
+    });
+
+    // Display the photo previews with remove functionality
+    function displayPhoto(file) {
+        const photoContainer = document.createElement("div");
+        photoContainer.classList.add("uploaded-photo");
+
+        const photo = document.createElement("img");
+        photo.src = URL.createObjectURL(file);
+
+        const removeButton = document.createElement("button");
+        removeButton.classList.add("remove-photo");
+        removeButton.innerHTML = "×";
+
+        // Remove photo when the "X" button is clicked
+        removeButton.addEventListener("click", () => {
+            const index = selectedPhotos.indexOf(file);
+            if (index > -1) {
+                selectedPhotos.splice(index, 1);
+            }
+            photoContainer.remove();
+            checkFormValidity(); // Revalidate the form
+        });
+
+        photoContainer.appendChild(photo);
+        photoContainer.appendChild(removeButton);
+        uploadedPhotosContainer.appendChild(photoContainer);
+    }
+
+    document.getElementById("hazard-type").addEventListener("input", checkFormValidity);
+    document.getElementById("hazard-description").addEventListener("input", checkFormValidity);
+
+    checkFormValidity();
+
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        if (!checkFormValidity()) {
+            alert("Please fill out all fields before submitting the form.");
+            return;
+        }
+
+        const hazardType = document.getElementById("hazard-type").value;
+        const description = document.getElementById("hazard-description").value;
+
+        const hazardData = {
+            type: hazardType,
+            description: description,
+            photos: selectedPhotos.map((file) => URL.createObjectURL(file)),
+        };
+
+        console.log("Hazard Report Submitted:", hazardData);
+
+        selectedPhotos = [];
+        uploadedPhotosContainer.innerHTML = "";
+        form.reset();
+        document.getElementById("hazard-modal").classList.add("hidden");
+
+        showCustomAlert("Hazard report submitted successfully.");
+    });
+}
+
+function checkFormValidity() {
+    const hazardType = document.getElementById("hazard-type").value;
+    const description = document.getElementById("hazard-description").value.trim();
+
+    const isValid = hazardType !== "" && description !== "";
+    const submitButton = document.getElementById("submit-button");
+    submitButton.disabled = !isValid;
+
+    return isValid;
+}
+
+function showCustomAlert(message) {
+    const alertModal = document.getElementById("custom-alert");
+    alertModal.querySelector(".alert-message").innerText = message;
+    alertModal.classList.remove("hidden");
+
+    document.getElementById("alert-close-button").addEventListener("click", hideCustomAlert);
+    document.getElementById("alert-ok-button").addEventListener("click", hideCustomAlert);
+}
+
+function hideCustomAlert() {
+    const alertModal = document.getElementById("custom-alert");
+    alertModal.classList.add("hidden");
+}
+
 
 function closeDirectionsOverview() {
     resetPlacePicker();
@@ -618,7 +774,7 @@ function setupTouristDropdown() {
 
     let isDropdownVisible = false;
     let markers = [];
-    let touristLayerVisible = false; // Track if the tourist layer is active
+    let touristLayerVisible = false;
 
     categories.forEach((category) => {
         const label = document.createElement("label");
