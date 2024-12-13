@@ -26,7 +26,7 @@ class Information:
     host = "localhost"
     dbname = "walk_safe_2"
     user = "postgres"
-    password = "semiluna123"
+    password = "parola"
 
     def __init__(self):
         self.init_graph_dictionary()
