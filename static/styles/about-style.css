@@ -1,0 +1,171 @@
+body {
+    margin: 0;
+    background: linear-gradient(to bottom, #A6B37D, #C0C78C);
+    font-family: 'Rubik', sans-serif;
+    color: #fff;
+    scroll-behavior: smooth;
+}
+.container {
+    text-align: center;
+    padding: 2em;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.header {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #A6B37D;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 100;
+    transition: background-color 0.3s ease;
+}
+
+.header-button {
+    text-decoration: none;
+    font-family: 'Rubik', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #FEFAE0;
+    padding: 8px 12px;
+    border-radius: 5px;
+    background-color: transparent;
+    position: relative;
+    transition: color 0.3s;
+}
+
+.header.scrolled {
+    background-color: #3a4818;
+}
+
+.header-button::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 0;
+    height: 2px;
+    background-color: #ecf5ce;
+    transition: width 0.3s ease;
+}
+
+.header-button:hover::after {
+    width: 100%;
+}
+
+.header-button:hover {
+    background-color: transparent;
+    color: #ecf5ce;
+}
+
+h1 {
+    font-family: 'Rubik', sans-serif;
+    font-size: 9vw;
+    font-weight: 600;
+    margin: 0;
+}
+.subtitle {
+    font-family: 'Rubik', sans-serif;
+    font-size: 2vw;
+    color: #FEFAE0;
+}
+
+.description-section1 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4em;
+    background: #FEFAE0;
+    color: #C0C78C;
+    height: 100vh;
+}
+.text-content {
+    flex: 1;
+    margin-right: 5em;
+}
+.text-content2{
+    flex: 1;
+    margin-left: 5em;
+}
+.description-section1 h2 {
+    font-family: 'Rubik', sans-serif;
+    font-size: 3vw;
+    margin-bottom: 1em;
+}
+.description-section1 p {
+    font-family: 'Rubik', sans-serif;
+    font-size: 1.5vw;
+    line-height: 1.6;
+}
+.description-section2 {
+    padding: 4em;
+    background: linear-gradient(to bottom, #A6B37D, #C0C78C);
+    color: #FEFAE0;
+    text-align: right;
+    height: 100vh;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.description-section2 h2 {
+    font-family: 'Rubik', sans-serif;
+    font-size: 3vw;
+    margin-bottom: 1em;
+}
+.description-section2 p {
+    font-family: 'Rubik', sans-serif;
+    font-size: 1.5vw;
+    line-height: 1.6;
+}
+.button-container {
+    margin-top: 10em;
+    z-index: 5;
+}
+button {
+    padding: 0.5em 1.5em;
+    margin: 0.5em;
+    font-family: 'Rubik', sans-serif;
+    font-size: 1.2vw;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    background-color: #C0C78C;
+    color: #fff;
+    z-index: 5;
+    transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+}
+button:hover {
+    background-color: #FEFAE0;
+    border: 2px solid #C0C78C;
+    color: #C0C78C;
+    transform: scale(1.15);
+}
+
+.people-up{
+    position: absolute;
+    top: 11.75em;
+    left: 0;
+    width: 100%;
+    opacity: 0.2;
+    z-index: -1;
+}
+
+.section-icons {
+    width: 40%;
+    height: auto;
+    flex-shrink: 0;
+    opacity: 0;
+    transform: translateY(40px);
+    transition: transform 1s ease-out, opacity 1s ease-out;
+}
+
+.section-icons.in-view {
+    opacity: 0.75;
+    transform: translateY(0);
+}

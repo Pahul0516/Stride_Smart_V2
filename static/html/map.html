@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Walk Safe Map</title>
+    <script type="module" src="https://unpkg.com/@googlemaps/extended-component-library"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Turf.js/6.5.0/turf.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://cdn.jsdelivr.net/npm/heatmap.js@2.0.5/build/heatmap.min.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles/map-style.css"/>
+</head>
+<body>
+
+<div class="side-panel" id="side-panel">
+    <button id="side-panel-close-button" class="side-panel-close-button">×</button>
+    <h2 class="side-panel-menu">Visualize on the map:</h2>
+    <div class="grid-container">
+        <div class="row">
+            <div class="icon-container">
+                <img src="../icons/temperature-transformed2.png" alt="Temperature Icon" class="temperature-icon">
+            </div>
+            <button id="temperature-button" class="custom-button">Thermal Comfort</button>
+        </div>
+        <div class="row">
+            <div class="icon-container">
+                <img src="../icons/air-quality-transformed2.png" alt="Air Quality Icon" class="air-icon">
+            </div>
+            <button id="air-quality-button" class="custom-button">Air Quality</button>
+        </div>
+        <div class="row">
+            <div class="icon-container">
+                <img src="../icons/parks-transformed.png" alt="Green Areas" class="green-icon">
+            </div>
+            <button id="green-button" class="custom-button">Green Areas</button>
+        </div>
+        <div class="row">
+            <div class="icon-container">
+                <img src="../icons/safety-transformed.png" alt="Safety" class="safety-icon">
+            </div>
+            <button id="safety-button" class="custom-button">Accident Rate</button>
+        </div>
+        <div class="row">
+            <div class="icon-container">
+                <img src="../icons/accessibility2-transformed.png" alt="Accessibility" class="access-icon">
+            </div>
+            <button id="accessibility-button" class="custom-button">Accessibility</button>
+        </div>
+        <div class="row">
+            <div class="icon-container">
+                <img src="../icons/travel-transformed2.png" alt="Tourist Mode" class="tourist-icon">
+            </div>
+            <button id="tourist-button" class="custom-button">Tourist Route</button>
+        </div>
+        <div class="row">
+            <div class="icon-container">
+                <img src="../icons/report.png" alt="Report Mode" class="report-icon">
+            </div>
+            <button id="report-button" class="custom-button">Reports</button>
+        </div>
+    </div>
+    <div class="row go-back-container" onclick="navigateTo('index.html')">
+        <span class="arrow-left"></span>
+        <span class="go-back-text">Main page</span>
+    </div>
+</div>
+<button id="side-panel-open-button">☰</button>
+<div class="map-container" id="map-container">
+    <gmpx-api-loader key="AIzaSyDeWZJsxg8T_5RLbGGa_VlWADwJousvjXk" libraries="places,visualization" solution-channel="GMP_GE_mapsandplacesautocomplete_v1">
+    </gmpx-api-loader>
+    <gmp-map center="46.770439,23.591423" zoom="15" map-id="WALK_SAFE_MAP">
+        <div slot="control-block-start-inline-start" class="place-picker-container">
+            <gmpx-place-picker id="place-picker" country="ro" for-map="my-map" placeholder="Enter a place"></gmpx-place-picker>
+            <gmpx-place-overview id="place-overview" size="medium" travel-mode="walking">
+                <gmpx-icon-button variant="outlined" id="direction-button" slot="action">
+                    Directions
+                </gmpx-icon-button>
+                <gmpx-icon-button variant="outlined" id="report-picker-button" slot="action">
+                    Report
+                </gmpx-icon-button>
+                <gmpx-icon-button variant="outlined" id="exit-button" slot="action">
+                    Close
+                </gmpx-icon-button>
+            </gmpx-place-overview>
+        </div>
+        <gmp-advanced-marker></gmp-advanced-marker>
+    </gmp-map>
+</div>
+<div id="hazard-modal" class="modal hidden">
+    <div class="modal-content">
+        <button id="modal-close-button" class="modal-close" aria-label="Close">&times;</button>
+        <h3>Report the selected location</h3>
+        <form id="hazard-form">
+            <label for="hazard-type">Report Type:</label>
+            <select id="hazard-type" name="report-type" required>
+                <option value="">Select a category</option>
+                <option value="pothole">Pothole</option>
+                <option value="construction">Construction</option>
+                <option value="broken-sidewalk">Broken Sidewalk</option>
+                <option value="other">Other</option>
+            </select>
+
+            <label for="hazard-description">Description:</label>
+            <textarea
+                    id="hazard-description"
+                    name="hazard-description"
+                    rows="4"
+                    placeholder="Report description..."
+                    required
+            ></textarea>
+
+            <div class="file-upload-container">
+                <label for="hazard-image" class="custom-file-label">
+                    <span id="file-upload-text">Upload files (optional):</span>
+                    <input type="file" id="hazard-image" name="hazard-image" accept="image/*" hidden multiple>
+                </label>
+            </div>
+
+            <div id="uploaded-photos-container" class="uploaded-photos-container"></div>
+
+            <button type="submit" id="submit-button" class="custom-button" disabled>Submit</button>
+        </form>
+
+    </div>
+</div>
+
+<div id="custom-alert" class="modal hidden">
+    <div class="modal-content">
+        <button id="alert-close-button" class="modal-close">&times;</button>
+        <p class="alert-message"></p>
+        <button id="alert-ok-button" class="custom-button">OK</button>
+    </div>
+</div>
+
+<div class="info-container">
+    <div id="map-legend" class="map-legend">
+        <h3>Legend</h3>
+        <ul id="legend-items"></ul>
+    </div>
+    <div class="criteria-container">
+        <div class="criteria-header">
+            <h3>Criteria Selection</h3>
+            <button id="criteria-close-button" class="minimize-button">-</button>
+        </div>
+        <div id="criteria-content" class="criteria-content">
+            <label><input type="checkbox" class="criteria-checkbox" data-category="thermal-comfort" id="thermalComfort"> Thermal Comfort</label>
+            <label><input type="checkbox" class="criteria-checkbox" data-category="air-quality" id="airQuality"> Air Quality</label>
+            <label><input type="checkbox" class="criteria-checkbox" data-category="green-areas" id="greenAreas"> Green Areas</label>
+            <label><input type="checkbox" class="criteria-checkbox" data-category="safety" id="safety"> Safety</label>
+            <label><input type="checkbox" class="criteria-checkbox" data-category="accessibility" id="accessibility"> Accessibility</label>
+        </div>
+    </div>
+    <div id="weather-display" class="weather-info">
+        <div class="weather-header">
+            <button id="weather-close-button" class="minimize-button">-</button>
+            <img id="weather-icon" class="weather-icon" src="" alt="Weather Icon" />
+            <h2 id="weather-condition">Loading...</h2>
+        </div>
+        <div id="weather-details" class="weather-details">
+            <p id="temperature">Temperature: --°C</p>
+            <p id="feels-like">Feels like: --°C</p>
+            <p id="humidity">Humidity: --%</p>
+            <p id="wind-speed">Wind speed: -- km/h</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    function navigateTo(url) {
+        window.location.href = url;
+    }
+</script>
+<script src="../scripts/map-script.js"></script>
+</body>
+</html>
