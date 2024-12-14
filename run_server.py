@@ -313,7 +313,6 @@ class GreenPath:
         ax.scatter(*goal_coords, color='red', s=100, label='End')  # End marker
         ax.legend()
         plt.show()
-
 class AccessibilityPath:
     G = None
     path = None
