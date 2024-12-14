@@ -26,7 +26,7 @@ class Information:
     host = "localhost"
     dbname = "walk_safe_2"
     user = "postgres"
-    password = "parola"
+    password = "semiluna123"
 
     def __init__(self):
         self.init_graph_dictionary()
@@ -173,10 +173,8 @@ class Information:
                     password=self.password
                 )
                 cursor = conn.cursor()
-
-
-                self.green_raster(cursor)
-                self.accident_frequency(cursor)
+                #self.green_raster(cursor)
+                #self.accident_frequency(cursor)
                 self.accesibility_zone(cursor)
                 break
 
@@ -549,6 +547,7 @@ if __name__ == '__main__':
         print('donee')
             # Return GeoJSON as a response
         return jsonify(geojson_data)
+
 
     #app.register_blueprint(greenRouteFinder.blueprint, url_prefix='/get_greenest_path',methods=['POST'])
     app.run(debug=False,port=5501)
