@@ -7,6 +7,24 @@ let geocoder;
 let overview;
 let marker;
 let routeLayer=null;
+let overlayLayers = {};
+let circleLayers = {};
+let dataLayer;
+
+// Get checkboxes directly by ID
+const thermalComfortCheckbox = document.getElementById('thermalComfort');
+const airQualityCheckbox = document.getElementById('airQuality');
+const greenAreasCheckbox = document.getElementById('greenAreas');
+const safetyCheckbox = document.getElementById('safety');
+const accessibilityCheckbox = document.getElementById('accessibility');
+
+const checkboxStates = {
+    thermalComfort: false,
+    airQuality: false,
+    greenAreas: false,
+    safety: false,
+    accessibility: false,
+};
 
 const categories = ["landmark", "museum", "caffe", "restaurant", "entertainment"];
 const legends = {
@@ -41,24 +59,6 @@ const legends = {
         {icon: '../icons/restaurant.png', label: 'Restaurant'},
         {icon: '../icons/entertainment.png', label: 'Entertainment'},
     ],
-};
-
-let overlayLayers = {};
-let circleLayers = {};
-
-// Get checkboxes directly by ID
-const thermalComfortCheckbox = document.getElementById('thermalComfort');
-const airQualityCheckbox = document.getElementById('airQuality');
-const greenAreasCheckbox = document.getElementById('greenAreas');
-const safetyCheckbox = document.getElementById('safety');
-const accessibilityCheckbox = document.getElementById('accessibility');
-
-const checkboxStates = {
-    thermalComfort: false,
-    airQuality: false,
-    greenAreas: false,
-    safety: false,
-    accessibility: false,
 };
 
 async function init() {
@@ -157,6 +157,42 @@ async function init() {
             evaluateCombination(); // Check combinations
         });
     });
+}
+function handleOneCheckbox()
+{
+    if (thermalComfortCheckbox.checked) {
+        console.log('Thermal Comfort is selected');
+        handleThermalComfort();
+    } else {
+         console.log('Thermal Comfort is deselected');
+        }
+
+        if (airQualityCheckbox.checked) {
+            console.log('Air Quality is selected');
+            handleAirQuality();
+        } else {
+            console.log('Air Quality is deselected');
+        }
+
+        if (safetyCheckbox.checked) {
+            console.log('Safety is selected');
+            handleSafety();
+        } else {
+            console.log('Safety is deselected');
+        }
+        if (accessibilityCheckbox.checked) {
+            console.log('Accessibility is selected');
+            handleAccessibility();
+        } else {
+            console.log('Accessibility is deselected');
+        }
+
+        if (greenAreasCheckbox.checked) {
+            console.log('Green Areas is selected');
+            handleGreenAreas();
+        } else {
+            console.log('Green Areas is deselected');
+        }
 }
 
 function handleSafety()
@@ -291,6 +327,7 @@ function setupGeolocation() {
 }
 
 function setupEventListeners() {
+    //verify checkboxes and act accordingly
     map.innerMap.addListener("click", (event) => {
         if(routeLayer)
         {
@@ -314,8 +351,9 @@ function setupEventListeners() {
             map.innerMap.setZoom(15);
             
         });
-
+        handleOneCheckbox();
         fetchWeatherData(destination.lat, destination.lng);
+        
     });
 
     const placePicker = document.querySelector('gmpx-place-picker');
@@ -631,7 +669,6 @@ function hideCustomAlert() {
     alertModal.classList.add("hidden");
 }
 
-
 function closeDirectionsOverview() {
     if(routeLayer)
     {
@@ -653,6 +690,65 @@ async function toggleOverlay(filepath, layerName) {
     } else {
         await addOverlayLayer(filepath, layerName);
         updateLegend(layerName, true);
+        handleOneCheckbox();
+        dataLayer.addListener("click", (event) => {
+            if(routeLayer)
+            {
+                routeLayer.setMap(null);
+            }
+    
+            destination = {
+                lat: event.latLng.lat(),
+                lng: event.latLng.lng(),
+            };
+    
+            geocoder.geocode({location: destination}, (results, status) => {
+                if (status === google.maps.GeocoderStatus.OK && results[0]) {
+                    overview.place = results[0];
+                } else {
+                    console.error("Geocoder failed:", status);
+                }
+    
+                marker.setPosition(destination);
+                map.innerMap.setCenter(destination);
+                map.innerMap.setZoom(15);
+            });
+    
+            fetchWeatherData(destination.lat, destination.lng);
+        });
+        const placePicker = document.querySelector('gmpx-place-picker');
+    placePicker.addEventListener('gmpx-placechange', () => {
+        if (placePicker.value) {
+            const placeId = placePicker.value.id;
+            if (placeId) {
+                const service = new google.maps.places.PlacesService(map.innerMap);
+
+                service.getDetails({placeId: placeId}, (place, status) => {
+                    if (status === google.maps.places.PlacesServiceStatus.OK && place.geometry) {
+                        overview.place = place;
+
+                        destination = {
+                            lat: place.geometry.location.lat(),
+                            lng: place.geometry.location.lng(),
+                        };
+
+
+                        marker.setPosition(destination);
+                        map.innerMap.setCenter(destination);
+                        map.innerMap.setZoom(15);
+
+                        fetchWeatherData(destination.lat, destination.lng);
+                    } else {
+                        console.error("Failed to get place details:", status);
+                    }
+                });
+            } else {
+                console.error("Could not extract placeId from placePicker.value");
+            }
+        } else {
+            resetPlacePicker();
+        }
+    });
     }
 }
 
@@ -725,7 +821,7 @@ async function addOverlayLayer(filepath, layerName) {
             });
         }
 
-        const dataLayer = new google.maps.Data();
+        dataLayer = new google.maps.Data();
         dataLayer.addGeoJson(geojsonData);
 
         dataLayer.setStyle(feature => {
