@@ -24,7 +24,7 @@ class Information:
     print('graph generated')
 
     host = "localhost"
-    dbname = "walk_safe_2"
+    dbname = "walk_safe_3"
     user = "postgres"
     password = "semiluna123"
 
@@ -157,8 +157,40 @@ class Information:
             else:
                 self.G.graph['non_accessible_polygons'].append(geom)
 
-    def set_air_marks():
-         query = "select name, geom from accessibility"
+        import random
+
+    def set_air_marks(self, cursor):
+        query = "SELECT osm_id, centroid_x, centroid_y, air_mark FROM air_marks;"  # Adjust table and column names as needed
+        cursor.execute(query)
+        results = cursor.fetchall()
+        
+        i = 1
+        for row in results:
+            print(i)
+            i += 1
+            centroid_x = row[1]
+            centroid_y = row[2]
+            air_quality = row[3]
+            print('coordinates:',centroid_x,centroid_y)
+            print('air quality',air_quality)
+            # Find the nearest edge to the centroid coordinates
+            point = Point(centroid_x, centroid_y)
+            edge = self.closest_edge_to_point(point)
+            
+            if edge:
+                u, v, data = edge  # Unpack edge tuple
+                data['air_mark'] = air_quality  # Assign air quality mark to the edge data
+                print('air mark:')
+                print(air_quality)
+
+        # If needed, apply the air quality mark to all edges (in case of missing data)
+        i = 1
+        for u, v, data in self.G.edges(data=True):
+            print(i)
+            i += 1
+            # You can assign a default air quality value or something random if no specific data is available
+            if 'air_mark' not in data:
+                data['air_mark'] = 0  # Example of assigning a random air quality mark
 
     def connection(self):
         retries = 10
@@ -176,6 +208,7 @@ class Information:
                 #self.green_raster(cursor)
                 #self.accident_frequency(cursor)
                 self.accesibility_zone(cursor)
+                #self.set_air_marks(cursor)
                 break
 
             except OperationalError as e:
@@ -358,13 +391,15 @@ class AccessibilityPath:
 class AirQualityPath:
     G = None
     path = None
+    custom_graph=None
     start_node = None
     goal_node = None
     alpha = 0.5
     beta = 0.5
 
-    def __init__(self, G):
+    def __init__(self, G,custom_graph):
         self.G = G
+        self.custom_graph=custom_graph
 
     def set_alpha(self, alpha):
         self.alpha = alpha
@@ -373,45 +408,75 @@ class AirQualityPath:
         self.beta = beta
 
     def custom_cost(self, u, v, data):
-        length = data[0].get('length', float('inf'))
-        green_index = data[0].get('green_index', 0)
+        try:
+            print('trying')
+            # Get 'length' from the OSMnx graph
+            length = data[0].get('length', float('inf'))
 
-        L = (length - 0.24) / (3201.74 - 0.24)
-        G = (green_index - 0.0) / (90 - 0.0)
+            # Retrieve 'AirQuality' from the custom graph
+            # Assuming `self.custom_graph` is your custom graph
+            if self.custom_graph.has_edge(u, v):
+                air_quality = float(self.custom_graph[u][v].get('AirQuality', 0.0))  # Default to 4.0 if missing
+                print('yes')
+            else:
+                air_quality = 0.0  # Penalize if no edge exists in the custom graph
+                print('no')
 
-        W = self.alpha * L + self.beta * (1 - G)
-        return W
+            # Normalize the values
+            L = (length - 0.24) / (3201.74 - 0.24)
+            A = (air_quality - 0.0) / (4.0 - 0.0)
+
+            # Weighted cost
+            W = self.alpha * L + self.beta * A
+
+            # Debugging: Ensure W is real
+            if isinstance(W, complex):
+                raise ValueError(f"Complex cost encountered: W={W}, length={length}, air_quality={air_quality}")
+            print('(',L,A,W,')')
+            return W
+
+        except Exception as e:
+            print(f"Error in custom_cost for edge ({u}, {v}): {e}")
+            raise
+
     def heuristic(self, u, v):
         (x1, y1) = G.nodes[u]['x'], G.nodes[u]['y']
         (x2, y2) = G.nodes[v]['x'], G.nodes[v]['y']
         return ((x2 - x1) * 2 + (y2 - y1) * 2) ** 0.5  # Euclidean distance
-    def get_path(self,start_coords,goal_coords,alpha = 0.5, beta = 0.5):
+    def get_path(self,start_coords,goal_coords,alpha = 0.3, beta = 0.7):
+        print('getting path...')
         self.set_alpha(alpha)
         self.set_beta(beta)
         # Find the nearest nodes to the start and goal coordinates
         self.start_node = ox.distance.nearest_nodes(G, X=start_coords['lng'], Y=start_coords['lat'])  # X is longitude, Y is latitude
         self.goal_node = ox.distance.nearest_nodes(G, X=goal_coords['lng'], Y=goal_coords['lat'])
+        print('going into a star...')
         self.path = nx.astar_path(G, source=self.start_node, target=self.goal_node, weight=self.custom_cost, heuristic=self.heuristic)
         return self.path
-
-    def show(self):
-        fig, ax = ox.plot_graph_route(G, path, route_linewidth=3, node_size=0, bgcolor='white', show=False, close=False)
-        start_coords = (self.G.nodes[self.start_node]['x'], self.G.nodes[self.start_node]['y'])  # (longitude, latitude)
-        goal_coords = (self.G.nodes[self.goal_node]['x'], self.G.nodes[self.goal_node]['y'])  # (longitude, latitude)
-        ax.scatter(*start_coords, color='green', s=100, label='Start')  # Start marker
-        ax.scatter(*goal_coords, color='red', s=100, label='End')  # End marker
-        ax.legend()
-        plt.show()
+    def display_air_quality_data(self,graph):
+        # Iterate over all edges in the graph
+        for u, v, data in graph.edges(data=True):
+            # Check if the 'AirQuality' attribute exists in the edge data
+            if 'AirQuality' in data:
+                air_quality = data['AirQuality']
+                print(f"Edge ({u}, {v}) has AirQuality: {air_quality}")
+            else:
+                print(f"Edge ({u}, {v}) does not have AirQuality data.")
 
 if __name__ == '__main__':
     app = Flask(__name__)
     CORS(app)
 
-    a = Information()
-    G = a.get_graph()
-    b = SaftyPath(G)
-    c = GreenPath(G)
-    d = AccessibilityPath(G)
+    information = Information()
+    G = information.get_graph()
+    safetyPath = SaftyPath(G)
+    greenPath = GreenPath(G)
+    accessibilityPath = AccessibilityPath(G)
+    print('loading air graph...')
+    air_graph = ox.load_graphml("city_with_air_quality.graphml")
+    airQualityPath=AirQualityPath(G,air_graph)
+    print('done!')
+    #airQualityPath.display_air_quality_data(air_graph)
 
     @app.route('/')
     def index():
@@ -426,7 +491,7 @@ if __name__ == '__main__':
         print(start_coords)
         print('end locaton: ')
         print(goal_coords)
-        path = c.get_path(start_coords,goal_coords,alpha = 0.5, beta = 0.5)
+        path = greenPath.get_path(start_coords,goal_coords,alpha = 0.5, beta = 0.5)
         coordinates = []
         for u, v in pairwise(path):
             # Get the coordinates for nodes u and v
@@ -468,7 +533,7 @@ if __name__ == '__main__':
         data = request.json
         start_coords = data.get('userLocation')
         goal_coords = data.get('destination')
-        path = b.get_path(start_coords,goal_coords,alpha = 0.5, beta = 0.5)
+        path = safetyPath.get_path(start_coords,goal_coords,alpha = 0.5, beta = 0.5)
         coordinates = []
         for u, v in pairwise(path):
             # Get the coordinates for nodes u and v
@@ -510,7 +575,8 @@ if __name__ == '__main__':
         data = request.json
         start_coords = data.get('userLocation')
         goal_coords = data.get('destination')
-        path = d.get_path(start_coords,goal_coords)
+        print('here')
+        path = accessibilityPath.get_path(start_coords,goal_coords)
         coordinates = []
         for u, v in pairwise(path):
             # Get the coordinates for nodes u and v
@@ -547,6 +613,49 @@ if __name__ == '__main__':
             # Return GeoJSON as a response
         return jsonify(geojson_data)
 
+    @app.route('/get_air_quality_path', methods=['POST'])
+    def get_air_quality_route():
+        data = request.json
+        start_coords = data.get('userLocation')
+        goal_coords = data.get('destination')
+        print('generating path...')
+        path = airQualityPath.get_path(start_coords,goal_coords,alpha = 0.5, beta = 0.5)
+        coordinates = []
+        for u, v in pairwise(path):
+            # Get the coordinates for nodes u and v
+            lat_u, lon_u = G.nodes[u]['y'], G.nodes[u]['x']
+            lat_v, lon_v = G.nodes[v]['y'], G.nodes[v]['x']
+                
+            # Add the coordinates to the list
+            coordinates.append([lon_u, lat_u])
+            coordinates.append([lon_v, lat_v])
+
+        # Remove duplicate coordinates
+        unique_coordinates = []
+        for coord in coordinates:
+            if coord not in unique_coordinates:
+                unique_coordinates.append(coord)
+
+        # Create GeoJSON response
+        geojson_data = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "LineString",
+                        "coordinates": unique_coordinates
+                    },
+                    "properties": {
+                        "description": "Optimal walking route"
+                    }
+                }
+            ]
+        }
+        print('donee')
+            # Return GeoJSON as a response
+        return jsonify(geojson_data)
+    
 
     #app.register_blueprint(greenRouteFinder.blueprint, url_prefix='/get_greenest_path',methods=['POST'])
-    app.run(debug=False,port=5501)
+    app.run(debug=True,port=5501)

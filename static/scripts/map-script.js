@@ -149,6 +149,16 @@ async function init() {
         }
     });
 
+    airQualityCheckbox.addEventListener('change', () => {
+        if (greenAreasCheckbox.checked) {
+            console.log('Green Areas is selected');
+            handleAirQuality();
+        } else {
+            console.log('Green Areas is deselected');
+        }
+    });
+
+
     // Add event listeners for all checkboxes
     Object.keys(checkboxStates).forEach(id => {
         const checkbox = document.getElementById(id);
@@ -158,6 +168,7 @@ async function init() {
         });
     });
 }
+
 function handleOneCheckbox()
 {
     if (thermalComfortCheckbox.checked) {
@@ -220,6 +231,33 @@ function handleSafety()
             });
             routeLayer.setMap(map.innerMap);
     })  
+}
+
+function handleAirQuality()
+{
+    fetch("http://127.0.0.1:5501/get_air_quality_path", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ userLocation, destination })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("air quality path:", data);
+            if (routeLayer) {
+                routeLayer.setMap(null);
+            }
+            routeLayer = new google.maps.Data();
+            routeLayer.addGeoJson(data);
+            routeLayer.setStyle(function(feature) {
+                return {
+                    strokeColor:"#0000FF", //#028a0f
+                    strokeWeight: 4
+                };
+            });
+            routeLayer.setMap(map.innerMap);
+    })
 }
 
 function handleAccessibility()
@@ -327,7 +365,6 @@ function setupGeolocation() {
 }
 
 function setupEventListeners() {
-    //verify checkboxes and act accordingly
     map.innerMap.addListener("click", (event) => {
         if(routeLayer)
         {
