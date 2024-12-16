@@ -1,7 +1,7 @@
 from itertools import pairwise
 import random
 import time
-
+import matplotlib.pyplot as plt
 from flask import Flask, jsonify, render_template, request
 from flask_cors import CORS
 import osmnx as ox
@@ -205,10 +205,9 @@ class Information:
                     password=self.password
                 )
                 cursor = conn.cursor()
-                #self.green_raster(cursor)
+                self.green_raster(cursor)
                 #self.accident_frequency(cursor)
                 self.accesibility_zone(cursor)
-                #self.set_air_marks(cursor)
                 break
 
             except OperationalError as e:
@@ -248,7 +247,6 @@ class Information:
                 minLen = edge_length
 
         print(str(maxGI) + " " + str(minGI) + " " + str(maxLen) + " " + str(minLen))
-
 
 class SaftyPath:
     G = None
@@ -387,7 +385,6 @@ class AccessibilityPath:
         ax.scatter(*goal_coords, color='red', s=100, label='End')  # End marker
         ax.legend()
         plt.show()
-
 class AirQualityPath:
     G = None
     path = None
@@ -443,7 +440,7 @@ class AirQualityPath:
         (x1, y1) = G.nodes[u]['x'], G.nodes[u]['y']
         (x2, y2) = G.nodes[v]['x'], G.nodes[v]['y']
         return ((x2 - x1) * 2 + (y2 - y1) * 2) ** 0.5  # Euclidean distance
-    def get_path(self,start_coords,goal_coords,alpha = 0.3, beta = 0.7):
+    def get_path(self,start_coords,goal_coords,alpha = 0.5, beta = 0.5):
         print('getting path...')
         self.set_alpha(alpha)
         self.set_beta(beta)
@@ -463,6 +460,91 @@ class AirQualityPath:
             else:
                 print(f"Edge ({u}, {v}) does not have AirQuality data.")
 
+class CombinedCriteriaPath:
+    G = None
+    path = None
+    custom_graph=None
+    start_node = None
+    goal_node = None
+    alpha = 0.5
+    beta = 0.5
+    is_green=0
+    is_safe=0
+    is_accessible=0
+    is_air_quality=0
+
+    def __init__(self, G,custom_graph=None,is_air_quality=0,is_green=0,is_safe=0,is_accessible=0):
+        self.G = G
+        self.custom_graph=custom_graph
+        self.is_air_quality=is_air_quality
+        self.is_green=is_green
+        self.is_safe=is_safe
+        self.is_accessible=is_accessible
+
+    def set_alpha(self, alpha):
+        self.alpha = alpha
+
+    def set_beta(self, beta):
+        self.beta = beta
+
+    def custom_cost(self, u, v, data):
+        try:
+            print('trying')
+            # Get 'length' from the OSMnx graph
+            length = data[0].get('length', float('inf'))
+
+            #get wanted attributes
+            air_index,green_index,safe_index=0,0,0
+            if self.is_air_quality==1:
+                if self.custom_graph.has_edge(u, v):
+                    air_index = float(self.custom_graph[u][v].get('AirQuality', 0.0))  # Default to 0.0 if missing
+                else:
+                    air_index = 0.0  # Penalize if no edge exists in the custom graph
+                #normalize: 
+                air_index = (air_index - 0.0) / (4.0 - 0.0)
+            if self.is_green==1:
+                green_index = data[0].get('green_index', 0)
+                green_index=(green_index - 0.0) / (90 - 0.0)
+                green_index=1-green_index
+            if self.is_safe==1:
+                safe_index = data[0].get('accident_frequency', 0)
+                safe_index = (safe_index - 0) / (3 - 0)
+            
+            A = self.is_air_quality*air_index + self.is_green*green_index + self.is_safe*safe_index
+            L = (length - 0.24) / (3201.74 - 0.24)
+            W = self.alpha * L + self.beta * A
+            
+            #the average of indexes has been computed. but if the point is unaccessible, we wont take it into consideration:
+            if self.is_accessible==1:
+                accessibility = True
+                point_u = Point(G.nodes[u]['x'], G.nodes[u]['y'])
+                point_v = Point(G.nodes[v]['x'], G.nodes[v]['y'])
+                for polygon in G.graph['non_accessible_polygons']:
+                    if polygon.contains(point_u) or polygon.contains(point_v):
+                        accessibility = False
+                if accessibility==False:
+                    W =  length + 99999999
+            return W
+
+        except Exception as e:
+            print(f"Error in custom_cost for edge ({u}, {v}): {e}")
+            raise
+
+    def heuristic(self, u, v):
+        (x1, y1) = G.nodes[u]['x'], G.nodes[u]['y']
+        (x2, y2) = G.nodes[v]['x'], G.nodes[v]['y']
+        return ((x2 - x1) * 2 + (y2 - y1) * 2) ** 0.5  # Euclidean distance
+    def get_path(self,start_coords,goal_coords,alpha = 0.5, beta = 0.5):
+        print('getting path...')
+        self.set_alpha(alpha)
+        self.set_beta(beta)
+        # Find the nearest nodes to the start and goal coordinates
+        self.start_node = ox.distance.nearest_nodes(G, X=start_coords['lng'], Y=start_coords['lat'])  # X is longitude, Y is latitude
+        self.goal_node = ox.distance.nearest_nodes(G, X=goal_coords['lng'], Y=goal_coords['lat'])
+        print('going into a star...')
+        self.path = nx.astar_path(G, source=self.start_node, target=self.goal_node, weight=self.custom_cost, heuristic=self.heuristic)
+        return self.path
+
 if __name__ == '__main__':
     app = Flask(__name__)
     CORS(app)
@@ -476,7 +558,7 @@ if __name__ == '__main__':
     air_graph = ox.load_graphml("city_with_air_quality.graphml")
     airQualityPath=AirQualityPath(G,air_graph)
     print('done!')
-    #airQualityPath.display_air_quality_data(air_graph)
+    combinedCriteriaPath=CombinedCriteriaPath(G,air_graph)
 
     @app.route('/')
     def index():
@@ -487,175 +569,233 @@ if __name__ == '__main__':
         data = request.json
         start_coords = data.get('userLocation')
         goal_coords = data.get('destination')
-        print('start location: ')
-        print(start_coords)
-        print('end locaton: ')
-        print(goal_coords)
-        path = greenPath.get_path(start_coords,goal_coords,alpha = 0.5, beta = 0.5)
-        coordinates = []
-        for u, v in pairwise(path):
-            # Get the coordinates for nodes u and v
-            lat_u, lon_u = G.nodes[u]['y'], G.nodes[u]['x']
-            lat_v, lon_v = G.nodes[v]['y'], G.nodes[v]['x']
-                
-            # Add the coordinates to the list
-            coordinates.append([lon_u, lat_u])
-            coordinates.append([lon_v, lat_v])
+        if goal_coords==None:
+            return jsonify({'error': 'No destination provided'}), 400
+        else:
+            print('start location: ')
+            print(start_coords)
+            print('end locaton: ')
+            print(goal_coords)
+            path = greenPath.get_path(start_coords,goal_coords,alpha = 0.5, beta = 0.5)
+            coordinates = []
+            for u, v in pairwise(path):
+                # Get the coordinates for nodes u and v
+                lat_u, lon_u = G.nodes[u]['y'], G.nodes[u]['x']
+                lat_v, lon_v = G.nodes[v]['y'], G.nodes[v]['x']
+                    
+                # Add the coordinates to the list
+                coordinates.append([lon_u, lat_u])
+                coordinates.append([lon_v, lat_v])
 
-        # Remove duplicate coordinates
-        unique_coordinates = []
-        for coord in coordinates:
-            if coord not in unique_coordinates:
-                unique_coordinates.append(coord)
+            # Remove duplicate coordinates
+            unique_coordinates = []
+            for coord in coordinates:
+                if coord not in unique_coordinates:
+                    unique_coordinates.append(coord)
 
-        # Create GeoJSON response
-        geojson_data = {
-            "type": "FeatureCollection",
-            "features": [
-                {
-                    "type": "Feature",
-                    "geometry": {
-                        "type": "LineString",
-                        "coordinates": unique_coordinates
-                    },
-                    "properties": {
-                        "description": "Optimal walking route"
+            # Create GeoJSON response
+            geojson_data = {
+                "type": "FeatureCollection",
+                "features": [
+                    {
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "LineString",
+                            "coordinates": unique_coordinates
+                        },
+                        "properties": {
+                            "description": "Optimal walking route"
+                        }
                     }
-                }
-            ]
-        }
-        print('donee')
-            # Return GeoJSON as a response
-        return jsonify(geojson_data)
-    
+                ]
+            }
+            print('donee')
+                # Return GeoJSON as a response
+            return jsonify(geojson_data)
+        
     @app.route('/get_safest_path',methods=['POST'])
     def get_safest_route():
         data = request.json
         start_coords = data.get('userLocation')
         goal_coords = data.get('destination')
-        path = safetyPath.get_path(start_coords,goal_coords,alpha = 0.5, beta = 0.5)
-        coordinates = []
-        for u, v in pairwise(path):
-            # Get the coordinates for nodes u and v
-            lat_u, lon_u = G.nodes[u]['y'], G.nodes[u]['x']
-            lat_v, lon_v = G.nodes[v]['y'], G.nodes[v]['x']
-                
-            # Add the coordinates to the list
-            coordinates.append([lon_u, lat_u])
-            coordinates.append([lon_v, lat_v])
+        if goal_coords==None:
+            return jsonify({'error': 'No destination provided'}), 400
+        else:
+            path = safetyPath.get_path(start_coords,goal_coords,alpha = 0.5, beta = 0.5)
+            coordinates = []
+            for u, v in pairwise(path):
+                # Get the coordinates for nodes u and v
+                lat_u, lon_u = G.nodes[u]['y'], G.nodes[u]['x']
+                lat_v, lon_v = G.nodes[v]['y'], G.nodes[v]['x']
+                    
+                # Add the coordinates to the list
+                coordinates.append([lon_u, lat_u])
+                coordinates.append([lon_v, lat_v])
 
-        # Remove duplicate coordinates
-        unique_coordinates = []
-        for coord in coordinates:
-            if coord not in unique_coordinates:
-                unique_coordinates.append(coord)
+            # Remove duplicate coordinates
+            unique_coordinates = []
+            for coord in coordinates:
+                if coord not in unique_coordinates:
+                    unique_coordinates.append(coord)
 
-        # Create GeoJSON response
-        geojson_data = {
-            "type": "FeatureCollection",
-            "features": [
-                {
-                    "type": "Feature",
-                    "geometry": {
-                        "type": "LineString",
-                        "coordinates": unique_coordinates
-                    },
-                    "properties": {
-                        "description": "Optimal walking route"
+            # Create GeoJSON response
+            geojson_data = {
+                "type": "FeatureCollection",
+                "features": [
+                    {
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "LineString",
+                            "coordinates": unique_coordinates
+                        },
+                        "properties": {
+                            "description": "Optimal walking route"
+                        }
                     }
-                }
-            ]
-        }
-        print('donee')
-            # Return GeoJSON as a response
-        return jsonify(geojson_data)
+                ]
+            }
+            print('donee')
+                # Return GeoJSON as a response
+            return jsonify(geojson_data)
     
     @app.route('/get_accessible_path', methods=['POST'])
     def get_accessible_route():
         data = request.json
         start_coords = data.get('userLocation')
         goal_coords = data.get('destination')
-        print('here')
-        path = accessibilityPath.get_path(start_coords,goal_coords)
-        coordinates = []
-        for u, v in pairwise(path):
-            # Get the coordinates for nodes u and v
-            lat_u, lon_u = G.nodes[u]['y'], G.nodes[u]['x']
-            lat_v, lon_v = G.nodes[v]['y'], G.nodes[v]['x']
-                
-            # Add the coordinates to the list
-            coordinates.append([lon_u, lat_u])
-            coordinates.append([lon_v, lat_v])
+        if goal_coords==0:
+            return jsonify({'error': 'No destination provided'}), 400
+        else:
+            path = accessibilityPath.get_path(start_coords,goal_coords)
+            coordinates = []
+            for u, v in pairwise(path):
+                # Get the coordinates for nodes u and v
+                lat_u, lon_u = G.nodes[u]['y'], G.nodes[u]['x']
+                lat_v, lon_v = G.nodes[v]['y'], G.nodes[v]['x']
+                    
+                # Add the coordinates to the list
+                coordinates.append([lon_u, lat_u])
+                coordinates.append([lon_v, lat_v])
 
-        # Remove duplicate coordinates
-        unique_coordinates = []
-        for coord in coordinates:
-            if coord not in unique_coordinates:
-                unique_coordinates.append(coord)
+            # Remove duplicate coordinates
+            unique_coordinates = []
+            for coord in coordinates:
+                if coord not in unique_coordinates:
+                    unique_coordinates.append(coord)
 
-        # Create GeoJSON response
-        geojson_data = {
-            "type": "FeatureCollection",
-            "features": [
-                {
-                    "type": "Feature",
-                    "geometry": {
-                        "type": "LineString",
-                        "coordinates": unique_coordinates
-                    },
-                    "properties": {
-                        "description": "Optimal walking route"
+            # Create GeoJSON response
+            geojson_data = {
+                "type": "FeatureCollection",
+                "features": [
+                    {
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "LineString",
+                            "coordinates": unique_coordinates
+                        },
+                        "properties": {
+                            "description": "Optimal walking route"
+                        }
                     }
-                }
-            ]
-        }
-        print('donee')
-            # Return GeoJSON as a response
-        return jsonify(geojson_data)
+                ]
+            }
+            print('donee')
+                # Return GeoJSON as a response
+            return jsonify(geojson_data)
 
     @app.route('/get_air_quality_path', methods=['POST'])
     def get_air_quality_route():
         data = request.json
         start_coords = data.get('userLocation')
         goal_coords = data.get('destination')
-        print('generating path...')
-        path = airQualityPath.get_path(start_coords,goal_coords,alpha = 0.5, beta = 0.5)
-        coordinates = []
-        for u, v in pairwise(path):
-            # Get the coordinates for nodes u and v
-            lat_u, lon_u = G.nodes[u]['y'], G.nodes[u]['x']
-            lat_v, lon_v = G.nodes[v]['y'], G.nodes[v]['x']
-                
-            # Add the coordinates to the list
-            coordinates.append([lon_u, lat_u])
-            coordinates.append([lon_v, lat_v])
+        if goal_coords==0:
+            return jsonify({'error': 'No destination provided'}), 400
+        else:
+            path = airQualityPath.get_path(start_coords,goal_coords,alpha = 0.5, beta = 0.5)
+            coordinates = []
+            for u, v in pairwise(path):
+                # Get the coordinates for nodes u and v
+                lat_u, lon_u = G.nodes[u]['y'], G.nodes[u]['x']
+                lat_v, lon_v = G.nodes[v]['y'], G.nodes[v]['x']
+                    
+                # Add the coordinates to the list
+                coordinates.append([lon_u, lat_u])
+                coordinates.append([lon_v, lat_v])
 
-        # Remove duplicate coordinates
-        unique_coordinates = []
-        for coord in coordinates:
-            if coord not in unique_coordinates:
-                unique_coordinates.append(coord)
+            # Remove duplicate coordinates
+            unique_coordinates = []
+            for coord in coordinates:
+                if coord not in unique_coordinates:
+                    unique_coordinates.append(coord)
 
-        # Create GeoJSON response
-        geojson_data = {
-            "type": "FeatureCollection",
-            "features": [
-                {
-                    "type": "Feature",
-                    "geometry": {
-                        "type": "LineString",
-                        "coordinates": unique_coordinates
-                    },
-                    "properties": {
-                        "description": "Optimal walking route"
+            # Create GeoJSON response
+            geojson_data = {
+                "type": "FeatureCollection",
+                "features": [
+                    {
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "LineString",
+                            "coordinates": unique_coordinates
+                        },
+                        "properties": {
+                            "description": "Optimal walking route"
+                        }
                     }
-                }
-            ]
-        }
-        print('donee')
-            # Return GeoJSON as a response
-        return jsonify(geojson_data)
+                ]
+            }
+            print('donee')
+                # Return GeoJSON as a response
+            return jsonify(geojson_data)
     
+    @app.route('/get_combined_path',methods=['POST'])
+    def get_combined_route():
+        data = request.json
+        combinedCriteriaPath.is_air_quality=data.get('is_air_quality')
+        combinedCriteriaPath.is_green=data.get('is_green')
+        combinedCriteriaPath.is_safe=data.get('is_safe')
+        combinedCriteriaPath.is_accessible=data.get('is_accessible')
+        start_coords = data.get('userLocation')
+        goal_coords = data.get('destination')
+        if goal_coords==None:
+            return jsonify({'error': 'No destination provided'}), 400
+        else:
+            path = combinedCriteriaPath.get_path(start_coords,goal_coords,alpha = 0.5, beta = 0.5)
+            coordinates = []
+            for u, v in pairwise(path):
+                # Get the coordinates for nodes u and v
+                lat_u, lon_u = G.nodes[u]['y'], G.nodes[u]['x']
+                lat_v, lon_v = G.nodes[v]['y'], G.nodes[v]['x']
+                    
+                # Add the coordinates to the list
+                coordinates.append([lon_u, lat_u])
+                coordinates.append([lon_v, lat_v])
 
-    #app.register_blueprint(greenRouteFinder.blueprint, url_prefix='/get_greenest_path',methods=['POST'])
-    app.run(debug=True,port=5501)
+            # Remove duplicate coordinates
+            unique_coordinates = []
+            for coord in coordinates:
+                if coord not in unique_coordinates:
+                    unique_coordinates.append(coord)
+
+            # Create GeoJSON response
+            geojson_data = {
+                "type": "FeatureCollection",
+                "features": [
+                    {
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "LineString",
+                            "coordinates": unique_coordinates
+                        },
+                        "properties": {
+                            "description": "Optimal walking route"
+                        }
+                    }
+                ]
+            }
+            print('donee')
+                # Return GeoJSON as a response
+            return jsonify(geojson_data)
+
+    app.run(debug=False,port=5501)
+
