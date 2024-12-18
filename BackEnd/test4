@@ -1,0 +1,117 @@
+import osmnx as ox
+import networkx as nx
+import rasterio
+import numpy as np
+from shapely.geometry import LineString
+
+
+def calculate_average_comfort_index(G, edge, raster_path):
+    """
+    Calculate the average comfort index for an edge in the graph using raster data.
+    
+    Parameters:
+    edge: A tuple (u, v, edge_data) where edge_data contains the geometry of the edge.
+    raster_path: Path to the raster file containing the comfort index data.
+    
+    Returns:
+    float: The average comfort index for the edge, or None if the edge has no geometry or the index is invalid.
+    """
+    # Get the geometry of the edge
+    u, v, edge_data = edge
+    if 'geometry' in edge_data:
+        edge_geometry = edge_data['geometry']
+    else:
+        u_coords = G.nodes[u]['x'], G.nodes[u]['y']
+        v_coords = G.nodes[v]['x'], G.nodes[v]['y']
+        edge_geometry = LineString([u_coords, v_coords])
+    
+    # Open the raster file
+    with rasterio.open(raster_path) as src:
+        transform = src.transform
+        crs = src.crs
+        
+        # Sample points along the edge (e.g., at 10 meter intervals)
+        sample_points = list(edge_geometry.coords)
+        
+        comfort_values = []
+        
+        # For each sample point, calculate the comfort index
+        for point in sample_points:
+            lon, lat = point
+            
+            # Convert the geographic coordinates (lon, lat) to pixel indices (row, col)
+            row, col = src.index(lon, lat)
+            
+            if row < 0 or row >= src.height or col < 0 or col >= src.width:
+                # Skip this point if it's out of bounds
+                continue
+
+            # Read the comfort index value at that point (first band assumed)
+            comfort_value = src.read(1)[row, col]
+            
+            # Append the comfort value if it's valid (check for NoData)
+            if comfort_value != src.nodata:
+                comfort_values.append(comfort_value)
+        
+        # If we have any valid comfort values, calculate the average
+        if comfort_values:
+            return np.mean(comfort_values)
+        else:
+            return None
+
+def add_comfort_index_to_osmnx_graph(graph, raster_path, output_graphml):
+    """
+    Add the comfort index for each edge in the OSMnx graph using raster data and save to a GraphML file.
+    
+    Parameters:
+    graph: OSMnx NetworkX graph containing the edges.
+    raster_path: Path to the raster file containing the comfort index data.
+    output_graphml: Path to the output GraphML file.
+    """
+    i = 0
+    # Iterate through all edges in the OSMnx graph
+    for u, v, edge_data in graph.edges(data=True):
+        i += 1
+        # Calculate the average comfort index for the edge
+        comfort_index = calculate_average_comfort_index(graph, (u, v, edge_data), raster_path)
+        
+        # Store the comfort index as an edge attribute
+        if comfort_index is not None:
+            edge_data['comfort_index'] = float(comfort_index)  # Adjust precision as needed
+            # Update the edge attribute directly
+            print(f"Edge {i}: Comfort Index = {comfort_index}")
+        else:
+            edge_data['comfort_index'] = float(0.0)
+        
+        # Convert geometry to WKT (Well-Known Text) format if it exists
+        if 'geometry' in edge_data and isinstance(edge_data['geometry'], LineString):
+            edge_data['geometry'] = edge_data['geometry'].wkt
+    
+    # Remove unsupported data types from the graph
+    for _, _, edge_data in graph.edges(data=True):
+        for key, value in list(edge_data.items()):
+            if isinstance(value, (list, dict, set)):
+                del edge_data[key]  # Remove unsupported attributes
+    
+    # Save the graph to a GraphML file
+    nx.write_graphml(graph, output_graphml)
+    print(f"Graph with comfort index data saved to: {output_graphml}")
+
+
+# Example usage
+if __name__ == "__main__":
+    # Load your OSMnx graph (e.g., a city graph)
+    city_name = "Cluj-Napoca, Romania"  # Replace with your city
+    graph = ox.graph_from_place(city_name, network_type="walk")  # Replace with your city and network type
+    
+    for u, v, key, data in graph.edges(keys=True, data=True):
+        data['comfort_index'] = 0  # Initialize the comfort index for all edges
+
+    # Path to the raster file containing comfort index data
+    raster_path = "BackEnd/comfort_index.tif"  # Replace with your raster file path
+    
+    # Path to the output GraphML file
+    output_graphml = "static/data/graph_with_comfort_index.graphml"
+    
+    # Add comfort index to the graph and save it to a new GraphML file
+    add_comfort_index_to_osmnx_graph(graph, raster_path, output_graphml)

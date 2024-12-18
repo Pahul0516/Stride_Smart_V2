@@ -1,0 +1,5 @@
+import pandas as pd
+
+# Load the street marks into a DataFrame
+marks_df = pd.read_csv("../static/data/air_marks_coordinates.csv")
+print(marks_df)

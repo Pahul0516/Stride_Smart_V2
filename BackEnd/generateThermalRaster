@@ -1,0 +1,141 @@
+import json
+from shapely.geometry import shape
+from pyproj import Transformer
+from shapely.ops import transform
+
+def add_polygon_areas_to_geojson(input_geojson_file, output_geojson_file, target_crs='EPSG:3857'):
+    """
+    Calculates the area of each polygon in a GeoJSON file and adds it to the properties of each feature.
+    
+    Parameters:
+        input_geojson_file (str): Path to the input GeoJSON file.
+        output_geojson_file (str): Path to save the output GeoJSON file with added area properties.
+        target_crs (str): Target CRS for area calculation (default: EPSG:3857).
+    """
+    with open(input_geojson_file, 'r') as file:
+        data = json.load(file)
+
+    # Define the transformer for reprojection
+    transformer = Transformer.from_crs("EPSG:4326", target_crs, always_xy=True)
+
+    def reproject(geometry):
+        """Reprojects a Shapely geometry to the target CRS."""
+        return transform(transformer.transform, geometry)
+
+    for feature in data['features']:
+        geometry = feature['geometry']
+        if geometry['type'] == 'Polygon':
+            polygon = shape(geometry)
+            reprojected_polygon = reproject(polygon)  # Reproject to the target CRS
+            area = reprojected_polygon.area  # Calculate area in square meters
+        elif geometry['type'] == 'MultiPolygon':
+            multipolygon = shape(geometry)
+            reprojected_multipolygon = reproject(multipolygon)  # Reproject to the target CRS
+            area = reprojected_multipolygon.area
+        else:
+            area = 5  # Skip non-polygon geometries
+        
+        # Add the computed area to the feature's properties
+        feature['properties']['area'] = area
+
+    # Save the updated GeoJSON to a new file
+    with open(output_geojson_file, 'w') as file:
+        json.dump(data, file, indent=4)
+
+    print(f"Updated GeoJSON with areas saved to {output_geojson_file}")
+
+import numpy as np
+import rasterio
+from rasterio.features import rasterize
+from shapely.geometry import shape
+import json
+from matplotlib import pyplot as plt
+
+def polygons_to_raster(geojson_file, raster_file, resolution, color_range=(0, 255)):
+    """
+    Converts polygons from a GeoJSON file into a raster map based on their area.
+    
+    Parameters:
+        geojson_file (str): Path to the GeoJSON file with polygons.
+        raster_file (str): Path to save the output raster file.
+        resolution (tuple): Resolution of the raster grid (width, height).
+        color_range (tuple): Min and max values for pixel intensity (default: (0, 255)).
+        
+    Returns:
+        None
+    """
+    # Load GeoJSON data
+    with open(geojson_file, 'r') as file:
+        data = json.load(file)
+    
+    # Extract polygons and their areas
+    polygons_with_areas = []
+    for feature in data['features']:
+        geometry = shape(feature['geometry'])
+        area = feature['properties'].get('area', 0)
+        polygons_with_areas.append((geometry, area))
+    
+    # Determine the bounding box of all polygons
+    all_bounds = [geom.bounds for geom, _ in polygons_with_areas]
+    min_x = min(b[0] for b in all_bounds)
+    min_y = min(b[1] for b in all_bounds)
+    max_x = max(b[2] for b in all_bounds)
+    max_y = max(b[3] for b in all_bounds)
+
+    # Create an affine transform for the raster grid
+    width, height = resolution
+    x_res = (max_x - min_x) / width
+    y_res = (max_y - min_y) / height
+    transform = rasterio.transform.from_origin(min_x, max_y, x_res, y_res)
+
+    # Normalize area values to the color range
+    areas = [area for _, area in polygons_with_areas]
+    if areas:
+        min_area, max_area = min(areas), max(areas)
+    else:
+        min_area, max_area = 0, 1  # Avoid division by zero
+
+    def normalize_area(area):
+        if max_area - min_area > 0:
+            return int(color_range[0] + (area - min_area) / (max_area - min_area) * (color_range[1] - color_range[0]))
+        else:
+            return color_range[0]  # All areas are the same
+
+    # Create raster data
+    raster = rasterize(
+        [(geom, normalize_area(area)) for geom, area in polygons_with_areas],
+        out_shape=(height, width),
+        transform=transform,
+        fill=color_range[0],  # Default value for pixels not covered by polygons
+        dtype='uint8',
+        all_touched=True
+    )
+
+    # Save the raster to a file
+    with rasterio.open(
+        raster_file,
+        'w',
+        driver='GTiff',
+        height=height,
+        width=width,
+        count=1,
+        dtype=raster.dtype,
+        crs="EPSG:4326",
+        transform=transform
+    ) as dst:
+        dst.write(raster, 1)
+
+    print(f"Raster map saved to {raster_file}")
+
+    # Optionally, display the raster
+    plt.imshow(raster, cmap='gray')
+    plt.title("Rasterized Polygons")
+    plt.colorbar(label="Pixel Intensity (Based on Area)")
+    plt.show()
+
+
+# Example usage
+input_file = 'static/data/filtered_cluj_polygons.geojson'
+output_file = 'static/data/cluj_polygons_with_areas_small_included.geojson'
+add_polygon_areas_to_geojson(input_file, output_file)
+polygons_to_raster("static/data/cluj_polygons_with_areas_small_included.geojson","static/data/FINAL_2000RES_rasterpolygons.geojson",(2000, 2000))

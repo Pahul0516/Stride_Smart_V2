@@ -1,0 +1,106 @@
+from matplotlib import pyplot as plt
+import osmnx as ox
+import pandas as pd
+from scipy.spatial import KDTree
+import networkx as nx
+
+def assign_air_quality(graph, data_file):
+    """
+    Assign air quality marks to OSMnx graph edges based on OSM IDs and proximity.
+
+    Parameters:
+        graph (networkx.MultiDiGraph): The OSMnx graph to update.
+        data_file (str): Path to the CSV file containing street air quality data.
+
+    File Format:
+        The CSV file should have the following columns:
+        - osm_id: The OSM ID of the street.
+        - centroid_x: Longitude of the street's centroid.
+        - centroid_y: Latitude of the street's centroid.
+        - AirQuality: Air quality mark for the street.
+
+    Returns:
+        networkx.MultiDiGraph: The updated graph with 'AirQuality' assigned to edges.
+    """
+    # Load the air quality data
+    air_quality_data = pd.read_csv(data_file)
+
+    # Create a KDTree for fast nearest-neighbor lookup based on centroids
+    centroids = air_quality_data[["centroid_x", "centroid_y"]].values
+    kdtree = KDTree(centroids)
+
+    # Create a mapping of osm_id to air quality
+    air_quality_map = air_quality_data.set_index("osm_id")["AirQuality"].to_dict()
+
+    # Map each edge in the graph to an air quality mark
+    for u, v, key, edge_data in graph.edges(keys=True, data=True):
+        osm_ids = edge_data.get("osmid", [])
+        if not isinstance(osm_ids, list):
+            osm_ids = [osm_ids]
+
+        # Find air quality for the first matching osm_id
+        air_quality = None
+        for osm_id in osm_ids:
+            if osm_id in air_quality_map:
+                air_quality = air_quality_map[osm_id]
+                break
+
+        # If no air quality is found, use the nearest centroid
+        if air_quality is None:
+            # Get the midpoint of the edge
+            edge_geom = edge_data.get("geometry")
+            if edge_geom:
+                midpoint = edge_geom.interpolate(0.5, normalized=True)
+                lon, lat = midpoint.x, midpoint.y
+            else:
+                lon, lat = graph.nodes[u]["x"], graph.nodes[u]["y"]
+
+            # Find the nearest centroid
+            _, idx = kdtree.query([lon, lat])
+            air_quality = air_quality_data.iloc[idx]["AirQuality"]
+
+        # Assign the air quality mark to the edge
+        edge_data["AirQuality"] = air_quality
+
+    return graph
+
+def display_graph(graph_path):
+        """
+        Displays a graph from a GraphML file.
+
+        Parameters:
+        - graph_path (str): Path to the GraphML file.
+
+        Returns:
+        - None
+        """
+        try:
+            # Load the graph from the GraphML file
+            graph = ox.load_graphml(graph_path)
+            
+            # Plot the graph using OSMnx
+            fig, ax = ox.plot_graph(graph, bgcolor='white', node_color='blue', node_size=10, 
+                                    edge_color='gray', edge_linewidth=0.5)
+            
+            # Show the plot
+            plt.show()
+
+        except Exception as e:
+            print(f"An error occurred: {e}")
+
+# Example Usage
+if __name__ == "__main__":
+    # Load the OSMnx graph
+    city_name = "Cluj-Napoca, Romania"
+    G = ox.graph_from_place(city_name, network_type='drive')
+
+    # Path to the air quality data file
+    file_path = "air_marks_coordinates.csv"
+
+    # Assign air quality marks to the graph
+    #G = assign_air_quality(G, file_path)
+
+    # Save the updated graph
+    #ox.save_graphml(G, "city_with_air_quality.graphml")
+    display_graph("city_with_air_quality.graphml")
+
