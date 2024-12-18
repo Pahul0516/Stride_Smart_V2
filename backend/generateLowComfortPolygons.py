@@ -8,9 +8,9 @@ from shapely.geometry import shape
 
 def main():
     # Paths to input and output files
-    green_areas_path = "../data/filtered_cluj_polygons.geojson"
-    raster_output_path = "../data/comfort_index.tif"
-    vector_output_path = "../data/comfort_index.geojson"
+    green_areas_path = "BackEnd/filtered_cluj_polygons.geojson"
+    raster_output_path = "BackEnd/hopefully_complete_comfort_index.tif"
+    vector_output_path = "BackEnd/hopefully_complete_comfort_index_vector.geojson"
 
     # Load green areas
     green_areas_gdf = gpd.read_file(green_areas_path)
@@ -71,7 +71,7 @@ def main():
     polygons = []
     values = []
     for geom, value in shapes_generator:
-        if value > 0:  # Exclude areas with zero comfort
+        if value > -1:  # Exclude areas with zero comfort
             polygons.append(shape(geom))
             values.append(value)
 

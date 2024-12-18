@@ -102,6 +102,32 @@ async function init() {
         toggleOverlay("../data/road_crash_density.geojson", "safety")
     }  
     )
+    document.getElementById("tourist-button").addEventListener('click', () => {
+        fetch("http://127.0.0.1:5501/get_tourist_path", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ userLocation, destination })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Tourist path:", data);
+                if (routeLayer) {
+                    routeLayer.setMap(null);
+                }
+                routeLayer = new google.maps.Data();
+                routeLayer.addGeoJson(data);
+                routeLayer.setStyle(function(feature) {
+                    return {
+                        strokeColor:"#e5e36a", //#028a0f
+                        strokeWeight: 4
+                    };
+                });
+                routeLayer.setMap(map.innerMap);
+        })  
+    }  
+    )
 
     // Add event listeners for all checkboxes
     Object.keys(checkboxStates).forEach(id => {
@@ -169,7 +195,7 @@ function handleSafety()
             routeLayer.addGeoJson(data);
             routeLayer.setStyle(function(feature) {
                 return {
-                    strokeColor:"#0000FF", //#028a0f
+                    strokeColor:"#e5e36a", //#028a0f
                     strokeWeight: 4
                 };
             });
@@ -196,7 +222,7 @@ function handleAirQuality()
             routeLayer.addGeoJson(data);
             routeLayer.setStyle(function(feature) {
                 return {
-                    strokeColor:"#0000FF", //#028a0f
+                    strokeColor:"#b277f5", //#028a0f
                     strokeWeight: 4
                 };
             });
@@ -223,7 +249,7 @@ function handleAccessibility()
             routeLayer.addGeoJson(data);
             routeLayer.setStyle(function(feature) {
                 return {
-                    strokeColor:"#FF0000", //#028a0f
+                    strokeColor:"#4d6def", 
                     strokeWeight: 4
                 };
             });
@@ -250,7 +276,34 @@ function handleGreenAreas()
         routeLayer.addGeoJson(data);
         routeLayer.setStyle(function(feature) {
             return {
-                strokeColor:"#01796f", //#028a0f
+                strokeColor:"#38760b", 
+                strokeWeight: 4
+            };
+        });
+        routeLayer.setMap(map.innerMap);
+    })  
+}
+
+function handleThermalComfort()
+{
+    fetch("http://127.0.0.1:5501/get_thermal_comfort_path", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ userLocation, destination })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Thermal comfort:", data);
+        if (routeLayer) {
+            routeLayer.setMap(null);
+        }
+        routeLayer = new google.maps.Data();
+        routeLayer.addGeoJson(data);
+        routeLayer.setStyle(function(feature) {
+            return {
+                strokeColor:"#4f941d", 
                 strokeWeight: 4
             };
         });
@@ -1173,13 +1226,14 @@ function setupTouristDropdown() {
 async function evaluateCombination() {
     try {
         // Gather checkbox states: 1 if checked, 0 if not
+        const is_thermal_comfort=document.getElementById("thermalComfort").checked ? 1 : 0;
         const is_air_quality = document.getElementById("airQuality").checked ? 1 : 0;
         const is_green = document.getElementById("greenAreas").checked ? 1 : 0;
         const is_safe = document.getElementById("safety").checked ? 1 : 0;
         const is_accessible = document.getElementById("accessibility").checked ? 1 : 0;
 
         // Count the number of selected options
-        const selectedCount = is_air_quality + is_green + is_safe + is_accessible;
+        const selectedCount = is_thermal_comfort + is_air_quality + is_green + is_safe + is_accessible;
 
         if (selectedCount === 0) {
             // Delete current route if no checkboxes are selected
@@ -1191,7 +1245,11 @@ async function evaluateCombination() {
 
         if (selectedCount === 1) {
             // Determine which checkbox is selected and call the corresponding function
-            if (is_air_quality === 1) {
+            if(is_thermal_comfort===1)
+            {
+                handleThermalComfort(); 
+            }
+            else if (is_air_quality === 1) {
                 handleAirQuality();
             } else if (is_green === 1) {
                 handleGreenAreas();
@@ -1205,6 +1263,7 @@ async function evaluateCombination() {
 
         // If more than one checkbox is selected, send the payload to the backend
         const payload = {
+            is_thermal_comfort:is_thermal_comfort,
             is_air_quality: is_air_quality,
             is_green: is_green,
             is_safe: is_safe,
@@ -1238,7 +1297,7 @@ async function evaluateCombination() {
         routeLayer.addGeoJson(data);
         routeLayer.setStyle(function (feature) {
             return {
-                strokeColor: "#f7fe03",
+                strokeColor: "#1f1876",
                 strokeWeight: 4
             };
         });

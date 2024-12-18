@@ -16,7 +16,7 @@ from rasterio.mask import mask
 from psycopg2 import OperationalError
 from shapely import wkb
 from shapely.geometry import Point
-
+from aco import AntColony
 
 class Information:
     print('generating graph')
@@ -192,6 +192,22 @@ class Information:
             if 'air_mark' not in data:
                 data['air_mark'] = 0  # Example of assigning a random air quality mark
 
+    def get_tourist_points(self, cursor):
+        query = "select category, geom from tourists"
+        tourists_points = {}
+        cursor.execute(query)
+        results = cursor.fetchall()
+        for row in results:
+            category = row[0]
+            geom_wkb = row[1]
+            geom = wkb.loads(geom_wkb)
+            closest_node = ox.distance.nearest_nodes(self.G, X=geom.x, Y=geom.y)
+            if category not in tourists_points:
+                tourists_points[category] = []
+            tourists_points[category].append(closest_node) 
+
+        self.G.graph["tourists_points"] = tourists_points
+
     def connection(self):
         retries = 10
         attempt = 0
@@ -205,9 +221,10 @@ class Information:
                     password=self.password
                 )
                 cursor = conn.cursor()
-                self.green_raster(cursor)
+                #self.green_raster(cursor)
                 #self.accident_frequency(cursor)
                 self.accesibility_zone(cursor)
+                self.get_tourist_points(cursor)
                 break
 
             except OperationalError as e:
@@ -459,6 +476,143 @@ class AirQualityPath:
                 print(f"Edge ({u}, {v}) has AirQuality: {air_quality}")
             else:
                 print(f"Edge ({u}, {v}) does not have AirQuality data.")
+class ThermalComfort:
+    G = None
+    path = None
+    custom_graph=None
+    start_node = None
+    goal_node = None
+    alpha = 0.5
+    beta = 0.5
+
+    def __init__(self, G,custom_graph):
+        self.G = G
+        self.custom_graph=custom_graph
+
+    def set_alpha(self, alpha):
+        self.alpha = alpha
+
+    def set_beta(self, beta):
+        self.beta = beta
+
+    def custom_cost(self, u, v, data):
+        try:
+            print('trying')
+            # Get 'length' from the OSMnx graph
+            length = data[0].get('length', float('inf'))
+
+            # Retrieve 'ComfortIndex' from the custom graph
+            # Assuming `self.custom_graph` is your custom graph
+            if self.custom_graph.has_edge(u, v):
+                comfort_index = float(self.custom_graph[u][v].get('comfort_index', 0.0))  # Default to 0.0 if missing
+                print('yes')
+            else:
+                comfort_index = 0.0  # Penalize if no edge exists in the custom graph
+                print('no')
+
+            # Normalize the values
+            L = (length - 0.24) / (3201.74 - 0.24)
+            A = (comfort_index - 0.0) / (1.0 - 0.0)
+
+            # Weighted cost
+            W = self.alpha * L + self.beta * A
+
+            print('(',L,A,W,')')
+            return W
+
+        except Exception as e:
+            print(f"Error in custom_cost for edge ({u}, {v}): {e}")
+            raise
+
+    def heuristic(self, u, v):
+        (x1, y1) = G.nodes[u]['x'], G.nodes[u]['y']
+        (x2, y2) = G.nodes[v]['x'], G.nodes[v]['y']
+        return ((x2 - x1) * 2 + (y2 - y1) * 2) ** 0.5  # Euclidean distance
+    def get_path(self,start_coords,goal_coords,alpha = 0.5, beta = 0.5):
+        print('getting path...')
+        self.set_alpha(alpha)
+        self.set_beta(beta)
+        # Find the nearest nodes to the start and goal coordinates
+        self.start_node = ox.distance.nearest_nodes(G, X=start_coords['lng'], Y=start_coords['lat'])  # X is longitude, Y is latitude
+        self.goal_node = ox.distance.nearest_nodes(G, X=goal_coords['lng'], Y=goal_coords['lat'])
+        print('going into a star...')
+        self.path = nx.astar_path(G, source=self.start_node, target=self.goal_node, weight=self.custom_cost, heuristic=self.heuristic)
+        return self.path
+    def display_thermal_comfort_data(self,graph):
+        # Iterate over all edges in the graph
+        for u, v, data in graph.edges(data=True):
+            # Check if the 'comfort_index' attribute exists in the edge data
+            if 'comfort_index' in data:
+                comfort_index = data['comfort_index']
+                print(f"Edge ({u}, {v}) has comfort index: {comfort_index}")
+            else:
+                print(f"Edge ({u}, {v}) does not have comfort index data.")
+
+class TouristPath:
+    G = None
+    start_node = None
+    filter = []
+    path = None
+    map = {}
+
+    def __init__(self, G, filter):
+        self.G = G
+        self.filter = filter
+
+    def mapping(self, start_node):
+        self.map[0] = start_node
+        i = 1
+        criteria = ''
+        for criteria in self.filter:
+            for point in self.G.graph['tourists_points'][criteria]:
+                self.map[i] = point
+                i += 1
+            
+    def create_matirx(self):
+        distance_matrix = np.zeros((len(self.map), len(self.map)))
+        for i, source in enumerate(self.map.values()):
+            for j, target in enumerate(self.map.values()):
+                if i == j:
+                    distance_matrix[i][j] = np.inf
+                else:
+                    distance_matrix[i][j] = nx.shortest_path_length(
+                        G, source, target, weight='length'
+                    )   
+        return distance_matrix
+
+    def get_points(self, mat):
+        ant_colony = AntColony(mat, 10, 1, 200, 0.95, alpha=1, beta=2)
+        shortest_path = ant_colony.run()
+        points_list = []
+        for point in shortest_path[0]:
+            points_list.append(point[0])
+        return points_list
+
+    def get_path(self,start_coords):
+        self.start_node = ox.distance.nearest_nodes(G, X=start_coords['lng'], Y=start_coords['lat']) 
+        self.mapping(self.start_node)
+        list_of_points = self.get_points(self.create_matirx())
+        concatenated_path = []
+    
+        for i in range(len(list_of_points) - 1):
+            current_node = self.map[list_of_points[i]]
+            next_node = self.map[list_of_points[i + 1]]
+                
+            path_segment = nx.shortest_path(G, source=current_node, target=next_node, weight='length')
+                
+            if concatenated_path:
+                concatenated_path.extend(path_segment[1:])  
+            else:
+                concatenated_path.extend(path_segment)  
+        self.path = concatenated_path
+        return self.path
+    
+    def show(self):
+        fig, ax = ox.plot_graph_route(G, self.path, route_linewidth=3, node_size=0, bgcolor='white', show=False, close=False)
+        start_coords = (self.G.nodes[self.start_node]['x'], self.G.nodes[self.start_node]['y'])  # (longitude, latitude)
+        ax.scatter(*start_coords, color='green', s=100, label='Start')  # Start marker
+        ax.legend()
+        plt.show()
 
 class CombinedCriteriaPath:
     G = None
@@ -468,14 +622,16 @@ class CombinedCriteriaPath:
     goal_node = None
     alpha = 0.5
     beta = 0.5
+    is_thermal_comfort=0
     is_green=0
     is_safe=0
     is_accessible=0
     is_air_quality=0
 
-    def __init__(self, G,custom_graph=None,is_air_quality=0,is_green=0,is_safe=0,is_accessible=0):
+    def __init__(self, G,custom_graph=None,is_thermal_comfort=0,is_air_quality=0,is_green=0,is_safe=0,is_accessible=0):
         self.G = G
         self.custom_graph=custom_graph
+        self.is_thermal_comfort=is_thermal_comfort
         self.is_air_quality=is_air_quality
         self.is_green=is_green
         self.is_safe=is_safe
@@ -494,7 +650,14 @@ class CombinedCriteriaPath:
             length = data[0].get('length', float('inf'))
 
             #get wanted attributes
-            air_index,green_index,safe_index=0,0,0
+            comfort_index,air_index,green_index,safe_index=0,0,0,0
+            if self.is_thermal_comfort==1:
+                if self.custom_graph.has_edge(u, v):
+                    comfort_index = float(self.custom_graph[u][v].get('comfort_index', 0.0))  # Default to 0.0 if missing
+                else:
+                    comfort_index = 0.0  # Penalize if no edge exists in the custom graph
+                #normalize: 
+                
             if self.is_air_quality==1:
                 if self.custom_graph.has_edge(u, v):
                     air_index = float(self.custom_graph[u][v].get('AirQuality', 0.0))  # Default to 0.0 if missing
@@ -510,7 +673,7 @@ class CombinedCriteriaPath:
                 safe_index = data[0].get('accident_frequency', 0)
                 safe_index = (safe_index - 0) / (3 - 0)
             
-            A = self.is_air_quality*air_index + self.is_green*green_index + self.is_safe*safe_index
+            A = self.is_thermal_comfort*comfort_index+ self.is_air_quality*air_index + self.is_green*green_index + self.is_safe*safe_index
             L = (length - 0.24) / (3201.74 - 0.24)
             W = self.alpha * L + self.beta * A
             
@@ -555,10 +718,13 @@ if __name__ == '__main__':
     greenPath = GreenPath(G)
     accessibilityPath = AccessibilityPath(G)
     print('loading air graph...')
-    air_graph = ox.load_graphml("city_with_air_quality.graphml")
+    air_graph = ox.load_graphml("static/data/city_with_air_quality.graphml")
     airQualityPath=AirQualityPath(G,air_graph)
     print('done!')
     combinedCriteriaPath=CombinedCriteriaPath(G,air_graph)
+    touristPath=TouristPath(G,['landmark','museum'])
+    #thermal_comfort_graph=ox.load_graphml("static/data/thermal_comfort_graph.graphml")
+    #thermalComfort=ThermalComfort(G,thermal_comfort_graph)
 
     @app.route('/')
     def index():
@@ -748,9 +914,55 @@ if __name__ == '__main__':
                 # Return GeoJSON as a response
             return jsonify(geojson_data)
     
+    @app.route('/get_thermal_comfort_path',methods=['POST'])
+    def get_thermal_comfort_path():
+        data = request.json
+        start_coords = data.get('userLocation')
+        goal_coords = data.get('destination')
+        if goal_coords==0:
+            return jsonify({'error': 'No destination provided'}), 400
+        else:
+            path = thermalComfort.get_path(start_coords,goal_coords,alpha = 0.5, beta = 0.5)
+            coordinates = []
+            for u, v in pairwise(path):
+                # Get the coordinates for nodes u and v
+                lat_u, lon_u = G.nodes[u]['y'], G.nodes[u]['x']
+                lat_v, lon_v = G.nodes[v]['y'], G.nodes[v]['x']
+                    
+                # Add the coordinates to the list
+                coordinates.append([lon_u, lat_u])
+                coordinates.append([lon_v, lat_v])
+
+            # Remove duplicate coordinates
+            unique_coordinates = []
+            for coord in coordinates:
+                if coord not in unique_coordinates:
+                    unique_coordinates.append(coord)
+
+            # Create GeoJSON response
+            geojson_data = {
+                "type": "FeatureCollection",
+                "features": [
+                    {
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "LineString",
+                            "coordinates": unique_coordinates
+                        },
+                        "properties": {
+                            "description": "Optimal walking route"
+                        }
+                    }
+                ]
+            }
+            print('donee')
+                # Return GeoJSON as a response
+            return jsonify(geojson_data)
+
     @app.route('/get_combined_path',methods=['POST'])
     def get_combined_route():
         data = request.json
+        combinedCriteriaPath.is_thermal_comfort=data.get('is_thermal_comfort')
         combinedCriteriaPath.is_air_quality=data.get('is_air_quality')
         combinedCriteriaPath.is_green=data.get('is_green')
         combinedCriteriaPath.is_safe=data.get('is_safe')
@@ -789,6 +1001,51 @@ if __name__ == '__main__':
                         },
                         "properties": {
                             "description": "Optimal walking route"
+                        }
+                    }
+                ]
+            }
+            print('donee')
+                # Return GeoJSON as a response
+            return jsonify(geojson_data)
+
+    @app.route('/get_tourist_path',methods=['POST'])
+    def get_tourist_route():
+        data = request.json
+        start_coords = data.get('userLocation')
+        goal_coords=data.get('destination')
+        if goal_coords==None:
+            return jsonify({'error': 'No destination provided'}), 400
+        else:
+            path = touristPath.get_path(start_coords)
+            coordinates = []
+            for u, v in pairwise(path):
+                # Get the coordinates for nodes u and v
+                lat_u, lon_u = G.nodes[u]['y'], G.nodes[u]['x']
+                lat_v, lon_v = G.nodes[v]['y'], G.nodes[v]['x']
+                    
+                # Add the coordinates to the list
+                coordinates.append([lon_u, lat_u])
+                coordinates.append([lon_v, lat_v])
+
+            # Remove duplicate coordinates
+            unique_coordinates = []
+            for coord in coordinates:
+                if coord not in unique_coordinates:
+                    unique_coordinates.append(coord)
+
+            # Create GeoJSON response
+            geojson_data = {
+                "type": "FeatureCollection",
+                "features": [
+                    {
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "LineString",
+                            "coordinates": unique_coordinates
+                        },
+                        "properties": {
+                            "description": "toruduf"
                         }
                     }
                 ]
