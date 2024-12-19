@@ -512,7 +512,7 @@ class ThermalComfort:
 
             # Normalize the values
             L = (length - 0.24) / (3201.74 - 0.24)
-            A = (comfort_index - 0.0) / (1.0 - 0.0)
+            A = 1-comfort_index
 
             # Weighted cost
             W = self.alpha * L + self.beta * A
@@ -559,6 +559,9 @@ class TouristPath:
         self.G = G
         self.filter = filter
 
+    def set_filter(self,filter):
+        self.filter=filter
+
     def mapping(self, start_node):
         self.map[0] = start_node
         i = 1
@@ -578,6 +581,8 @@ class TouristPath:
                     distance_matrix[i][j] = nx.shortest_path_length(
                         G, source, target, weight='length'
                     )   
+                    if distance_matrix[i][j]==0:
+                        distance_matrix[i][j]=9999999
         return distance_matrix
 
     def get_points(self, mat):
@@ -654,6 +659,7 @@ class CombinedCriteriaPath:
             if self.is_thermal_comfort==1:
                 if self.custom_graph.has_edge(u, v):
                     comfort_index = float(self.custom_graph[u][v].get('comfort_index', 0.0))  # Default to 0.0 if missing
+                    comfort_index=1-comfort_index
                 else:
                     comfort_index = 0.0  # Penalize if no edge exists in the custom graph
                 #normalize: 
@@ -722,9 +728,8 @@ if __name__ == '__main__':
     airQualityPath=AirQualityPath(G,air_graph)
     print('done!')
     combinedCriteriaPath=CombinedCriteriaPath(G,air_graph)
-    touristPath=TouristPath(G,['landmark','museum'])
-    #thermal_comfort_graph=ox.load_graphml("static/data/thermal_comfort_graph.graphml")
-    #thermalComfort=ThermalComfort(G,thermal_comfort_graph)
+    thermal_comfort_graph=ox.load_graphml("static/data/graph_with_comfort_index.graphml")
+    thermalComfort=ThermalComfort(G,thermal_comfort_graph)
 
     @app.route('/')
     def index():
@@ -915,7 +920,7 @@ if __name__ == '__main__':
             return jsonify(geojson_data)
     
     @app.route('/get_thermal_comfort_path',methods=['POST'])
-    def get_thermal_comfort_path():
+    def get_thermal_comfort_route():
         data = request.json
         start_coords = data.get('userLocation')
         goal_coords = data.get('destination')
@@ -1012,47 +1017,63 @@ if __name__ == '__main__':
     @app.route('/get_tourist_path',methods=['POST'])
     def get_tourist_route():
         data = request.json
+        is_landmark=data.get('is_landmark')
+        is_museum=data.get('is_museum')
+        is_caffe=data.get('is_caffe')
+        is_restaurant=data.get('is_restaurant')
+        is_entertainment=data.get('is_entertainment')
         start_coords = data.get('userLocation')
-        goal_coords=data.get('destination')
-        if goal_coords==None:
-            return jsonify({'error': 'No destination provided'}), 400
-        else:
-            path = touristPath.get_path(start_coords)
-            coordinates = []
-            for u, v in pairwise(path):
-                # Get the coordinates for nodes u and v
-                lat_u, lon_u = G.nodes[u]['y'], G.nodes[u]['x']
-                lat_v, lon_v = G.nodes[v]['y'], G.nodes[v]['x']
+
+        features=[]
+        if is_landmark==1: 
+            features.append('landmark')
+        if is_museum==1: 
+            features.append('museum')
+        if is_caffe==1: 
+            features.append('caffe')
+        if is_restaurant==1: 
+            features.append('restaurant')
+        if is_entertainment==1:
+            features.append('entertainment')
+
+        print('features: ',features)
+        touristPath=TouristPath(G,features)
+        path = touristPath.get_path(start_coords)
+        coordinates = []
+        for u, v in pairwise(path):
+            # Get the coordinates for nodes u and v
+            lat_u, lon_u = G.nodes[u]['y'], G.nodes[u]['x']
+            lat_v, lon_v = G.nodes[v]['y'], G.nodes[v]['x']
                     
-                # Add the coordinates to the list
-                coordinates.append([lon_u, lat_u])
-                coordinates.append([lon_v, lat_v])
+            # Add the coordinates to the list
+            coordinates.append([lon_u, lat_u])
+            coordinates.append([lon_v, lat_v])
 
             # Remove duplicate coordinates
-            unique_coordinates = []
-            for coord in coordinates:
-                if coord not in unique_coordinates:
-                    unique_coordinates.append(coord)
+        unique_coordinates = []
+        for coord in coordinates:
+            if coord not in unique_coordinates:
+                unique_coordinates.append(coord)
 
             # Create GeoJSON response
-            geojson_data = {
-                "type": "FeatureCollection",
-                "features": [
-                    {
-                        "type": "Feature",
-                        "geometry": {
-                            "type": "LineString",
-                            "coordinates": unique_coordinates
-                        },
-                        "properties": {
-                            "description": "toruduf"
-                        }
+        geojson_data = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                   "type": "Feature",
+                    "geometry": {
+                        "type": "LineString",
+                        "coordinates": unique_coordinates
+                    },
+                    "properties": {
+                        "description": "toruduf"
                     }
-                ]
-            }
-            print('donee')
+                }
+            ]
+        }
+        print('donee')
                 # Return GeoJSON as a response
-            return jsonify(geojson_data)
+        return jsonify(geojson_data)
 
     app.run(debug=False,port=5501)
 

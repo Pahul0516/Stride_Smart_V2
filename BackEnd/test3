@@ -16,8 +16,8 @@ def get_comfort_index_at_point(raster_path, lat, lon):
 
 # Example usage:
 raster_path = 'BackEnd/comfort_index.tif'  # Path to the raster file
-latitude = 46.763639161, # Example latitude
-longitude =  23.574807278  # Example longitude # very white point => very green area => comfort index should be low to be taken
+latitude = 46.736922171  # Example latitude
+longitude =  23.551265576  # Example longitude # very white point => very green area => comfort index should be low to be taken
 
 comfort_index = get_comfort_index_at_point(raster_path, latitude, longitude)
 print(f"Comfort index at point ({latitude}, {longitude}): {comfort_index}")
@@ -116,20 +116,3 @@ def add_comfort_index_to_osmnx_graph(graph, raster_path, output_graphml):
     nx.write_graphml(graph, output_graphml)
     print(f"Graph with comfort index data saved to: {output_graphml}")
 
-# Example usage
-if __name__ == "__main__":
-    # Load your OSMnx graph (e.g., a city graph)
-    city_name = "Cluj-Napoca, Romania"  # Replace with your city
-    graph = ox.graph_from_place(city_name, network_type="walk")  # Replace with your city and network type
-    
-    for u, v, key, data in graph.edges(keys=True, data=True):
-        data['comfort_index'] = 0
-
-    # Path to the raster file containing comfort index data
-    raster_path = "BackEnd/comfort_index.tif"  # Replace with your raster file path
-    
-    # Path to the output GraphML file
-    output_graphml = "graph_with_comfort_index.graphml"
-    
-    # Add comfort index to the graph and save it to a new GraphML file
-    add_comfort_index_to_osmnx_graph(graph, raster_path, output_graphml)

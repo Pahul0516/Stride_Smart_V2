@@ -18,6 +18,15 @@ const greenAreasCheckbox = document.getElementById('greenAreas');
 const safetyCheckbox = document.getElementById('safety');
 const accessibilityCheckbox = document.getElementById('accessibility');
 
+const checkBoxes = [
+    thermalComfortCheckbox,
+    airQualityCheckbox,
+    greenAreasCheckbox,
+    safetyCheckbox,
+    accessibilityCheckbox,
+];
+
+
 const checkboxStates = {
     thermalComfort: false,
     airQuality: false,
@@ -195,12 +204,16 @@ function handleSafety()
             routeLayer.addGeoJson(data);
             routeLayer.setStyle(function(feature) {
                 return {
-                    strokeColor:"#e5e36a", //#028a0f
+                    strokeColor:"#c94f67", 
                     strokeWeight: 4
                 };
             });
             routeLayer.setMap(map.innerMap);
     })  
+    if(!safetyCheckbox.checked)
+    {
+        routeLayer.setMap(null);
+    }
 }
 
 function handleAirQuality()
@@ -222,7 +235,7 @@ function handleAirQuality()
             routeLayer.addGeoJson(data);
             routeLayer.setStyle(function(feature) {
                 return {
-                    strokeColor:"#b277f5", //#028a0f
+                    strokeColor:"#ed5076", 
                     strokeWeight: 4
                 };
             });
@@ -249,7 +262,7 @@ function handleAccessibility()
             routeLayer.addGeoJson(data);
             routeLayer.setStyle(function(feature) {
                 return {
-                    strokeColor:"#4d6def", 
+                    strokeColor:"#6ca3f2", 
                     strokeWeight: 4
                 };
             });
@@ -276,7 +289,7 @@ function handleGreenAreas()
         routeLayer.addGeoJson(data);
         routeLayer.setStyle(function(feature) {
             return {
-                strokeColor:"#38760b", 
+                strokeColor:"#2eb65d", 
                 strokeWeight: 4
             };
         });
@@ -385,9 +398,14 @@ function setupEventListeners() {
             map.innerMap.setZoom(15);
             
         });
-        evaluateCombination();
+        //evaluateCombination();
         fetchWeatherData(destination.lat, destination.lng);
         
+        checkBoxes.forEach((checkbox) => {
+            checkbox.addEventListener("change", () => {
+                evaluateCombination(); // Call the function to update the route
+            });
+        });
     });
 
     const placePicker = document.querySelector('gmpx-place-picker');
@@ -1071,19 +1089,33 @@ function setupTouristDropdown() {
     let isDropdownVisible = false;
     let markers = [];
     let touristLayerVisible = false;
+    const touristCheckboxStates = {
+        landmark: false,
+        museum: false,
+        caffe: false,
+        restaurants: false,
+        entertainment: false,
+    };
 
+    //create categories
     categories.forEach((category) => {
         const label = document.createElement("label");
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
         checkbox.value = category;
+        checkbox.id = `${category}`; // Assign a unique ID
+        console.log(checkbox.id);
         label.classList.add("dropdown-label");
         label.appendChild(checkbox);
         label.appendChild(document.createTextNode(category.charAt(0).toUpperCase() + category.slice(1)));
         dropdownMenu.appendChild(label);
         dropdownMenu.appendChild(document.createElement("br"));
-
+     
         checkbox.addEventListener("change", async () => {
+            touristCheckboxStates[category] = checkbox.checked;
+
+            // Call evaluateCombination when state changes
+            evaluateTouristCombination();
             if (checkbox.checked) {
                 const locations = await fetchTouristData(category);
                 addMarkers(category, locations);
@@ -1101,6 +1133,75 @@ function setupTouristDropdown() {
             }
         });
     });
+
+    async function evaluateTouristCombination() {
+        try {
+            // Gather checkbox states: 1 if checked, 0 if not
+            
+            is_landmark= touristCheckboxStates.landmark ? 1 : 0;
+            is_museum= touristCheckboxStates.museum ? 1 : 0;
+            is_caffe= touristCheckboxStates.caffe ? 1 : 0;
+            is_restaurant= touristCheckboxStates.restaurants ? 1 : 0;
+            is_entertainment= touristCheckboxStates.entertainment ? 1 : 0;
+                
+            // Count the number of selected options
+            const selectedCount = is_landmark+is_museum+is_caffe+is_restaurant+is_entertainment;
+    
+            if (selectedCount === 0) {
+                // If no checkboxes are selected, clear the current route
+                if (typeof routeLayer !== "undefined" && routeLayer) {
+                    routeLayer.setMap(null);
+                }
+                return;
+            }
+            
+            else{
+
+                const payload = {
+                    is_landmark:is_landmark,
+                    is_museum: is_museum,
+                    is_caffe: is_caffe,
+                    is_restaurant: is_restaurant,
+                    is_entertainment: is_entertainment,
+                    userLocation: userLocation,
+                };
+
+            // Log the payload for debugging
+            console.log(`Sending payload: ${JSON.stringify(payload)}`);
+    
+            // Send the payload to the backend
+            const response = await fetch("http://127.0.0.1:5501/get_tourist_path", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+            });
+    
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+    
+            const data = await response.json();
+            console.log("Tourist path:", data);
+    
+            // Clear the previous route if one exists
+            if (typeof routeLayer !== "undefined" && routeLayer) {
+                routeLayer.setMap(null);
+            }
+    
+            // Display the new route
+            routeLayer = new google.maps.Data();
+            routeLayer.addGeoJson(data);
+            routeLayer.setStyle(() => ({
+                strokeColor: "#a371f4",
+                strokeWeight: 4,
+            }));
+            routeLayer.setMap(map.innerMap);}
+        } catch (error) {
+            console.error("Error in evaluateTouristCombination:", error);
+        }
+    }    
 
     touristRouteButton.parentNode.appendChild(dropdownMenu);
 
@@ -1239,6 +1340,7 @@ async function evaluateCombination() {
             // Delete current route if no checkboxes are selected
             if (typeof routeLayer !== "undefined" && routeLayer) {
                 routeLayer.setMap(null);
+                routeLayer = undefined;
             }
             return;
         }
@@ -1297,7 +1399,7 @@ async function evaluateCombination() {
         routeLayer.addGeoJson(data);
         routeLayer.setStyle(function (feature) {
             return {
-                strokeColor: "#1f1876",
+                strokeColor: "#26acf4",
                 strokeWeight: 4
             };
         });
@@ -1307,6 +1409,5 @@ async function evaluateCombination() {
         console.error("Error in evaluateCombination:", error);
     }
 }
-
 
 document.addEventListener('DOMContentLoaded', init);
