@@ -112,14 +112,14 @@ input[type="checkbox"] {
 
 #dropdown-menu {
     position: absolute;
-    width: 41%;
-    max-width: 400px;
+    width: 55%;
     background-color: rgba(117, 156, 87, 0.97);
+    box-shadow: 2px 2px 0.5px rgba(0, 0, 0, 0.5);
     color: white;
     font-size: 1.1rem;
     font-weight: 600;
     margin-top: 0.5rem;
-    padding: 0.8rem;
+    padding: 1.2rem;
     border-radius: 8px;
     z-index: 100;
     opacity: 0;
@@ -147,14 +147,13 @@ input[type="checkbox"] {
 .grid-container {
     display: flex;
     flex-direction: column;
-    gap: 1.2rem;
+    gap: 1.75rem;
 }
 
 .row {
     display: grid;
-    grid-template-columns: 8.5rem 1fr;
+    grid-template-columns: 7.5rem 1fr;
     align-items: center;
-    margin-bottom: 0;
 }
 
 .side-panel {
@@ -163,7 +162,7 @@ input[type="checkbox"] {
     left: 0;
     width: 20%;
     height: 100%;
-    padding: 1rem;
+    padding-left: 1rem;
     background: rgba(217, 157, 120, 0.11);
     backdrop-filter: blur(8px);
     box-shadow: 4px 0 10px rgba(0, 0, 0, 0.2);
@@ -183,32 +182,33 @@ input[type="checkbox"] {
 
 .side-panel-menu {
     font-family: 'Rubik', sans-serif;
-    font-size: 25px;
-    font-weight: bolder;
+    font-size: 2rem;
+    font-weight: 800;
     text-align: center;
     color: rgba(117, 156, 87, 0.92);
-    margin-top: 5px;
-    margin-bottom: 20px;
-    padding: 10px;
+    text-shadow: 0.5px 0.5px 0.5px rgba(0, 0, 0, 1);
+    margin: 2.5rem;
     z-index: 5;
 }
 
 .custom-button {
-    display: inline-block;
+    display: block;
     text-decoration: none;
-    min-width: 160px; /* Ensures buttons are wide enough for text */
-    padding: 0.75rem 1rem; /* Adjust padding for better fit */
+    width: 95%;
+    padding: 0.5rem;
     font-family: 'Rubik', sans-serif;
     font-size: 1.2rem;
     font-weight: 800;
+    justify-content: flex-start;
     color: white;
     background: rgba(117, 156, 87, 0.92);
     border: none;
-    border-radius: 0.4rem;
+    border-radius: 0.6rem;
+    box-shadow: 2px 2px 0.5px rgba(0, 0, 0, 0.5);
     cursor: pointer;
     transition: background 0.3s, transform 0.2s;
     text-align: center;
-    white-space: nowrap; /* Prevents text wrapping */
+    gap: 0.5rem;
     z-index: 5;
 }
 
@@ -270,6 +270,13 @@ input[type="checkbox"] {
     transform: translateY(1px);
 }
 
+.icon{
+    width: 50%;
+    height: 50%;
+    margin-left: 15px;
+    z-index: 5;
+}
+
 .temperature-icon{
     width: 85%;
     height: 85%;
@@ -314,12 +321,14 @@ input[type="checkbox"] {
 }
 
 .go-back-container {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 1.5rem;
     display: flex;
     align-items: center;
     cursor: pointer;
-    margin: 20px;
     font-family: 'Rubik', sans-serif;
-    font-size: 14px;
+    font-size: 1rem;
     color: #6d8149;
     transition: color 0.3s ease;
 }
@@ -369,7 +378,6 @@ input[type="checkbox"] {
     margin-bottom: 5px;
     z-index: 100;
     color: rgba(0, 0, 0, 0.5);
-    font-size: 1rem; 
 }
 
 .weather-icon {
@@ -408,22 +416,23 @@ input[type="checkbox"] {
 
 .criteria-container {
     position: relative;
-    padding: 1.25rem;
+    padding: 1.35rem;
     background: rgba(217, 157, 120, 0.11);
     backdrop-filter: blur(8px);
     border-radius: 0.8rem;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     line-height: 1.6;
     z-index: 100;
     color: #333;
+    width: 500px;
+    box-sizing: border-box;
 }
 
 .criteria-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 1rem; 
 }
 
 .criteria-header h3 {
@@ -438,7 +447,7 @@ input[type="checkbox"] {
     display: flex;
     flex-direction: column;
     gap: 0.2rem;
-    padding: 0.25rem;
+    padding: 0.40rem;
     text-align: left;
     transition: max-height 0.3s ease, opacity 0.3s ease;
 }
@@ -460,6 +469,7 @@ input[type="checkbox"] {
 .criteria-checkbox:checked + label {
     color: rgba(78, 104, 58, 0.92);
     font-weight: bold;
+    padding: 0.40rem;
 }
 
 .minimize-button {

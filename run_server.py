@@ -1,8 +1,9 @@
+import base64
 from itertools import pairwise
 import random
 import time
 import matplotlib.pyplot as plt
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, Response, jsonify, render_template, request
 from flask_cors import CORS
 import osmnx as ox
 import networkx as nx
@@ -24,9 +25,9 @@ class Information:
     print('graph generated')
 
     host = "localhost"
-    dbname = "walk_safe_3"
-    user = "postgres"
-    password = "semiluna123"
+    dbname = "dbname"
+    user = "user"
+    password = "password"
 
     def __init__(self):
         self.init_graph_dictionary()
@@ -221,8 +222,8 @@ class Information:
                     password=self.password
                 )
                 cursor = conn.cursor()
-                #self.green_raster(cursor)
-                #self.accident_frequency(cursor)
+                self.green_raster(cursor)
+                self.accident_frequency(cursor)
                 self.accesibility_zone(cursor)
                 self.get_tourist_points(cursor)
                 break
@@ -1074,6 +1075,98 @@ if __name__ == '__main__':
         print('donee')
                 # Return GeoJSON as a response
         return jsonify(geojson_data)
+
+    @app.route('/load_new_report',methods=['POST'])
+    def load_new_report():
+        data = request.json
+        latitude=data['latitude']
+        longitude=data['longitude']
+        report_type = data['type']
+        description = data['description']
+        photos = data['photos']
+        print('latitude:',latitude)
+        print('longitude:',longitude)
+        print('report type:',report_type)
+        print('description:',description)
+        print('photos:',photos)
+        try:
+            conn = psycopg2.connect(
+            host = "localhost",
+            dbname = "dbname",
+            user = "user",
+            password = "password"
+            )
+            # Convert Base64-encoded photos to binary and create an array for PostgreSQL
+            #photo_bytes_array = [psycopg2.Binary(base64.b64decode(photo)) for photo in photos]
+            photos_bytes = [bytes(photo) for photo in photos]
+            print('photos bytes:',photos_bytes)
+            # Insert the report into the database
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                INSERT INTO reports (latitude,longitude,report_type, description, photos)
+                VALUES (%s, %s, %s, %s, %s)
+                """,
+                (latitude,longitude,report_type, description, photos_bytes)
+            )
+            conn.commit()
+            cursor.close()
+
+            return jsonify({'message': 'Report created successfully'}), 201
+
+        except Exception as e:
+            conn.rollback()
+            return jsonify({'error': str(e)}), 500
+
+    @app.route('/get_all_reports',methods=['GET'])
+    def send_all_reports():
+        try:
+            conn = psycopg2.connect(
+            host = "localhost",
+            dbname = "dbname",
+            user = "user",
+            password = "password"
+            )
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT report_id,latitude,longitude,report_type, description, photos, created_at
+                FROM reports
+            """)
+            rows = cursor.fetchall()
+            cursor.close()
+
+            # Format data for JSON response
+            reports = []
+            for row in rows:
+                reports.append({
+                    'report_id': row[0],
+                    'latitude':row[1],
+                    'longitude':row[2],
+                    'type': row[3],
+                    'description': row[4],
+                    'photos': [base64.b64encode(photo).decode('utf-8') for photo in row[5]],  # Encode photos as Base64
+                    'created_at': row[6].isoformat()  # Format timestamp as ISO 8601
+                })
+
+            return jsonify(reports), 200
+
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+   
+    @app.route('/image/<int:image_id>')
+    def get_image(image_id):
+        conn = psycopg2.connect("dbname=dbname user=user password=password")
+        cursor = conn.cursor()
+
+        # Fetch the image binary
+        cursor.execute("SELECT image_data FROM report_icons WHERE icon_id = %s", (image_id,))
+        image_data = cursor.fetchone()[0]
+
+        cursor.close()
+        conn.close()
+
+        # Return the image as a response
+        return Response(image_data, mimetype='image/png')
 
     app.run(debug=False,port=5501)
 

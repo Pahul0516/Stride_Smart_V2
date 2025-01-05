@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Walk Safe Map</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Stride Map</title>
     <script type="module" src="https://unpkg.com/@googlemaps/extended-component-library"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Turf.js/6.5.0/turf.min.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
@@ -10,54 +11,56 @@
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../styles/map-style.css"/>
+    <link rel="icon" type="image/png" href="../icons/logo.png">
 </head>
 <body>
 
 <div class="side-panel" id="side-panel">
     <button id="side-panel-close-button" class="side-panel-close-button">×</button>
-    <h2 class="side-panel-menu">Visualize on the map:</h2>
+    <h2 class="side-panel-menu">Visualize on the map</h2>
     <div class="grid-container">
         <div class="row">
             <div class="icon-container">
-                <img src="../icons/temperature-transformed2.png" alt="Temperature Icon" class="temperature-icon">
+                <img src="../icons/global-warming.png" alt="Temperature Icon" class="icon">
             </div>
             <button id="temperature-button" class="custom-button">Thermal Comfort</button>
         </div>
         <div class="row">
             <div class="icon-container">
-                <img src="../icons/air-quality-transformed2.png" alt="Air Quality Icon" class="air-icon">
+                <img src="../icons/ventilation.png" alt="Air Quality Icon" class="icon">
             </div>
-            <button id="air-quality-button" class="custom-button">Air Quality</button>
+            <button id="air-quality-button" class="custom-button">Clean Air</button>
         </div>
         <div class="row">
             <div class="icon-container">
-                <img src="../icons/parks-transformed.png" alt="Green Areas" class="green-icon">
+                <img src="../icons/forest.png" alt="Green Areas" class="icon">
             </div>
-            <button id="green-button" class="custom-button">Green Areas</button>
+            <button id="green-button" class="custom-button">Nature Path</button>
         </div>
         <div class="row">
             <div class="icon-container">
-                <img src="../icons/safety-transformed.png" alt="Safety" class="safety-icon">
+                <img src="../icons/safe-zone.png" alt="Safety" class="icon">
             </div>
-            <button id="safety-button" class="custom-button">Accident Rate</button>
+            <button id="safety-button" class="custom-button">Safety Trail</button>
         </div>
         <div class="row">
             <div class="icon-container">
-                <img src="../icons/accessibility2-transformed.png" alt="Accessibility" class="access-icon">
+                <img src="../icons/elderly.png" alt="Accessibility" class="icon">
             </div>
-            <button id="accessibility-button" class="custom-button">Accessibility</button>
+            <button id="accessibility-button" class="custom-button">Accessible Adventure</button>
         </div>
         <div class="row">
             <div class="icon-container">
-                <img src="../icons/travel-transformed2.png" alt="Tourist Mode" class="tourist-icon">
+                <img src="../icons/tour-guide.png" alt="Tourist Mode" class="icon">
             </div>
-            <button id="tourist-button" class="custom-button">Tourist Route</button>
+            <button id="tourist-button" class="custom-button">Discover & Explore</button>
+            <div id="dropdown-menu"></div>
         </div>
         <div class="row">
             <div class="icon-container">
-                <img src="../icons/report.png" alt="Report Mode" class="report-icon">
+                <img src="../icons/complain.png" alt="Report Mode" class="icon">
             </div>
-            <button id="report-button" class="custom-button">Reports</button>
+            <button id="report-button" class="custom-button">Navigators' Reports</button>
         </div>
     </div>
     <div class="row go-back-container" onclick="navigateTo('index.html')">
@@ -67,7 +70,7 @@
 </div>
 <button id="side-panel-open-button">☰</button>
 <div class="map-container" id="map-container">
-    <gmpx-api-loader key="AIzaSyDeWZJsxg8T_5RLbGGa_VlWADwJousvjXk" libraries="places,visualization" solution-channel="GMP_GE_mapsandplacesautocomplete_v1">
+    <gmpx-api-loader key="AIzaSyCb3sc8wMxkO3AtrwFlfHuCJLCJqLccHU8" libraries="places,visualization" solution-channel="GMP_GE_mapsandplacesautocomplete_v1">
     </gmpx-api-loader>
     <gmp-map center="46.770439,23.591423" zoom="15" map-id="WALK_SAFE_MAP">
         <div slot="control-block-start-inline-start" class="place-picker-container">
@@ -145,10 +148,10 @@
         </div>
         <div id="criteria-content" class="criteria-content">
             <label><input type="checkbox" class="criteria-checkbox" data-category="thermal-comfort" id="thermalComfort"> Thermal Comfort</label>
-            <label><input type="checkbox" class="criteria-checkbox" data-category="air-quality" id="airQuality"> Air Quality</label>
-            <label><input type="checkbox" class="criteria-checkbox" data-category="green-areas" id="greenAreas"> Green Areas</label>
-            <label><input type="checkbox" class="criteria-checkbox" data-category="safety" id="safety"> Safety</label>
-            <label><input type="checkbox" class="criteria-checkbox" data-category="accessibility" id="accessibility"> Accessibility</label>
+            <label><input type="checkbox" class="criteria-checkbox" data-category="air-quality" id="airQuality"> Clean Air</label>
+            <label><input type="checkbox" class="criteria-checkbox" data-category="green-areas" id="greenAreas"> Nature Path</label>
+            <label><input type="checkbox" class="criteria-checkbox" data-category="safety" id="safety"> Safety Trail</label>
+            <label><input type="checkbox" class="criteria-checkbox" data-category="accessibility" id="accessibility"> Accessibile Adventure</label>
         </div>
     </div>
     <div id="weather-display" class="weather-info">

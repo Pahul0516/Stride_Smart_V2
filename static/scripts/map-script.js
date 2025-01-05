@@ -7,33 +7,7 @@ let geocoder;
 let overview;
 let marker;
 let routeLayer=null;
-let overlayLayers = {};
-let circleLayers = {};
 let dataLayer;
-
-// Get checkboxes directly by ID
-const thermalComfortCheckbox = document.getElementById('thermalComfort');
-const airQualityCheckbox = document.getElementById('airQuality');
-const greenAreasCheckbox = document.getElementById('greenAreas');
-const safetyCheckbox = document.getElementById('safety');
-const accessibilityCheckbox = document.getElementById('accessibility');
-
-const checkBoxes = [
-    thermalComfortCheckbox,
-    airQualityCheckbox,
-    greenAreasCheckbox,
-    safetyCheckbox,
-    accessibilityCheckbox,
-];
-
-
-const checkboxStates = {
-    thermalComfort: false,
-    airQuality: false,
-    greenAreas: false,
-    safety: false,
-    accessibility: false,
-};
 
 const categories = ["landmark", "museum", "caffe", "restaurant", "entertainment"];
 const legends = {
@@ -70,6 +44,31 @@ const legends = {
     ],
 };
 
+let overlayLayers = {};
+let circleLayers = {};
+
+const thermalComfortCheckbox = document.getElementById('thermalComfort');
+const airQualityCheckbox = document.getElementById('airQuality');
+const greenAreasCheckbox = document.getElementById('greenAreas');
+const safetyCheckbox = document.getElementById('safety');
+const accessibilityCheckbox = document.getElementById('accessibility');
+
+const checkBoxes = [
+    thermalComfortCheckbox,
+    airQualityCheckbox,
+    greenAreasCheckbox,
+    safetyCheckbox,
+    accessibilityCheckbox,
+];
+
+const checkboxStates = {
+    thermalComfort: false,
+    airQuality: false,
+    greenAreas: false,
+    safety: false,
+    accessibility: false,
+};
+
 async function init() {
     await customElements.whenDefined('gmp-map');
     map = document.querySelector('gmp-map');
@@ -99,7 +98,7 @@ async function init() {
     )
 
     document.getElementById('green-button').addEventListener('click', () => {
-        toggleOverlay("../data/green_polygons.geojson", "green")
+        toggleOverlay("../data/filtered_cluj_polygons.geojson", "green")
     })
 
     document.getElementById('accessibility-button').addEventListener('click', () => {
@@ -107,10 +106,10 @@ async function init() {
         toggleOverlay("../data/zone_neaccesibile_reprojected.geojson", "inaccessibility");
     })
 
-    document.getElementById('safety-button').addEventListener('click', () => {
+    document.getElementById('safety-button').addEventListener('click', () =>
         toggleOverlay("../data/road_crash_density.geojson", "safety")
-    }  
     )
+
     document.getElementById("tourist-button").addEventListener('click', () => {
         fetch("http://127.0.0.1:5501/get_tourist_path", {
             method: "POST",
@@ -138,6 +137,11 @@ async function init() {
     }  
     )
 
+    document.getElementById('report-button').addEventListener('click', () => {
+        console.log('report button pressed');
+        fetchReports();
+    });
+
     // Add event listeners for all checkboxes
     Object.keys(checkboxStates).forEach(id => {
         const checkbox = document.getElementById(id);
@@ -146,186 +150,19 @@ async function init() {
             evaluateCombination(); // Check combinations
         });
     });
-}
 
-function handleOneCheckbox()
-{
-    if (thermalComfortCheckbox.checked) {
-        console.log('Thermal Comfort is selected');
-        handleThermalComfort();
-    } else {
-         console.log('Thermal Comfort is deselected');
-        }
-
-        if (airQualityCheckbox.checked) {
-            console.log('Air Quality is selected');
-            handleAirQuality();
-        } else {
-            console.log('Air Quality is deselected');
-        }
-
-        if (safetyCheckbox.checked) {
-            console.log('Safety is selected');
-            handleSafety();
-        } else {
-            console.log('Safety is deselected');
-        }
-        if (accessibilityCheckbox.checked) {
-            console.log('Accessibility is selected');
-            handleAccessibility();
-        } else {
-            console.log('Accessibility is deselected');
-        }
-
-        if (greenAreasCheckbox.checked) {
-            console.log('Green Areas is selected');
-            handleGreenAreas();
-        } else {
-            console.log('Green Areas is deselected');
-        }
-}
-
-function handleSafety()
-{
-    fetch("http://127.0.0.1:5501/get_safest_path", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ userLocation, destination })
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log("Safest path:", data);
-            if (routeLayer) {
-                routeLayer.setMap(null);
-            }
-            routeLayer = new google.maps.Data();
-            routeLayer.addGeoJson(data);
-            routeLayer.setStyle(function(feature) {
-                return {
-                    strokeColor:"#c94f67", 
-                    strokeWeight: 4
-                };
-            });
-            routeLayer.setMap(map.innerMap);
-    })  
-    if(!safetyCheckbox.checked)
-    {
-        routeLayer.setMap(null);
-    }
-}
-
-function handleAirQuality()
-{
-    fetch("http://127.0.0.1:5501/get_air_quality_path", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ userLocation, destination })
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log("air quality path:", data);
-            if (routeLayer) {
-                routeLayer.setMap(null);
-            }
-            routeLayer = new google.maps.Data();
-            routeLayer.addGeoJson(data);
-            routeLayer.setStyle(function(feature) {
-                return {
-                    strokeColor:"#ed5076", 
-                    strokeWeight: 4
-                };
-            });
-            routeLayer.setMap(map.innerMap);
-    })
-}
-
-function handleAccessibility()
-{
-    fetch("http://127.0.0.1:5501/get_accessible_path", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ userLocation, destination })
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log("Accessible path:", data);
-            if (routeLayer) {
-                routeLayer.setMap(null);
-            }
-            routeLayer = new google.maps.Data();
-            routeLayer.addGeoJson(data);
-            routeLayer.setStyle(function(feature) {
-                return {
-                    strokeColor:"#6ca3f2", 
-                    strokeWeight: 4
-                };
-            });
-            routeLayer.setMap(map.innerMap);
-    }) 
-}
-
-function handleGreenAreas()
-{
-    fetch("http://127.0.0.1:5501/get_greenest_path", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ userLocation, destination })
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log("Greenest path:", data);
-        if (routeLayer) {
-            routeLayer.setMap(null);
-        }
-        routeLayer = new google.maps.Data();
-        routeLayer.addGeoJson(data);
-        routeLayer.setStyle(function(feature) {
-            return {
-                strokeColor:"#2eb65d", 
-                strokeWeight: 4
-            };
-        });
-        routeLayer.setMap(map.innerMap);
-    })  
-}
-
-function handleThermalComfort()
-{
-    fetch("http://127.0.0.1:5501/get_thermal_comfort_path", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ userLocation, destination })
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log("Thermal comfort:", data);
-        if (routeLayer) {
-            routeLayer.setMap(null);
-        }
-        routeLayer = new google.maps.Data();
-        routeLayer.addGeoJson(data);
-        routeLayer.setStyle(function(feature) {
-            return {
-                strokeColor:"#4f941d", 
-                strokeWeight: 4
-            };
-        });
-        routeLayer.setMap(map.innerMap);
-    })  
 }
 
 function setupMap() {
-    marker = new google.maps.Marker({map: map.innerMap});
+    marker = new google.maps.Marker({
+        map: map.innerMap,
+        title: location.name,
+        category: location.category,
+        icon: {
+            url: "../icons/point.png",
+            scaledSize: new google.maps.Size(40, 40),
+        }
+        });
 
     map.innerMap.setOptions({
         mapTypeControl: false,
@@ -348,18 +185,15 @@ function setupGeolocation() {
 
                 map.innerMap.setCenter(userLocation);
 
-                // Add a marker for the user's current position
                 new google.maps.Marker({
                     position: userLocation,
                     map: map.innerMap,
                     title: "You are here",
                     icon: {
-                        path: google.maps.SymbolPath.CIRCLE,
-                        fillColor: "rgba(0,102,255,0.64)",
-                        fillOpacity: 1,
-                        strokeColor: "rgba(0,31,154,0.5)",
-                        strokeWeight: 2,
-                        scale: 8,
+                        url: "../icons/compass_12527012.png",
+                        scaledSize: new google.maps.Size(25, 25),
+                        origin: new google.maps.Point(0, 0),
+                        anchor: new google.maps.Point(20, 20),
                     },
                 });
 
@@ -396,11 +230,10 @@ function setupEventListeners() {
             marker.setPosition(destination);
             map.innerMap.setCenter(destination);
             map.innerMap.setZoom(15);
-            
         });
-        //evaluateCombination();
+
         fetchWeatherData(destination.lat, destination.lng);
-        
+
         checkBoxes.forEach((checkbox) => {
             checkbox.addEventListener("change", () => {
                 evaluateCombination(); // Call the function to update the route
@@ -680,10 +513,74 @@ function setupHazardFormListeners() {
         const description = document.getElementById("hazard-description").value;
 
         const hazardData = {
+            latitude: destination.lat,
+            longitude: destination.lng,
             type: hazardType,
             description: description,
-            photos: selectedPhotos.map((file) => URL.createObjectURL(file)),
+            photos: []
         };
+
+
+        const photosToProcess = selectedPhotos.length; // Total number of photos to process
+        let processedPhotos = 0; // Counter to track processed photos
+        // Convert selected photos into binary data
+        selectedPhotos.forEach((file) => {
+            const reader = new FileReader();
+        
+            reader.onload = (event) => {
+                // Convert ArrayBuffer to byte array
+                const arrayBuffer = event.target.result;
+                const byteArray = Array.from(new Uint8Array(arrayBuffer));
+                
+                // Add the byte array to hazardData.photos
+                hazardData.photos.push(byteArray);
+                processedPhotos++;
+        
+                console.log(`Uploaded ${processedPhotos}/${photosToProcess} photos`);
+        
+                // Check if all photos have been processed
+                if (processedPhotos === photosToProcess) {
+                    console.log("All photos uploaded, sending data:", hazardData);
+        
+                    // Send data to the backend
+                    fetch('http://127.0.0.1:5501/load_new_report', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(hazardData),
+                    })
+                        .then((response) => response.json())
+                        .then((data) => {
+                            console.log('Report submitted successfully:', data);
+                        })
+                        .catch((error) => {
+                            console.error('Error submitting report:', error);
+                        });
+                }
+            };
+        
+            reader.onerror = (error) => {
+                console.error("Error reading photo:", error);
+            };
+        
+            reader.readAsArrayBuffer(file); // Read the file as an ArrayBuffer
+        });
+
+        fetch('http://127.0.0.1:5501/load_new_report', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(hazardData), // Convert hazardData to JSON
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                console.log('Report submitted successfully:', data);
+            })
+            .catch((error) => {
+                console.error('Error submitting report:', error);
+            });
 
         console.log("Hazard Report Submitted:", hazardData);
 
@@ -722,11 +619,6 @@ function hideCustomAlert() {
 }
 
 function closeDirectionsOverview() {
-    if(routeLayer)
-    {
-        routeLayer.setMap(null);
-    }
-    destination=null;
     resetPlacePicker();
     fetchWeatherData(userLocation.lat, userLocation.lng);
 }
@@ -838,7 +730,7 @@ function updateLegend(layerName, isVisible) {
 async function addOverlayLayer(filepath, layerName) {
     try {
         const response = await fetch(filepath);
-        if (!response.ok)  throw new Error(`HTTP error! Status: ${response.status}`);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
         let geojsonData = await response.json();
 
@@ -978,7 +870,7 @@ async function addOverlayLayer(filepath, layerName) {
         dataLayer.setMap(map.innerMap);
         overlayLayers[layerName] = dataLayer;
     } catch (error) {
-        console.error("Error loading overlay layer (${layerName}):, error");
+        console.error(`Error loading overlay layer (${layerName}):`, error);
     }
 }
 
@@ -1077,7 +969,7 @@ function getSafetyColor(safetyLevel) {
     if (safetyLevel === 1) return 'rgba(0,128,0,0.7)';
     if (safetyLevel === 2) return 'rgba(255,165,0,0.7)';
     if (safetyLevel === 3) return 'rgba(255,0,0,0.7)';
-    return 'rgba(128,128,128,0.5)'; // Default color for unknown safety levels
+    return 'rgba(128,128,128,0.5)';
 }
 
 function setupTouristDropdown() {
@@ -1097,25 +989,25 @@ function setupTouristDropdown() {
         entertainment: false,
     };
 
-    //create categories
     categories.forEach((category) => {
         const label = document.createElement("label");
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
         checkbox.value = category;
         checkbox.id = `${category}`; // Assign a unique ID
-        console.log(checkbox.id);
         label.classList.add("dropdown-label");
         label.appendChild(checkbox);
-        label.appendChild(document.createTextNode(category.charAt(0).toUpperCase() + category.slice(1)));
+        label.appendChild(
+            document.createTextNode(category.charAt(0).toUpperCase() + category.slice(1))
+        );
         dropdownMenu.appendChild(label);
         dropdownMenu.appendChild(document.createElement("br"));
-     
+
         checkbox.addEventListener("change", async () => {
             touristCheckboxStates[category] = checkbox.checked;
 
-            // Call evaluateCombination when state changes
             evaluateTouristCombination();
+
             if (checkbox.checked) {
                 const locations = await fetchTouristData(category);
                 addMarkers(category, locations);
@@ -1253,7 +1145,7 @@ function setupTouristDropdown() {
                 category: location.category,
                 icon: {
                     url: iconUrl,
-                    scaledSize: new google.maps.Size(25, 25), // Icon size
+                    scaledSize: new google.maps.Size(25, 25),
                 }
             });
 
@@ -1277,8 +1169,8 @@ function setupTouristDropdown() {
                 });
 
                 infoWindow.setContent(`
-                <div class="info-window" style="max-width: 200px; max-height: 150px; padding: 8px;">
-                    <h3 style="font-size: 1em; margin-bottom: 5px;">${location.name}</h3>
+                <div class="info-window" style="padding: 0.5rem;">
+                    <h3 style="width: 100%; font-size: 1em; margin-bottom: 0.3rem;">${location.name}</h3>
                     <p style="margin: 0; font-size: 0.9em;">
                         <b>Category:</b> ${location.category.charAt(0).toUpperCase() + location.category.slice(1)}
                     </p>
@@ -1321,6 +1213,248 @@ function setupTouristDropdown() {
                 return '../icons/entertainment.png';
         }
     }
+}
+
+async function fetchReports()
+{
+    try {
+        const response = await fetch('http://127.0.0.1:5501/get_all_reports');
+        const reports = await response.json();
+        // Pass the reports data to a function that displays them on the map
+        displayReportsOnMap(reports);
+    } catch (error) {
+        console.error('Error fetching reports:', error);
+    }
+}
+
+async function displayReportsOnMap(reports)
+{
+        reports.forEach((report) => {
+            console.log(report);
+            // Add a marker for each report
+            let icon_id;
+            if(report.type==='pothole') icon_id=1;
+            else if(report.type==='construction') icon_id=2;
+            else if(report.type==='sidewalk') icon_id=3;
+            else icon_id=4;
+            console.log(`icon id: ${icon_id}`);
+            const icon = {
+                url: `http://127.0.0.1:5501/image/${icon_id}`, // URL of the custom icon -> see backend function
+                scaledSize: new google.maps.Size(40, 60), // Specify the size (width, height)
+              };
+
+            const marker = new google.maps.Marker({
+                position: { lat: report.latitude, lng: report.longitude }, // Replace with your location data
+                map: map.innerMap,
+                title: report.type,
+                icon: icon
+            });
+
+            // Parse the created_at timestamp and reformat it
+            const formatDate = (isoString) => {
+                const date = new Date(isoString);
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+                const year = date.getFullYear();
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                const seconds = String(date.getSeconds()).padStart(2, '0');
+                return `${day}-${month}-${year}, ${hours}:${minutes}:${seconds}`;
+            };
+            // Create an info window for the marker
+            const infoWindowContent = `
+                <div>
+                    <h3>${report.type}</h3>
+                    <p>${report.description}</p>
+                    ${report.photos.map(photo => `<img src="data:image/jpeg;base64,${photo}" width="100">`).join('')}
+                    <p style="color: green;">Reported on: ${formatDate(report.created_at)}</p>
+                </div>
+            `;
+            const infoWindow = new google.maps.InfoWindow({
+                content: infoWindowContent
+            });
+
+            // Show info window on marker click
+            marker.addListener('click', () => {
+                infoWindow.open(map, marker);
+            });
+        });
+}
+
+function handleOneCheckbox()
+{
+    if (thermalComfortCheckbox.checked) {
+        console.log('Thermal Comfort is selected');
+        handleThermalComfort();
+    } else {
+         console.log('Thermal Comfort is deselected');
+        }
+
+        if (airQualityCheckbox.checked) {
+            console.log('Air Quality is selected');
+            handleAirQuality();
+        } else {
+            console.log('Air Quality is deselected');
+        }
+
+        if (safetyCheckbox.checked) {
+            console.log('Safety is selected');
+            handleSafety();
+        } else {
+            console.log('Safety is deselected');
+        }
+        if (accessibilityCheckbox.checked) {
+            console.log('Accessibility is selected');
+            handleAccessibility();
+        } else {
+            console.log('Accessibility is deselected');
+        }
+
+        if (greenAreasCheckbox.checked) {
+            console.log('Green Areas is selected');
+            handleGreenAreas();
+        } else {
+            console.log('Green Areas is deselected');
+        }
+}
+
+function handleSafety()
+{
+    fetch("http://127.0.0.1:5501/get_safest_path", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ userLocation, destination })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("Safest path:", data);
+            if (routeLayer) {
+                routeLayer.setMap(null);
+            }
+            routeLayer = new google.maps.Data();
+            routeLayer.addGeoJson(data);
+            routeLayer.setStyle(function(feature) {
+                return {
+                    strokeColor:"#c94f67", 
+                    strokeWeight: 4
+                };
+            });
+            routeLayer.setMap(map.innerMap);
+    })  
+    if(!safetyCheckbox.checked)
+    {
+        routeLayer.setMap(null);
+    }
+}
+
+function handleAirQuality()
+{
+    fetch("http://127.0.0.1:5501/get_air_quality_path", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ userLocation, destination })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("air quality path:", data);
+            if (routeLayer) {
+                routeLayer.setMap(null);
+            }
+            routeLayer = new google.maps.Data();
+            routeLayer.addGeoJson(data);
+            routeLayer.setStyle(function(feature) {
+                return {
+                    strokeColor:"#ed5076", 
+                    strokeWeight: 4
+                };
+            });
+            routeLayer.setMap(map.innerMap);
+    })
+}
+
+function handleAccessibility()
+{
+    fetch("http://127.0.0.1:5501/get_accessible_path", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ userLocation, destination })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("Accessible path:", data);
+            if (routeLayer) {
+                routeLayer.setMap(null);
+            }
+            routeLayer = new google.maps.Data();
+            routeLayer.addGeoJson(data);
+            routeLayer.setStyle(function(feature) {
+                return {
+                    strokeColor:"#6ca3f2", 
+                    strokeWeight: 4
+                };
+            });
+            routeLayer.setMap(map.innerMap);
+    }) 
+}
+
+function handleGreenAreas()
+{
+    fetch("http://127.0.0.1:5501/get_greenest_path", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ userLocation, destination })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Greenest path:", data);
+        if (routeLayer) {
+            routeLayer.setMap(null);
+        }
+        routeLayer = new google.maps.Data();
+        routeLayer.addGeoJson(data);
+        routeLayer.setStyle(function(feature) {
+            return {
+                strokeColor:"#2eb65d", 
+                strokeWeight: 4
+            };
+        });
+        routeLayer.setMap(map.innerMap);
+    })  
+}
+
+function handleThermalComfort()
+{
+    fetch("http://127.0.0.1:5501/get_thermal_comfort_path", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ userLocation, destination })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Thermal comfort:", data);
+        if (routeLayer) {
+            routeLayer.setMap(null);
+        }
+        routeLayer = new google.maps.Data();
+        routeLayer.addGeoJson(data);
+        routeLayer.setStyle(function(feature) {
+            return {
+                strokeColor:"#4f941d", 
+                strokeWeight: 4
+            };
+        });
+        routeLayer.setMap(map.innerMap);
+    })  
 }
 
 // Evaluate combinations of checkboxes 
