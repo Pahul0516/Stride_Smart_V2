@@ -1,0 +1,155 @@
+body {
+    margin: 0;
+    background: linear-gradient(to bottom, #A6B37D, #C0C78C);
+    font-family: 'Rubik', sans-serif;
+    color: #fff;
+    scroll-behavior: smooth;
+}
+.container {
+    text-align: center;
+    padding: 2em;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+h1 {
+    position: relative;
+    font-family: 'Rubik', sans-serif;
+    font-size: 9vw;
+    font-weight: 600;
+    margin: 0;
+}
+.subtitle {
+    position: relative;
+    font-family: 'Rubik', sans-serif;
+    font-size: 2vw;
+    color: #FEFAE0;
+}
+.description-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4em;
+    background: #FEFAE0;
+    color: #C0C78C;
+    height: 100vh;
+}
+
+.text-content {
+    flex: 1;
+    margin-right: 5em;
+}
+.description-section h2 {
+    font-family: 'Rubik', sans-serif;
+    font-size: 3vw;
+    margin-bottom: 1em;
+}
+.description-section p {
+    font-family: 'Rubik', sans-serif;
+    font-size: 1.5vw;
+    line-height: 1.6;
+}
+.button-container {
+    margin-top: 4em;
+    z-index: 5;
+}
+button {
+    padding: 0.5em 1.5em;
+    font-family: 'Rubik', sans-serif;
+    font-size: 1.2vw;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    background-color: #C0C78C;
+    color: #fff;
+    z-index: 5;
+    position: relative;
+    transition: background-color 0.5s ease, color 0.5s ease, transform 0.5s ease;
+}
+button:hover {
+    background-color: #FEFAE0;
+    border: 2px solid #C0C78C;
+    color: #C0C78C;
+    transform: scale(1.15);
+}
+.menu-button {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 2vw;
+    color: #FEFAE0;
+    padding: 0.5em;
+    z-index: 5;
+    transition: transform 0.5s ease, left 0.5s ease-in-out;
+}
+.menu-button:hover {
+    transform: scale(1.1);
+    border:none;
+    z-index: 5;
+}
+.menu {
+    position: fixed;
+    top: 100px;
+    left: 20px;
+    background-color: #FEFAE0;
+    padding: 0;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    max-height: 0;
+    z-index: 5;
+    transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out;
+}
+
+.menu-button.active {
+    left: 58px;
+    transition: transform 0.5s ease, left 0.5s ease-in-out;
+}
+
+.menu.show {
+    max-height: 300px;
+    padding: 1em;
+}
+.menu a {
+    display: block;
+    text-decoration: none;
+    font-family: 'Rubik', sans-serif;
+    font-size: 1.2vw;
+    color: #A6B37D;
+    padding: 0.5em;
+    transition: transform 0.5s ease;
+}
+.menu a:hover {
+    background-color: transparent;
+    color: #FEFAE0;
+    border-radius: 10px;
+    transform: scale(1.1);
+}
+
+.people-up{
+    position: absolute;
+    top: 11.75em;
+    left: 0;
+    width: 100%;
+    opacity: 0.2;
+    z-index: -1;
+}
+
+.cat-girl {
+    width: 50%;
+    height: auto;
+    flex-shrink: 0;
+    opacity: 0;
+    transform: translateY(40px);
+    transition: transform 1.5s ease-out, opacity 1.5s ease-out;
+}
+
+.cat-girl.in-view {
+    opacity: 0.75;
+    transform: translateY(0);
+}
