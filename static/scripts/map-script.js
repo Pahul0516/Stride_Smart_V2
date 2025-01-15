@@ -8,6 +8,7 @@ let overview;
 let marker;
 let routeLayer=null;
 let dataLayer;
+let abortController=null;
 
 const categories = ["landmark", "museum", "caffe", "restaurant", "entertainment"];
 const legends = {
@@ -1235,7 +1236,7 @@ async function displayReportsOnMap(reports)
             let icon_id;
             if(report.type==='pothole') icon_id=1;
             else if(report.type==='construction') icon_id=2;
-            else if(report.type==='sidewalk') icon_id=3;
+            else if(report.type==='broken-sidewalk'|| report.type==='sidewalk') icon_id=3;
             else icon_id=4;
             console.log(`icon id: ${icon_id}`);
             const icon = {
@@ -1325,9 +1326,15 @@ function handleSafety()
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({ userLocation, destination })
+        body: JSON.stringify({ userLocation, destination }),
+        signal: abortController.signal,
         })
-        .then(response => response.json())
+        .then(async response => {response.json();
+            if (!response.ok) {
+                alert('Please choose a destination!');
+                return;
+            }
+                            })
         .then(data => {
             console.log("Safest path:", data);
             if (routeLayer) {
@@ -1356,7 +1363,8 @@ function handleAirQuality()
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({ userLocation, destination })
+        body: JSON.stringify({ userLocation, destination }),
+        signal: abortController.signal,    
         })
         .then(response => response.json())
         .then(data => {
@@ -1383,7 +1391,8 @@ function handleAccessibility()
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({ userLocation, destination })
+        body: JSON.stringify({ userLocation, destination }),
+        signal: abortController.signal,
         })
         .then(response => response.json())
         .then(data => {
@@ -1410,7 +1419,8 @@ function handleGreenAreas()
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({ userLocation, destination })
+        body: JSON.stringify({ userLocation, destination }),
+        signal: abortController.signal,
     })
     .then(response => response.json())
     .then(data => {
@@ -1437,7 +1447,8 @@ function handleThermalComfort()
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({ userLocation, destination })
+        body: JSON.stringify({ userLocation, destination }),
+        signal: abortController.signal,
     })
     .then(response => response.json())
     .then(data => {
@@ -1459,7 +1470,14 @@ function handleThermalComfort()
 
 // Evaluate combinations of checkboxes 
 async function evaluateCombination() {
+     //cancel on-going calculations
+     if (abortController) {
+        abortController.abort();
+        console.log("Download aborted");
+    }
     try {
+        abortController = new AbortController();
+        console.log('new route calculation started');
         // Gather checkbox states: 1 if checked, 0 if not
         const is_thermal_comfort=document.getElementById("thermalComfort").checked ? 1 : 0;
         const is_air_quality = document.getElementById("airQuality").checked ? 1 : 0;
@@ -1515,7 +1533,8 @@ async function evaluateCombination() {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(payload),
+            signal: abortController.signal,
         });
 
         if (!response.ok) {

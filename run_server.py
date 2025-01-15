@@ -290,7 +290,6 @@ class SaftyPath:
         A = (accident_frequency - 0) / (3 - 0)
 
         W = self.alpha * L + self.beta * A
-        print(W)
         return W
     def heuristic(self, u, v):
         (x1, y1) = G.nodes[u]['x'], G.nodes[u]['y']
@@ -424,7 +423,6 @@ class AirQualityPath:
 
     def custom_cost(self, u, v, data):
         try:
-            print('trying')
             # Get 'length' from the OSMnx graph
             length = data[0].get('length', float('inf'))
 
@@ -432,10 +430,8 @@ class AirQualityPath:
             # Assuming `self.custom_graph` is your custom graph
             if self.custom_graph.has_edge(u, v):
                 air_quality = float(self.custom_graph[u][v].get('AirQuality', 0.0))  # Default to 4.0 if missing
-                print('yes')
             else:
                 air_quality = 0.0  # Penalize if no edge exists in the custom graph
-                print('no')
 
             # Normalize the values
             L = (length - 0.24) / (3201.74 - 0.24)
@@ -447,7 +443,6 @@ class AirQualityPath:
             # Debugging: Ensure W is real
             if isinstance(W, complex):
                 raise ValueError(f"Complex cost encountered: W={W}, length={length}, air_quality={air_quality}")
-            print('(',L,A,W,')')
             return W
 
         except Exception as e:
@@ -459,13 +454,11 @@ class AirQualityPath:
         (x2, y2) = G.nodes[v]['x'], G.nodes[v]['y']
         return ((x2 - x1) * 2 + (y2 - y1) * 2) ** 0.5  # Euclidean distance
     def get_path(self,start_coords,goal_coords,alpha = 0.5, beta = 0.5):
-        print('getting path...')
         self.set_alpha(alpha)
         self.set_beta(beta)
         # Find the nearest nodes to the start and goal coordinates
         self.start_node = ox.distance.nearest_nodes(G, X=start_coords['lng'], Y=start_coords['lat'])  # X is longitude, Y is latitude
         self.goal_node = ox.distance.nearest_nodes(G, X=goal_coords['lng'], Y=goal_coords['lat'])
-        print('going into a star...')
         self.path = nx.astar_path(G, source=self.start_node, target=self.goal_node, weight=self.custom_cost, heuristic=self.heuristic)
         return self.path
     def display_air_quality_data(self,graph):
@@ -474,9 +467,8 @@ class AirQualityPath:
             # Check if the 'AirQuality' attribute exists in the edge data
             if 'AirQuality' in data:
                 air_quality = data['AirQuality']
-                print(f"Edge ({u}, {v}) has AirQuality: {air_quality}")
-            else:
-                print(f"Edge ({u}, {v}) does not have AirQuality data.")
+                #print(f"Edge ({u}, {v}) has AirQuality: {air_quality}")
+                #print(f"Edge ({u}, {v}) does not have AirQuality data.")
 class ThermalComfort:
     G = None
     path = None
@@ -498,7 +490,6 @@ class ThermalComfort:
 
     def custom_cost(self, u, v, data):
         try:
-            print('trying')
             # Get 'length' from the OSMnx graph
             length = data[0].get('length', float('inf'))
 
@@ -506,10 +497,8 @@ class ThermalComfort:
             # Assuming `self.custom_graph` is your custom graph
             if self.custom_graph.has_edge(u, v):
                 comfort_index = float(self.custom_graph[u][v].get('comfort_index', 0.0))  # Default to 0.0 if missing
-                print('yes')
             else:
                 comfort_index = 0.0  # Penalize if no edge exists in the custom graph
-                print('no')
 
             # Normalize the values
             L = (length - 0.24) / (3201.74 - 0.24)
@@ -518,7 +507,6 @@ class ThermalComfort:
             # Weighted cost
             W = self.alpha * L + self.beta * A
 
-            print('(',L,A,W,')')
             return W
 
         except Exception as e:
@@ -530,13 +518,11 @@ class ThermalComfort:
         (x2, y2) = G.nodes[v]['x'], G.nodes[v]['y']
         return ((x2 - x1) * 2 + (y2 - y1) * 2) ** 0.5  # Euclidean distance
     def get_path(self,start_coords,goal_coords,alpha = 0.5, beta = 0.5):
-        print('getting path...')
         self.set_alpha(alpha)
         self.set_beta(beta)
         # Find the nearest nodes to the start and goal coordinates
         self.start_node = ox.distance.nearest_nodes(G, X=start_coords['lng'], Y=start_coords['lat'])  # X is longitude, Y is latitude
         self.goal_node = ox.distance.nearest_nodes(G, X=goal_coords['lng'], Y=goal_coords['lat'])
-        print('going into a star...')
         self.path = nx.astar_path(G, source=self.start_node, target=self.goal_node, weight=self.custom_cost, heuristic=self.heuristic)
         return self.path
     def display_thermal_comfort_data(self,graph):
@@ -651,7 +637,6 @@ class CombinedCriteriaPath:
 
     def custom_cost(self, u, v, data):
         try:
-            print('trying')
             # Get 'length' from the OSMnx graph
             length = data[0].get('length', float('inf'))
 
@@ -705,13 +690,11 @@ class CombinedCriteriaPath:
         (x2, y2) = G.nodes[v]['x'], G.nodes[v]['y']
         return ((x2 - x1) * 2 + (y2 - y1) * 2) ** 0.5  # Euclidean distance
     def get_path(self,start_coords,goal_coords,alpha = 0.5, beta = 0.5):
-        print('getting path...')
         self.set_alpha(alpha)
         self.set_beta(beta)
         # Find the nearest nodes to the start and goal coordinates
         self.start_node = ox.distance.nearest_nodes(G, X=start_coords['lng'], Y=start_coords['lat'])  # X is longitude, Y is latitude
         self.goal_node = ox.distance.nearest_nodes(G, X=goal_coords['lng'], Y=goal_coords['lat'])
-        print('going into a star...')
         self.path = nx.astar_path(G, source=self.start_node, target=self.goal_node, weight=self.custom_cost, heuristic=self.heuristic)
         return self.path
 
@@ -744,10 +727,6 @@ if __name__ == '__main__':
         if goal_coords==None:
             return jsonify({'error': 'No destination provided'}), 400
         else:
-            print('start location: ')
-            print(start_coords)
-            print('end locaton: ')
-            print(goal_coords)
             path = greenPath.get_path(start_coords,goal_coords,alpha = 0.5, beta = 0.5)
             coordinates = []
             for u, v in pairwise(path):
@@ -781,7 +760,6 @@ if __name__ == '__main__':
                     }
                 ]
             }
-            print('donee')
                 # Return GeoJSON as a response
             return jsonify(geojson_data)
         
@@ -826,7 +804,6 @@ if __name__ == '__main__':
                     }
                 ]
             }
-            print('donee')
                 # Return GeoJSON as a response
             return jsonify(geojson_data)
     
@@ -871,7 +848,6 @@ if __name__ == '__main__':
                     }
                 ]
             }
-            print('donee')
                 # Return GeoJSON as a response
             return jsonify(geojson_data)
 
@@ -916,7 +892,6 @@ if __name__ == '__main__':
                     }
                 ]
             }
-            print('donee')
                 # Return GeoJSON as a response
             return jsonify(geojson_data)
     
@@ -961,7 +936,6 @@ if __name__ == '__main__':
                     }
                 ]
             }
-            print('donee')
                 # Return GeoJSON as a response
             return jsonify(geojson_data)
 
@@ -1011,7 +985,6 @@ if __name__ == '__main__':
                     }
                 ]
             }
-            print('donee')
                 # Return GeoJSON as a response
             return jsonify(geojson_data)
 
@@ -1037,7 +1010,6 @@ if __name__ == '__main__':
         if is_entertainment==1:
             features.append('entertainment')
 
-        print('features: ',features)
         touristPath=TouristPath(G,features)
         path = touristPath.get_path(start_coords)
         coordinates = []
@@ -1072,7 +1044,6 @@ if __name__ == '__main__':
                 }
             ]
         }
-        print('donee')
                 # Return GeoJSON as a response
         return jsonify(geojson_data)
 
@@ -1084,11 +1055,6 @@ if __name__ == '__main__':
         report_type = data['type']
         description = data['description']
         photos = data['photos']
-        print('latitude:',latitude)
-        print('longitude:',longitude)
-        print('report type:',report_type)
-        print('description:',description)
-        print('photos:',photos)
         try:
             conn = psycopg2.connect(
             host = "localhost",
