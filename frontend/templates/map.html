@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Walk Safe Map</title>
+    <script type="module" src="https://unpkg.com/@googlemaps/extended-component-library"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Turf.js/6.5.0/turf.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/heatmap.js@2.0.5/build/heatmap.min.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="http://127.0.0.1:5501/static/css/map-style.css"/>
+    <link rel="icon" type="image/png" href="http://127.0.0.1:5501/static/img/logo.png">
+</head>
+<body class="text-xs">
+
+<!--google map elements-->
+<div class="map-container relative w-full h-screen">
+    <gmpx-api-loader key="AIzaSyCb3sc8wMxkO3AtrwFlfHuCJLCJqLccHU8" libraries="places,visualization" solution-channel="GMP_GE_mapsandplacesautocomplete_v1">
+    </gmpx-api-loader>
+
+    <gmp-map center="46.770439,23.591423" zoom="15" map-id="WALK_SAFE_MAP" class="w-full h-full" id="map">
+        <div slot="control-block-start-inline-start" class="flex fixed border-transparent top-6 justify-center w-full z-10">
+            <gmpx-place-picker id="place-picker" country="ro" for-map="map" placeholder="Enter a place"></gmpx-place-picker>
+        </div>
+    </gmp-map>
+
+    <div id="directions-container" class="hidden absolute top-28 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-3 shadow-lg rounded-lg w-96 z-50">
+        <label for="from-location" class="text-gray-600 text-xs mb-1">From:</label>
+
+        <div class="relative mb-2">
+            <input type="text" id="from-location" placeholder="Choose starting point"
+                   class="w-full p-3 border rounded-xl focus:outline-gray-400 pr-12">
+
+            <button id="your-location-button" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-xs bg-gray-100 px-2 py-1 rounded-md hover:bg-gray-200 items-center">
+                𖦏
+            </button>
+        </div>
+
+        <label for="to-location" class="text-gray-600 text-xs mb-1">To:</label>
+        <input type="text" id="to-location" placeholder="Enter a destination" class="w-full p-3 border rounded-xl focus:outline-gray-400">
+
+        <div class="flex items-center gap-2 mt-3">
+            <button id="calculate-route" class="bg-[#3A4D39] text-white px-4 py-2 rounded-xl w-full">
+                Get Directions
+            </button>
+            <button id="cancel-directions" class="bg-gray-400 text-white px-4 py-2 rounded-xl w-full">
+                Cancel
+            </button>
+            <button id="swap-locations"
+                    class="bg-gray-100 px-2 py-0.5 rounded-full hover:bg-gray-200 flex items-center justify-center">
+                <span class="text-sm text-[#3A4D39]">↑↓</span>
+            </button>
+        </div>
+
+    </div>
+
+    <div id="place-overview-container" class="fixed bottom-0 left-0 w-full bg-white shadow-2xl rounded-t-2xl transition duration-500 transform translate-y-full opacity-0 z-40 overflow-y-auto">
+        <div id="slide-handle" class="absolute top-0.5 left-1/2 transform -translate-x-1/2 w-10 h-1 bg-gray-400 rounded-full mt-2 cursor-pointer"></div>
+        <gmpx-place-overview id="place-overview" size="large" travel-mode="walking">
+            <div slot="action" class="flex flex-col w-full">
+                <p id="travel-time" class="text-gray-500 text-sm mb-4">Calculating travel time...</p>
+                <div class="flex gap-2">
+                    <gmpx-icon-button variant="outlined" id="direction-button">Directions</gmpx-icon-button>
+                    <gmpx-icon-button variant="outlined" id="report-picker-button">Report</gmpx-icon-button>
+                    <gmpx-icon-button variant="outlined" id="exit-button">Close</gmpx-icon-button>
+                </div>
+            </div>
+        </gmpx-place-overview>
+    </div>
+</div>
+
+<!--report element (form submission)-->
+<div id="hazard-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 hidden backdrop-blur-md">
+    <div class="bg-[#f7f3f0] shadow-2xl rounded-2xl w-11/12 max-w-lg sm:max-w-xl md:max-w-2xl p-8 relative">
+        <button id="modal-close-button" class="absolute top-4 right-4 text-[#3A4D39] hover:text-[#DA8359] hover:scale-105 text-2xl focus:outline-none" aria-label="Close">&times;</button>
+
+        <h3 class="text-2xl font-semibold text-[#3A4D39] text-center">Report a Hazard</h3>
+        <p class="text-[#A5B68D] text-center text-sm mt-1">Be the reason someone doesn’t go viral for falling :)</p>
+
+        <form id="hazard-form" class="mt-5 space-y-4">
+            <label for="hazard-type" class="block text-[#3A4D39] font-lg font-semibold">Report Type</label>
+            <select id="hazard-type" name="report-type" required class="w-full p-3 border-2 border-[#A5B68D] rounded-xl focus:outline-none text-[#3A4D39]">
+                <option value="">Select a category</option>
+                <option value="pothole">Pothole</option>
+                <option value="construction">Construction</option>
+                <option value="broken-sidewalk">Broken Sidewalk</option>
+                <option value="other">Other</option>
+            </select>
+
+            <label for="hazard-description" class="block text-[#3A4D39] font-lg font-semibold">Description</label>
+            <textarea id="hazard-description" name="hazard-description" rows="3" placeholder="Describe the issue..." required class="w-full p-3 border-2 border-[#A5B68D] rounded-xl focus:outline-none text-[#3A4D39]"></textarea>
+
+            <div class="mt-3">
+                <label class="block text-[#3A4D39] font-lg font-semibold">Upload Photos (Optional)</label>
+                <div class="flex items-center gap-3 mt-2">
+                    <input type="file" id="hazard-image" name="hazard-image" accept="image/*" hidden multiple>
+                    <button type="button" id="upload-btn" class="bg-[#A5B68D] px-4 py-2 text-white rounded-lg hover:bg-[#3A4D39] transition">
+                        Choose Files
+                    </button>
+                    <span id="file-upload-text" class="text-sm text-[#3A4D39]">No file chosen</span>
+                </div>
+            </div>
+
+            <div id="uploaded-photos-container" class="flex flex-wrap gap-3 mt-3"></div>
+
+            <button type="submit" id="submit-button" class="mt-4 w-full bg-[#DA8359] text-white font-bold py-3 rounded-lg transition-all duration-300 hover:bg-[#A5B68D] active:translate-y-1 disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
+                Submit Report
+            </button>
+        </form>
+    </div>
+</div>
+
+<!--report submission alert-->
+<div id="custom-alert" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 hidden backdrop-blur-md z-50">
+    <div class="bg-[#f7f3f0] shadow-2xl rounded-2xl w-11/12 max-w-lg sm:max-w-xl p-6 relative flex flex-col items-center gap-3">
+        <button id="alert-close-button" class="absolute top-4 right-4 text-[#3A4D39] hover:text-[#DA8359] hover:scale-105 text-2xl focus:outline-none" aria-label="Close">
+            &times;
+        </button>
+        <img id="alert-icon" src="" class="w-20 h-20 hidden" alt="state-icon">
+        <h3 id="alert-heading" class="text-xl font-semibold text-[#3A4D39] text-center"></h3>
+        <p id="alert-message" class="text-sm text-[#A5B68D] text-center -mt-1 mb-6"></p>
+        <button id="alert-ok-button" class="w-full max-w-[200px] bg-[#DA8359] text-white font-bold py-3 rounded-lg transition-all duration-300 hover:bg-[#A5B68D] active:translate-y-1">
+            OK
+        </button>
+    </div>
+</div>
+
+<!--discover & explore button options-->
+<div id="touristPopup" class="fixed bottom-0 left-0 w-full bg-[#f7f3f0] bg-opacity-95 shadow-lg rounded-t-3xl p-6 transition-transform transform translate-y-full hidden">
+    <div class="flex items-center">
+        <h2 class="text-xl font-bold">Select Tourist Options</h2>
+        <div id="clearTouristContainer" class="hidden ml-4">
+            <button id="clearTouristButton" class="text-sm text-gray-600 hover:text-gray-800 px-4 border border-gray-400 rounded-full transition-all">
+                Clear All
+            </button>
+        </div>
+        <button id="closeTouristPopup" class="text-gray-600 text-xl ml-auto hover:text-[#DA8359] hover:scale-105">✕</button>
+    </div>
+    <div class="flex flex-wrap gap-3 justify-center mt-6 mb-24">
+        <button class="chip flex items-center gap-2 px-6 py-2 rounded-full bg-white text-gray-700 shadow-md transition-all duration-300" data-category="landmark">
+            <img src="http://127.0.0.1:5501/static/img/landmark.png" class="w-5 h-5" alt="Landmark"> Landmark
+        </button>
+        <button class="chip flex items-center gap-2 px-6 py-2 rounded-full bg-white text-gray-700 shadow-md transition-all duration-300" data-category="museum">
+            <img src="http://127.0.0.1:5501/static/img/museum.png" class="w-5 h-5" alt="Museum"> Museum
+        </button>
+        <button class="chip flex items-center gap-2 px-6 py-2 rounded-full bg-white text-gray-700 shadow-md transition-all duration-300" data-category="cafe">
+            <img src="http://127.0.0.1:5501/static/img/cafe.png" class="w-5 h-5" alt="Cafe"> Cafe
+        </button>
+        <button class="chip flex items-center gap-2 px-6 py-2 rounded-full bg-white text-gray-700 shadow-md transition-all duration-300" data-category="restaurant">
+            <img src="http://127.0.0.1:5501/static/img/restaurant.png" class="w-5 h-5" alt="Restaurant"> Restaurant
+        </button>
+        <button class="chip flex items-center gap-2 px-6 py-2 rounded-full bg-white text-gray-700 shadow-md transition-all duration-300" data-category="entertainment">
+            <img src="http://127.0.0.1:5501/static/img/entertainment.png" class="w-5 h-5" alt="Entertainment"> Entertainment
+        </button>
+    </div>
+</div>
+
+<!--manages the filter menu, which handles the criteria for routing-->
+<div id="filterMenu" class="fixed bottom-0 left-0 w-full bg-[#f7f3f0] bg-opacity-90 shadow-lg rounded-t-3xl p-6 transition-transform transform translate-y-full">
+    <div class="flex items-center">
+        <h2 class="text-xl font-bold">Filter Options</h2>
+        <div id="clearFiltersContainer" class="hidden ml-4">
+            <button id="clearFiltersButton" class="text-sm text-gray-600 hover:text-gray-800 px-4 border border-gray-400 rounded-full transition-all">
+                Clear All
+            </button>
+        </div>
+        <button id="closeFilterMenu" class="text-gray-600 text-xl ml-auto hover:text-[#DA8359] hover:scale-105">✕</button>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 mt-4 mb-20">
+        <button class="filter-option flex items-center gap-2 p-2.5 rounded-full bg-white text-gray-700 transition-all duration-200 shadow-md" data-category="thermal-comfort-f">
+            <img src="http://127.0.0.1:5501/static/img/cold1.png" alt="Thermal Comfort" class="w-8 h-8"> Thermal Comfort
+        </button>
+        <button class="filter-option flex items-center gap-2 p-2.5 rounded-full bg-white text-gray-700 transition-all duration-200 shadow-md" data-category="clean-air-f">
+            <img src="http://127.0.0.1:5501/static/img/ventilation1.png" alt="Air Quality" class="w-8 h-8"> Clean Air
+        </button>
+        <button class="filter-option flex items-center gap-2 p-2.5 rounded-full bg-white text-gray-700 transition-all duration-200 shadow-md" data-category="nature-path-f">
+            <img src="http://127.0.0.1:5501/static/img/forest1.png" alt="Green Areas" class="w-8 h-8"> Nature Path
+        </button>
+        <button class="filter-option flex items-center gap-2 p-2.5 rounded-full bg-white text-gray-700 transition-all duration-200 shadow-md" data-category="safety-trail-f">
+            <img src="http://127.0.0.1:5501/static/img/safe-zone1.png" alt="Safety" class="w-8 h-8"> Safety Trail
+        </button>
+        <button class="filter-option flex items-center gap-2 p-2.5 rounded-full bg-white text-gray-700 transition-all duration-200 shadow-md" data-category="accessible-f">
+            <img src="http://127.0.0.1:5501/static/img/elderly1.png" alt="Accessibility" class="w-8 h-8"> Accessible Adventure
+        </button>
+        <button class="filter-option flex items-center gap-2 p-3 rounded-full bg-white text-gray-700 transition-all duration-200 shadow-md" data-category="discover-explore-f">
+            <img src="http://127.0.0.1:5501/static/img/tour-guide1.png" alt="Traveler" class="w-8 h-8"> Discover & Explore
+        </button>
+        <button class="justify-center filter-option flex items-center gap-2 p-2.5 rounded-full bg-white text-gray-700 transition-all duration-200 col-span-2 shadow-md" data-category="reports-f">
+            <img src="http://127.0.0.1:5501/static/img/complain1.png" alt="Reports" class="w-8 h-8"> Navigator's Reports
+        </button>
+    </div>
+</div>
+
+<!--manages the overlay menu, which handles the overlays shown on the map-->
+<div id="overlayMenu" class="fixed bottom-0 left-0 w-full bg-[#f7f3f0] bg-opacity-95 shadow-lg rounded-t-3xl p-6 transition-transform transform translate-y-full">
+    <div class="flex items-center">
+        <h2 class="text-xl font-bold">Overlay Options</h2>
+        <div id="clearOverlaysContainer" class="hidden ml-4">
+            <button id="clearOverlaysButton" class="text-sm text-gray-600 hover:text-gray-800 px-4 border border-gray-400 rounded-full transition-all">
+                Clear All
+            </button>
+        </div>
+        <button id="closeOverlayMenu" class="text-gray-600 text-xl ml-auto hover:text-[#DA8359] hover:scale-105">✕</button>
+    </div>
+
+
+    <div class="grid grid-cols-2 gap-4 mt-4 mb-20">
+        <button class="overlay-option flex items-center gap-2 p-2.5 rounded-full bg-white text-gray-700 transition-all duration-200 shadow-md" data-category="thermal-comfort-o">
+            <img src="http://127.0.0.1:5501/static/img/cold1.png" alt="Thermal Comfort" class="w-8 h-8"> Thermal Comfort
+        </button>
+        <button class="overlay-option flex items-center gap-2 p-2.5 rounded-full bg-white text-gray-700 transition-all duration-200 shadow-md" data-category="clean-air-o">
+            <img src="http://127.0.0.1:5501/static/img/ventilation1.png" alt="Air Quality" class="w-8 h-8"> Clean Air
+        </button>
+        <button class="overlay-option flex items-center gap-2 p-2.5 rounded-full bg-white text-gray-700 transition-all duration-200 shadow-md" data-category="nature-path-o">
+            <img src="http://127.0.0.1:5501/static/img/forest1.png" alt="Green Areas" class="w-8 h-8"> Nature Path
+        </button>
+        <button class="overlay-option flex items-center gap-2 p-2.5 rounded-full bg-white text-gray-700 transition-all duration-200 shadow-md" data-category="safety-trail-o">
+            <img src="http://127.0.0.1:5501/static/img/safe-zone1.png" alt="Safety" class="w-8 h-8"> Safety Trail
+        </button>
+        <button class="overlay-option flex items-center gap-2 p-2.5 rounded-full bg-white text-gray-700 transition-all duration-200 shadow-md" data-category="accessible-o">
+            <img src="http://127.0.0.1:5501/static/img/elderly1.png" alt="Accessibility" class="w-8 h-8"> Accessible Adventure
+        </button>
+        <button class="overlay-option flex items-center gap-2 p-2.5 rounded-full bg-white text-gray-700 transition-all duration-200 shadow-md" data-category="discover-explore-o">
+            <img src="http://127.0.0.1:5501/static/img/tour-guide1.png" alt="Traveler" class="w-8 h-8"> Discover & Explore
+        </button>
+        <button class="justify-center overlay-option flex items-center gap-2 p-2.5 rounded-full bg-white text-gray-700 transition-all duration-200 col-span-2 shadow-md" data-category="reports-o">
+            <img src="http://127.0.0.1:5501/static/img/complain1.png" alt="Reports" class="w-8 h-8"> Navigator's Reports
+        </button>
+    </div>
+</div>
+
+<!--manages the weather info menu-->
+<div id="weatherMenu" class="fixed bottom-0 left-0 right-0 w-full bg-[#f7f3f0] bg-opacity-95 shadow-lg rounded-t-3xl p-6 transition-transform transform translate-y-full">
+    <div class="flex items-center justify-between">
+        <h2 class="text-xl font-semibold text-gray-800">Weather Info</h2>
+        <button id="closeWeatherMenu" class="text-gray-500 hover:text-[#DA8359] hover:scale-105 text-2xl">✕</button>
+    </div>
+
+    <div class="flex items-center mt-4 space-x-4">
+        <img id="weather-icon" class="w-16 h-16" src="http://127.0.0.1:5501/static/img/cloud.png" alt="Weather Icon" />
+        <div>
+            <h3 id="weather-condition" class="text-lg font-medium text-gray-700">Loading...</h3>
+            <p id="temperature" class="text-lg font-bold text-gray-900">--°C</p>
+        </div>
+    </div>
+
+    <div id="weather-details" class="mt-4 p-4 text-gray-700 text-lg">
+        <div class="flex justify-between">
+            <p id="feels-like">️--°C</p>
+        </div>
+        <div class="flex justify-between mt-1">
+            <p id="humidity">--%</p>
+        </div>
+        <div class="flex justify-between mt-1">
+            <p id="wind-speed">-- km/h</p>
+        </div>
+    </div>
+
+    <div id="weather-quote" class="mb-20 p-4 rounded-lg text-gray-700 font-medium">
+        Checking the skies for you... Hang tight!
+    </div>
+</div>
+
+<!--manages the user profile menu-->
+<div id="profileMenu" class="fixed bottom-0 left-0 w-full bg-[#f7f3f0] bg-opacity-95 shadow-lg rounded-t-3xl p-6 transition-transform transform translate-y-full">
+    <div class="flex justify-between items-center">
+        <h2 class="text-xl font-bold">Your Profile</h2>
+        <button id="closeProfileMenu" class="text-gray-600 text-xl hover:scale-105 hover:text-[#DA8359]">✕</button>
+    </div>
+
+    <div class="mt-4 flex items-center justify-between">
+        <div class="flex items-center">
+            <img src="http://127.0.0.1:5501/static/img/high-score.png" alt="Score Icon" class="w-12 h-12">
+            <div class="ml-3">
+                <p class="text-lg font-semibold">Current Score</p>
+                <p id="userScore" class="text-lg font-bold text-gray-900">1200 XP</p>
+            </div>
+        </div>
+        <button class="items-center font-semibold text-xs lg:text-lg p-1 rounded-full text-[#DA8359] hover:bg-[#DA8359] hover:text-white transition-all ml-auto">
+            Log Out
+        </button>
+    </div>
+
+    <div class="mt-6 mb-24">
+        <h3 class="text-lg font-semibold">Recent Routes</h3>
+        <div id="savedRoutes" class="mt-3 space-y-3">
+            <div class="flex bg-white bg-opacity-95 justify-between items-center p-3 rounded-full">
+                <div>
+                    <p class="font-medium">Morning Walk</p>
+                    <p class="text-sm text-gray-600">2.4 km - 30 min</p>
+                </div>
+                <button class="text-[#3A4D39] text-sm font-semibold">View</button>
+            </div>
+            <div class="flex bg-white bg-opacity-95 justify-between items-center p-3 rounded-full">
+                <div>
+                    <p class="font-medium">Safe Night Route</p>
+                    <p class="text-sm text-gray-600">3.1 km - 40 min</p>
+                </div>
+                <button class="text-[#3A4D39] text-sm font-semibold">View</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--manages the main menu at the bottom of the screen-->
+<div class="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-lg bg-[#3A4D39] shadow-lg rounded-full p-2 pl-6 pr-6 flex justify-between items-center">
+    <div class="relative">
+        <button id="filtersButton" class="flex flex-col items-center">
+            <img src="http://127.0.0.1:5501/static/img/filter.png" alt="Filters" class="w-6 h-6 filter invert">
+        </button>
+        <span id="filterBadge"
+              class="hidden absolute -top-1 -right-2 bg-red-600 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">0
+        </span>
+    </div>
+    <div class="relative">
+        <button id="overlaysButton" class="flex flex-col items-center">
+            <img src="http://127.0.0.1:5501/static/img/geographical.png" alt="Filters" class="w-8 h-8 xs:w-6 xs:h-6 filter invert">
+        </button>
+        <span id="overlayBadge"
+              class="hidden absolute -top-1 -right-2 bg-red-600 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">0
+        </span>
+    </div>
+    <button id="centralizeButton" class="flex-col items-center bg-[#DA8359] p-2 rounded-full shadow-xl border-2 border-white -mt-12">
+        <img src="http://127.0.0.1:5501/static/img/target2.png" alt="Center" class="w-11 h-11 xs:w-9 xs:h-9 filter invert">
+    </button>
+    <button id="weatherButton" class="flex flex-col items-center">
+        <img src="http://127.0.0.1:5501/static/img/cloud.png" alt="Weather" class="w-8 h-8 xs:w-6 xs:h-6 filter invert">
+    </button>
+    <button id="profileButton" class="flex flex-col items-center">
+        <img src="http://127.0.0.1:5501/static/img/user.png" alt="Profile" class="w-7 h-7 xs:w-5 xs:h-5 filter invert">
+    </button>
+</div>
+
+<script type="module" src="http://127.0.0.1:5501/static/js/map_scripts/main-map.js"></script>
+</body>
+</html>

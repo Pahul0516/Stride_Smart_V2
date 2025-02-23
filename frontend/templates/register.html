@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stride Smart</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Anton&family=Poppins:wght@400;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/png" href="http://127.0.0.1:5501/static/img/logo.png">
+
+    <style>
+        @keyframes float {
+            0% {
+                transform: translate(0, 0);
+            }
+            50% {
+                transform: translate(20px, -20px);
+            }
+            100% {
+                transform: translate(0, 0);
+            }
+        }
+
+        .animate-float2 {
+            animation: float 8s ease-in-out infinite;
+        }
+        .animate-float3 {
+            animation: float 10s ease-in-out infinite;
+        }
+        .animate-float4 {
+            animation: float 7s ease-in-out infinite;
+        }
+        .animate-float5 {
+            animation: float 9s ease-in-out infinite;
+        }
+        .animate-float6 {
+            animation: float 11s ease-in-out infinite;
+        }
+
+    </style>
+
+</head>
+<body style="font-family: 'Oswald', sans-serif;" class="bg-gradient-to-br from-[#202A25] to-[#4E6C50] text-white">
+
+<div class="relative min-h-screen min-w-1/3 flex flex-col items-center justify-center text-center p-6 bg-[#f0e7d8] overflow-hidden">
+    <svg class="absolute -top-6 -right-10 w-40 h-40 lg:w-80 lg:h-80 animate-float2" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#3A4D39" d="M58.3,-29C66.9,-18.8,59.3,5.5,46.8,15.7C34.4,25.9,17.2,22,3.7,19.8C-9.8,17.7,-19.6,17.3,-29.9,8.4C-40.1,-0.6,-50.9,-18.1,-46.1,-26.2C-41.2,-34.3,-20.6,-33,2.1,-34.2C24.9,-35.5,49.7,-39.3,58.3,-29Z" transform="translate(100 100)" />
+    </svg>
+
+    <svg class="absolute bottom-52 left-6 w-32 h-32 lg:w-64 lg:h-64 animate-float2" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#FCFAEE" d="M56.1,-6.4C65.2,9.6,59.7,42.1,41.1,55.3C22.5,68.6,-9.2,62.4,-31.1,45.8C-53,29.2,-65.1,2,-58.3,-10.9C-51.5,-23.8,-25.8,-22.5,-1.1,-22.1C23.5,-21.8,47.1,-22.4,56.1,-6.4Z" transform="translate(100 100)" />
+    </svg>
+
+    <svg class="absolute top-2 -left-10 w-40 h-40 lg:w-80 lg:h-80 animate-float2" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#FCFAEE" d="M46.8,-26.2C49.2,-7.6,32,6.3,18.8,12.8C5.7,19.3,-3.5,18.3,-19.3,10.6C-35.2,2.8,-57.7,-11.6,-55.7,-29.8C-53.6,-47.9,-26.8,-69.6,-2.3,-68.9C22.2,-68.1,44.3,-44.9,46.8,-26.2Z" transform="translate(100 100)" />
+    </svg>
+
+    <svg class="absolute top-1/4 -left-6 w-28 h-28 lg:w-64 lg:h-64 animate-float3" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#A5B68D" d="M31.8,-13.5C40.3,-3.7,45.7,12.9,39.8,18.4C34,23.9,17,18.3,2.3,17C-12.4,15.7,-24.9,18.6,-35.5,10.3C-46.2,2,-55.1,-17.5,-48.9,-26C-42.7,-34.5,-21.4,-32,-4.8,-29.2C11.7,-26.4,23.4,-23.3,31.8,-13.5Z" transform="translate(100 100)" />
+    </svg>
+
+    <svg class="absolute top-1/3 -right-12 w-36 h-36 lg:w-64 lg:h-64 animate-float4" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#DA8359" d="M17.7,-19.3C29.9,-19.6,51.7,-26.6,61.8,-22.8C71.9,-19,70.3,-4.6,65.2,7.2C60.1,18.9,51.3,27.9,42.5,35.3C33.7,42.6,24.8,48.3,15.5,49.5C6.3,50.8,-3.4,47.5,-17.4,48.3C-31.4,49.1,-49.7,54.1,-61.8,48.8C-73.8,43.4,-79.5,27.8,-73.3,15.6C-67.2,3.4,-49.2,-5.4,-37.7,-11.7C-26.3,-18,-21.3,-21.7,-16.1,-24.6C-10.9,-27.5,-5.5,-29.6,-1.4,-27.5C2.7,-25.4,5.4,-19,17.7,-19.3Z" transform="translate(100 100)" />
+    </svg>
+
+    <svg class="absolute -top-20 left-1/4 w-32 h-32 lg:w-80 lg:h-80 animate-float5" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#DA8359" d="M25.9,-34.2C39.7,-31.4,61.4,-34.7,72.8,-27.9C84.1,-21.1,85.3,-4.3,83.6,12.5C81.9,29.3,77.3,46.2,66.7,56.9C56,67.6,39.2,72.1,24.4,70.7C9.6,69.4,-3.2,62.1,-19.4,60.1C-35.5,58.1,-55,61.3,-59.8,53.2C-64.7,45.1,-55,25.8,-51.7,10.9C-48.3,-3.9,-51.4,-14.4,-48.7,-23.1C-46.1,-31.8,-37.8,-38.9,-28.7,-43.8C-19.7,-48.7,-9.8,-51.5,-1.9,-48.5C6,-45.6,12.1,-36.9,25.9,-34.2Z" transform="translate(100 100)" />
+    </svg>
+
+    <svg class="absolute top-2/3 -right-6 w-28 h-28 lg:w-64 lg:h-64 animate-float6" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#A5B68D" d="M42.2,-36.4C52.4,-28.7,54.8,-14.3,57.5,1.1C60.1,16.5,63,32.9,54.8,39.5C46.6,46,27.2,42.9,12.4,39.7C-2.3,36.5,-12.5,33.2,-22.3,27.6C-32,22,-41.3,14.1,-43.8,3.3C-46.4,-7.4,-42.2,-20.9,-34,-31.4C-25.7,-41.9,-12.8,-49.4,1.6,-50.5C16,-51.7,32,-46.4,42.2,-36.4Z" transform="translate(100 100)" />
+    </svg>
+
+    <div class="absolute top-6 left-6">
+        <button
+                onclick="window.history.back()"
+                class="text-[#3A4D39] hover:text-[#2E3F31] hover:scale-125 transition-all flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            <span class="sr-only">Go Back</span>
+        </button>
+    </div>
+
+    <div class="flex flex-col flex-grow items-center justify-center relative z-10 lg:mt-20">
+        <h1 class="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-wide text-[#3A4D39] drop-shadow-lg mb-10">
+            SIGN UP
+        </h1>
+
+        <form class="flex flex-col w-full max-w-xl sm:max-w-lg md:max-w-xl lg:max-w-2xl xl:max-w-3xl bg-[#FCFAEE] p-8 sm:p-10 lg:p-12 xl:p-16 rounded-lg shadow-md relative z-10">
+            <label for="email" class="sm:max-w-lg md:max-w-xl lg:max-w-2xl xl:max-w-3xl text-left font-bold text-[#3A4D39] mb-2">Email</label>
+            <input
+                    type="email"
+                    id="email"
+                    class="p-2 mb-6 rounded-md border border-[#3A4D39] text-[#3A4D39] bg-[#FCFAEE] focus:outline-none focus:ring-2 focus:ring-[#A5B68D]"
+                    placeholder="Enter your email"
+                    required
+            />
+
+            <label for="password" class="sm:max-w-lg md:max-w-xl lg:max-w-2xl xl:max-w-3xl text-left font-bold text-[#3A4D39] mb-2">Password</label>
+            <input
+                    type="password"
+                    id="password"
+                    class="p-2 mb-6 rounded-md border border-[#3A4D39] text-[#3A4D39] bg-[#FCFAEE] focus:outline-none focus:ring-2 focus:ring-[#A5B68D]"
+                    placeholder="Enter your password"
+                    required
+            />
+
+            <button
+                    type="submit"
+                    class="bg-[#3A4D39] text-[#FCFAEE] p-2 rounded-md hover:scale-110 transition-all">
+                Create Account
+            </button>
+        </form>
+
+    </div>
+
+
+    <img src="http://127.0.0.1:5501/static/img/figma3.png" class="rounded-lg w-full max-h-[24vh] object-contain mb-10 relative z-10" alt="Walk1">
+
+</div>
+
+
+<footer class="py-5 bg-[#A5B68D] text-center text-[#FCFAEE] text-sm pb-10">
+    <div class="flex items-center justify-center space-x-6">
+
+        <div class="flex items-center space-x-2">
+            <span class="text-xs sm:text-sm">Check us out:</span>
+            <a href="https://www.instagram.com/stridesmart_/" target="_blank" class="hover:opacity-80 transition">
+                <svg class="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-[#FCFAEE]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="20" height="20" rx="5" stroke-linecap="round" stroke-linejoin="round"></rect>
+                    <path d="M16 11.37a4 4 0 11-7.94 1.28A4 4 0 0116 11.37z" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <line x1="17.5" y1="6.5" x2="17.5" y2="6.5" stroke-linecap="round" stroke-linejoin="round"></line>
+                </svg>
+            </a>
+        </div>
+
+        <div class="flex items-center space-x-4">
+            <img src="http://127.0.0.1:5501/static/img/UBB.png" alt="UBB Logo" class="w-14 sm:w-16 lg:w-20">
+            <img src="http://127.0.0.1:5501/static/img/M100.png" alt="M100 Logo" class="w-14 sm:w-16 lg:w-20">
+        </div>
+
+    </div>
+</footer>
+
+</body>
+</html>
