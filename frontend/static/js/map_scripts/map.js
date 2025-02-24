@@ -2,10 +2,19 @@ import { showHazardReportForm } from "http://127.0.0.1:5501/static/js/map_script
 import { fetchWeatherData } from "http://127.0.0.1:5501/static/js/map_scripts/weather.js";
 import {getLatLng, showDirections, showInitialDirections} from "http://127.0.0.1:5501/static/js/map_scripts/directions.js";
 import {activeMenu, closeMenu} from "http://127.0.0.1:5501/static/js/map_scripts/menu.js";
+import { logOut } from "http://127.0.0.1:5501/static/js/login_scripts/login-script.js";
 
 export let map, destination, overview, directionsService, directionsRenderer, geocoder, userLocation, marker;
 
 export async function init() {
+    const username=sessionStorage.getItem('username');
+    const welcomeMessage='Welcome, '+username+'!'; 
+    alert(welcomeMessage);
+    // console.log(sessionStorage.getItem('account_id'));
+    // console.log(sessionStorage.getItem('username'));
+    // console.log(sessionStorage.getItem('email'));
+    // console.log(sessionStorage.getItem('points'));
+
     await customElements.whenDefined('gmp-map');
     map = document.querySelector('gmp-map');
     if (!map.innerMap) {
@@ -23,6 +32,15 @@ export async function init() {
     setupEventListeners();
     setupPlaceOverviewButtons();
     setupPlaceOverview();
+    setupUserScore();
+}
+
+async function setupUserScore(){
+    const userScoreElement = document.getElementById("userScore");
+    if (sessionStorage.getItem('points') !== undefined) {
+                userScoreElement.textContent = `${sessionStorage.getItem('points')} XP`;
+    }
+    else userScoreElement.textContent = `no XP`;
 }
 
 export function setupMap() {
@@ -142,6 +160,8 @@ export function setupEventListeners() {
     });
 
     document.getElementById("centralizeButton").addEventListener("click", resetPlacePicker);
+
+    document.getElementById("logOutButton").addEventListener("click", logOut);
 }
 
 export function resetPlacePicker() {

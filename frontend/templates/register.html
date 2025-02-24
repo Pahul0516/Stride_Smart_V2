@@ -87,6 +87,16 @@
             SIGN UP
         </h1>
 
+        <form class="flex flex-col w-full max-w-xl sm:max-w-lg md:max-w-xl lg:max-w-2xl xl:max-w-3xl bg-[#FCFAEE] p-8 sm:p-10 lg:p-12 xl:p-16 rounded-lg shadow-md relative z-10">        
+            <label for="Name" class="sm:max-w-lg md:max-w-xl lg:max-w-2xl xl:max-w-3xl text-left font-bold text-[#3A4D39] mb-2">Name</label>
+            <input
+                    type="Name"
+                    id="name"
+                    class="p-2 mb-6 rounded-md border border-[#3A4D39] text-[#3A4D39] bg-[#FCFAEE] focus:outline-none focus:ring-2 focus:ring-[#A5B68D]"
+                    placeholder="Enter your name"
+                    required
+            />
+
         <form class="flex flex-col w-full max-w-xl sm:max-w-lg md:max-w-xl lg:max-w-2xl xl:max-w-3xl bg-[#FCFAEE] p-8 sm:p-10 lg:p-12 xl:p-16 rounded-lg shadow-md relative z-10">
             <label for="email" class="sm:max-w-lg md:max-w-xl lg:max-w-2xl xl:max-w-3xl text-left font-bold text-[#3A4D39] mb-2">Email</label>
             <input
@@ -108,6 +118,7 @@
 
             <button
                     type="submit"
+                    id="createAccountButton"
                     class="bg-[#3A4D39] text-[#FCFAEE] p-2 rounded-md hover:scale-110 transition-all">
                 Create Account
             </button>
@@ -142,6 +153,6 @@
 
     </div>
 </footer>
-
+<script type="module" src="../static/js/login_scripts/register-script.js"></script>
 </body>
 </html>
