@@ -167,7 +167,7 @@ class CustomGraph:
             # Find the nearest edge to the centroid coordinates
             point = Point(centroid_x, centroid_y)
             edge = self.closest_edge_to_point(point)
-            
+            #atribuim valoarea tuturor edge urilor dintr o arie -> 50m
             if edge:
                 u, v, data = edge  # Unpack edge tuple
                 data['air_mark'] = air_quality  # Assign air quality mark to the edge data

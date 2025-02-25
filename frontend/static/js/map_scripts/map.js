@@ -1,4 +1,4 @@
-import { showHazardReportForm } from "http://127.0.0.1:5501/static/js/map_scripts/reports.js";
+import { showHazardReportForm, showCustomAlert } from "http://127.0.0.1:5501/static/js/map_scripts/reports.js";
 import { fetchWeatherData } from "http://127.0.0.1:5501/static/js/map_scripts/weather.js";
 import {getLatLng, showDirections, showInitialDirections} from "http://127.0.0.1:5501/static/js/map_scripts/directions.js";
 import {activeMenu, closeMenu} from "http://127.0.0.1:5501/static/js/map_scripts/menu.js";
@@ -204,9 +204,18 @@ export function setupPlaceOverview() {
 
     document.getElementById("direction-button")?.addEventListener("click", showDirections);
 
-    if (reportButton) {
-        reportButton.addEventListener("click", showHazardReportForm);
-    }
+    // if (reportButton) {
+    //     reportButton.addEventListener("click", () => {
+    //         if(sessionStorage.getItem('account_id')==null)
+    //         {
+    //             showCustomAlert('Login to add reports :)');
+    //         }
+    //         else
+    //         {
+    //             showHazardReportForm();
+    //         }
+    //     });
+    // }
 }
 
 export function showOverview() {
@@ -267,7 +276,16 @@ export function setupPlaceOverviewButtons() {
     }
 
     if (reportButton) {
-        reportButton.addEventListener('click', showHazardReportForm);
+        reportButton.addEventListener("click", () => {
+            if(sessionStorage.getItem('account_id')==null)
+            {
+                showCustomAlert('Login to add reports :)');
+            }
+            else
+            {
+                showHazardReportForm();
+            }
+        });
     }
 }
 

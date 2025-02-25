@@ -23,7 +23,6 @@ def login():
     
 @login_bp.route('/googleLogin',methods=['POST'])
 def googleLogin():
-    print('reached backend logic of the api')
     accountRepo= AccountRepo('localhost','walk_safe_3','postgres','semiluna123')
     accountService=AccountService(accountRepo)
     data=request.json

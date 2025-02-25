@@ -1,4 +1,6 @@
-import {hideOverview, showOverview} from "http://127.0.0.1:5501/static/js/map_scripts/map.js";
+import {hideOverview, showOverview, destination} from "http://127.0.0.1:5501/static/js/map_scripts/map.js";
+
+let reportMarkers = [];
 
 const hazardState = {
     currentLocation: null,
@@ -139,11 +141,17 @@ function handleFormSubmit(event) {
     }
 
     const hazardData = {
+        latitude: destination.lat,
+        longitude: destination.lng,
         type: document.getElementById("hazard-type").value,
         description: document.getElementById("hazard-description").value,
-        photos: hazardState.selectedPhotos.map(file => URL.createObjectURL(file)),
+        //photos: hazardState.selectedPhotos.map(file => URL.createObjectURL(file)),
+        photos: [],
+        user_id:sessionStorage.getItem('account_id')
     };
 
+    loadHazardPhotos(hazardData);
+    loadReport(hazardData);
     console.log("Report Submitted:", hazardData);
 
     hazardState.selectedPhotos = [];
@@ -153,6 +161,49 @@ function handleFormSubmit(event) {
     document.getElementById("hazard-modal").classList.add("hidden");
 
     showCustomAlert("Not all heroes wear capes. Some just report hazards!", "success");
+}
+
+function loadReport(hazardData)
+{
+    fetch('http://127.0.0.1:5501/load_new_report', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(hazardData),
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            console.log('Report submitted successfully:', data);
+        })
+        .catch((error) => {
+            console.error('Error submitting report:', error);
+        });
+}
+
+function loadHazardPhotos(hazardData)
+{
+    const photosToProcess = hazardState.selectedPhotos.length;
+        let processedPhotos = 0; 
+        hazardState.selectedPhotos.forEach((file) => {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const arrayBuffer = event.target.result;
+                const byteArray = Array.from(new Uint8Array(arrayBuffer));
+                hazardData.photos.push(byteArray);
+                processedPhotos++;
+        
+                console.log(`Uploaded ${processedPhotos}/${photosToProcess} photos`);
+
+                if (processedPhotos === photosToProcess) {
+                    console.log("All photos uploaded, sending data:", hazardData);
+                }
+            };
+            reader.onerror = (error) => {
+                console.error("Error reading photo:", error);
+            };
+            reader.readAsArrayBuffer(file);
+        });
 }
 
 export function showCustomAlert(message, type = "error") {
@@ -169,10 +220,10 @@ export function showCustomAlert(message, type = "error") {
 
     if (type === "success") {
         document.getElementById("alert-heading").textContent = "Report submitted successfully";
-        alertIcon.src = "../icons/check.png";
+        alertIcon.src = "http://127.0.0.1:5501/static/img/check.png";
     } else {
         document.getElementById("alert-heading").textContent = "Error";
-        alertIcon.src = "../icons/error.png";
+        alertIcon.src = "http://127.0.0.1:5501/static/img/error.png";
     }
 
     alertIcon.classList.remove("hidden");
@@ -191,3 +242,76 @@ function hideCustomAlert() {
         showOverview();
 }
 
+export async function fetchReports()
+{
+    try {
+        const response = await fetch('http://127.0.0.1:5501/view_reports');
+        const reports = await response.json();
+        // Pass the reports data to a function that displays them on the map
+        displayReportsOnMap(reports);
+    } catch (error) {
+        console.error('Error fetching reports:', error);
+    }
+}
+
+async function displayReportsOnMap(reports)
+{
+        reports.forEach((report) => {
+            console.log(report);
+            // Add a marker for each report
+            let icon_id;
+            let url;
+            if(report.type==='pothole') url='http://127.0.0.1:5501/static/img/report-pothole.png';
+            else if(report.type==='construction') url='http://127.0.0.1:5501/static/img/report-construction.png';
+            else if(report.type==='broken-sidewalk'|| report.type==='sidewalk') url='http://127.0.0.1:5501/static/img/report-sidewalk.png';
+            else url='http://127.0.0.1:5501/static/img/report-other.png';
+            console.log(`icon id: ${icon_id}`);
+            const icon = {
+                url: url, 
+                scaledSize: new google.maps.Size(40, 60), 
+              };
+
+            const marker = new google.maps.Marker({
+                position: { lat: report.latitude, lng: report.longitude }, 
+                map: map.innerMap,
+                title: report.type,
+                icon: icon
+            });
+
+            reportMarkers.push(marker);
+
+            const formatDate = (isoString) => {
+                const date = new Date(isoString);
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0'); 
+                const year = date.getFullYear();
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                const seconds = String(date.getSeconds()).padStart(2, '0');
+                return `${day}-${month}-${year}, ${hours}:${minutes}:${seconds}`;
+            };
+            // Create an info window for the marker
+            const infoWindowContent = `
+                <div>
+                    <h3>${report.type}</h3>
+                    <p>${report.description}</p>
+                    ${report.photos.map(photo => `<img src="data:image/jpeg;base64,${photo}" width="100">`).join('')}
+                    <p style="color: green;">Reported on: ${formatDate(report.created_at)}</p>
+                    <p>Created by:  ${sessionStorage.getItem('username')}</p>
+                </div>
+            `;
+            const infoWindow = new google.maps.InfoWindow({
+                content: infoWindowContent
+            });
+
+            // Show info window on marker click
+            marker.addListener('click', () => {
+                infoWindow.open(map, marker);
+            });
+        });
+}
+
+export function clearReportsFromMap() {
+    reportMarkers.forEach(marker => marker.setMap(null)); 
+    reportMarkers = []; 
+}
