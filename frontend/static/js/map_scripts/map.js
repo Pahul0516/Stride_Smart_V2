@@ -279,7 +279,7 @@ export function setupPlaceOverviewButtons() {
         reportButton.addEventListener("click", () => {
             if(sessionStorage.getItem('account_id')==null)
             {
-                showCustomAlert('Login to add reports :)');
+                showCustomAlert('Brave enough to report? Suit up with a login first!');
             }
             else
             {

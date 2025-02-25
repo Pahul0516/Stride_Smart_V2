@@ -43,7 +43,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 console.log("Server Response:", result);
                 
                 setSessionDetails(result);
-                //window.location.href = "../templates/map.html";
                 window.Location.href="http://127.0.0.1:5501/map";
             } else {
                 alert("Registration failed: " + (result));

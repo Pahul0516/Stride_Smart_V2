@@ -31,9 +31,9 @@ export function setupOverlays(){
                     setupTouristPopup("../data/tourist_data.json", "tourist");
                     break;
                 case 'reports-o':
-                    //toggleOverlay("../data/reports.geojson", "reports");
-                    //toggleReportsOverlay();
-                    fetchReports();
+                    //toggleOverlay("", "reports");
+                    toggleReportsOverlay();
+                    //fetchReports();
                     break;
                 default:
                     console.warn("Unknown category: " + category);
@@ -57,14 +57,13 @@ export async function toggleOverlay(filepath, layerName) {
 
 export async function toggleReportsOverlay() {
     if (overlayLayers["reports"]) {
-        console.log('button pressed');
         clearReportsFromMap();
+        overlayLayers["reports"]=null;
     } else {
-        console.log('button not pressed');
+        overlayLayers["reports"]=1;
         await fetchReports();
     }
 }
-
 
 async function addOverlayLayer(filepath, layerName) {
     try {
@@ -316,6 +315,10 @@ function getSafetyColor(safetyLevel) {
 
 export function clearAllOverlays() {
     Object.keys(overlayLayers).forEach(layerName => {
+        if(layerName==="reports")
+        {
+            clearReportsFromMap();
+        }
         overlayLayers[layerName].setMap(null);
         delete overlayLayers[layerName];
 
