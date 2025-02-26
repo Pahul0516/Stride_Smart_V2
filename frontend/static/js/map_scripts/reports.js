@@ -297,7 +297,7 @@ async function displayReportsOnMap(reports)
                     <p>${report.description}</p>
                     ${report.photos.map(photo => `<img src="data:image/jpeg;base64,${photo}" width="100">`).join('')}
                     <p style="color: green;">Reported on: ${formatDate(report.created_at)}</p>
-                    <p>Created by:  ${sessionStorage.getItem('username')}</p>
+                    <p>Reported by:  ${report.username}</p>
                 </div>
             `;
             const infoWindow = new google.maps.InfoWindow({

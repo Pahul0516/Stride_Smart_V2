@@ -56,6 +56,17 @@ class AccountRepo:
             print(f"Error checking email: {e}")
             return None
 
+    def findAccountName(self,id):
+        try:
+            cursor = self.__connection.cursor()
+            query = "SELECT username FROM accounts WHERE user_id = %s"
+            cursor.execute(query, (id,))
+            result = cursor.fetchone()
+            return result
+        except Exception as e:
+            print(f"No account with this id: {e}")
+            return None
+
     def verifyPassword(self,email,password):
         try:
             cursor = self.__connection.cursor()

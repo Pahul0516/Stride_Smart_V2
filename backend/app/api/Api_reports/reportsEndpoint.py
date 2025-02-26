@@ -2,6 +2,7 @@ import base64
 from flask import Blueprint, request, jsonify, current_app
 from app.repositories.ReportRepo import ReportRepo
 from itertools import pairwise
+from app.repositories.AccountRepo import AccountRepo
 
 report_bp = Blueprint('report_bp', __name__)
 
@@ -19,18 +20,21 @@ def load_new_report():
 def send_all_reports():
     try:
         reportRepo= ReportRepo('localhost','walk_safe_3','postgres','semiluna123')
-        rows = reportRepo.get_all_reports()
+        accountRepo=AccountRepo('localhost','walk_safe_3','postgres','semiluna123')
+        report_list = reportRepo.get_all_reports()
         reports = []
-        for row in rows:
+        for report in report_list:
+            username=accountRepo.findAccountName(report[7])
+            print('report[7]: ',report[7])
             reports.append({
-                'report_id': row[0],
-                'latitude':row[1],
-                'longitude':row[2],
-                'type': row[3],
-                'description': row[4],
-                'photos': [base64.b64encode(photo).decode('utf-8') for photo in row[5]], 
-                'created_at': row[6].isoformat(),
-                'account_id': row[7]
+                'report_id': report[0],
+                'latitude':report[1],
+                'longitude':report[2],
+                'type': report[3],
+                'description': report[4],
+                'photos': [base64.b64encode(photo).decode('utf-8') for photo in report[5]], 
+                'created_at': report[6].isoformat(),
+                'username': username
             })
         return jsonify(reports), 200
     except Exception as e:
