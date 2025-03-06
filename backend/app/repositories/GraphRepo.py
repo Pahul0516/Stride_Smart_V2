@@ -9,7 +9,6 @@ from shapely import wkb
 import psycopg2
 from psycopg2 import OperationalError
 
-
 class CustomGraph:
     
     def __init__(self):
@@ -17,16 +16,19 @@ class CustomGraph:
         self.G = ox.graph_from_place("Cluj-Napoca, Romania", network_type="walk")
         print('graph generated')
         self.host = "localhost"
-        self.dbname = "Maps_DB"
-        self.ser = "postgres"
-        self.password = "Qwertyuiop12"
+        self.dbname = "walk_safe_3"
+        self.user = "postgres"
+        self.password = "semiluna123"
         self.init_graph_dictionary()
         self.connection()
+        print('connection established')
+
     def init_graph_dictionary(self):
         for u, v, key, data in self.G.edges(keys=True, data=True):
             data['accident_frequency'] = 0
             data['green_index'] = 0
             data['air mark']=0
+        
     def get_graph(self):
         return self.G
 
@@ -213,9 +215,9 @@ class CustomGraph:
                 )
                 cursor = conn.cursor()
                 self.green_raster(cursor)
-                self.accident_frequency(cursor)
-                self.accesibility_zone(cursor)
-                self.get_tourist_points(cursor)
+                #self.accident_frequency(cursor)
+                #self.accesibility_zone(cursor)
+                #self.get_tourist_points(cursor)
                 break
 
             except OperationalError as e:

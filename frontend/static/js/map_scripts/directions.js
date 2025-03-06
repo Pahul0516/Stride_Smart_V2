@@ -6,8 +6,9 @@ import {
     directionsRenderer,
     userLocation,
     marker,
-    resetPlacePicker, showOverview, hideOverview, updateTravelTime
+    resetPlacePicker, showOverview, hideOverview, updateTravelTime,
 } from "/projects/2/static/js/map_scripts/map.js";
+import {activeFilters} from "/projects/2/static/js/map_scripts/menu.js";
 
 export function showInitialDirections() {
     if (userLocation && destination) {
@@ -19,7 +20,23 @@ export function showInitialDirections() {
             },
             (response, status) => {
                 if (status === "OK") {
-                    directionsRenderer.setDirections(response);
+                    if(activeFilters.size === 0) {
+                        directionsRenderer.setDirections(response);
+                        directionsRenderer.setOptions({
+                            polylineOptions: {
+                                strokeColor: "#083708",
+                                strokeOpacity: 0.7,
+                                strokeWeight: 5,
+                                zIndex: 1000
+                            },
+                            suppressMarkers: true,
+                            preserveViewport: true
+                        });
+                    }
+                    else{
+                        console.log('in SHOW INITIAL endcOOOORDS: ',destination);
+                        getDirections(userLocation, destination);
+                    }
                 } else {
                     alert("Directions request failed due to " + status);
                 }
@@ -29,6 +46,10 @@ export function showInitialDirections() {
         console.error("User location or destination is not set.");
     }
 }
+
+export let routeLayer;
+let fromAutocomplete, toAutocomplete;
+let fromLatLng, toLatLng;
 
 export function showDirections() {
     if (!userLocation || !destination) {
@@ -57,10 +78,17 @@ export function showDirections() {
     addAutocomplete("to-location");
 
     document.getElementById("calculate-route").addEventListener("click", () => {
+        console.log('calculating route')
+        
         const fromValue = fromInput.value.trim();
         const toValue = toInput.value.trim();
-
+        
         if (!fromValue) {
+            alert("Please enter a valid starting location.");
+            return;
+        }
+
+        if (!toValue) {
             alert("Please enter a valid starting location.");
             return;
         }
@@ -68,7 +96,20 @@ export function showDirections() {
         getLatLng(fromValue, (fromCoords) => {
             getLatLng(toValue, (toCoords) => {
                 if (fromCoords && toCoords) {
-                    calculateNewRoute(fromCoords, toCoords);
+                    console.log("From:", fromCoords, "To:", toCoords);
+                    let startCoords={
+                        lat: fromCoords.lat(),
+                        lng: fromCoords.lng()
+                    }
+                    let endCoords={
+                        lat:toCoords.lat(),
+                        lng:toCoords.lng()
+                    }
+                    console.log('in DIRECTIONS endcOOOORDS: ',endCoords);
+                    console.log('startCoords: ',startCoords);
+                    console.log('endCoords: ',endCoords);
+                    getDirections(startCoords, endCoords);
+                    //calculateNewRoute(fromCoords, toCoords);
                 } else {
                     alert("Invalid locations. Please enter a valid address.");
                 }
@@ -98,6 +139,9 @@ export function showDirections() {
 
     document.getElementById("cancel-directions").addEventListener("click", () => {
         resetPlacePicker();
+        if (routeLayer) {
+            routeLayer.setMap(null);
+        }
     });
 
     fromInput.addEventListener("change", (event) => {
@@ -167,7 +211,8 @@ function calculateNewRoute(fromCoords, toCoords) {
         alert("Please enter a valid destination.");
         return;
     }
-
+    // console.log('fromCoords: ',fromCoords.lat(), fromCoords.lng());
+    // console.log('toCoords: ',toCoords.lat(), toCoords.lng());
     directionsService.route(
         {
             origin: fromCoords,
@@ -177,6 +222,7 @@ function calculateNewRoute(fromCoords, toCoords) {
         (response, status) => {
             if (status === "OK") {
                 directionsRenderer.setDirections(response);
+
             } else {
                 alert("Directions request failed: " + status);
             }
@@ -212,4 +258,75 @@ function updatePlaceOverview(placeName, type) {
     });
 }
 
+export function getDirections(startCoords,endCoords)
+{
+    console.log('in GETdIRECTIONS endcOOOORDS: ',endCoords);
+    if(activeFilters.size === 1)
+    {
+        getNaturePath(startCoords, endCoords);
+    }
+    
+}
 
+async function getNaturePath(startCoords,endCoords)
+{
+    console.log('in fetch endcOOOORDS: ',endCoords);
+    fetch("http://127.0.0.1:5501/get_greenest_path", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ startCoords, endCoords })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Greenest path:", data);
+        if (routeLayer) {
+            routeLayer.setMap(null);
+        }
+        routeLayer = new google.maps.Data();
+        routeLayer.addGeoJson(data);
+        routeLayer.setStyle(function(feature) {
+            return {
+                strokeColor:"#2eb65d", 
+                strokeWeight: 4
+            };
+        });
+        routeLayer.setMap(map.innerMap);
+    })  
+}
+
+export function initFromAutocomplete() {
+    fromAutocomplete = new google.maps.places.Autocomplete(
+        document.getElementById('from-location'),
+        { types: ['geocode'] } // Restrict to addresses
+    );
+
+    fromAutocomplete.addListener('place_changed', () => {
+        let place = fromAutocomplete.getPlace();
+
+        if (!place.geometry) {
+            console.error("No details available for input:", place);
+            return;
+        }
+
+        fromLatLng = {
+            lat: place.geometry.location.lat(),
+            lng: place.geometry.location.lng()
+        };
+
+        console.log("Selected location:", fromLatLng); // Check in console
+        console.log('destionation: ',destination);
+    });
+}
+
+function getStartLocation()
+{
+    let place = fromAutocomplete.getPlace();
+    fromLatLng = {
+        lat: place.geometry.location.lat(),
+        lng: place.geometry.location.lng()
+    };
+    console.log('selected location: ',fromLatLng);
+    console.log('destination: ',destination);
+}

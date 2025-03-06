@@ -8,6 +8,7 @@ const menus = [
 ];
 
 export let activeMenu = null;
+export const activeFilters = menus[0].activeSet;
 
 export function setupMenus() {
     menus.forEach(setupMenu);
@@ -62,7 +63,7 @@ function toggleMenu(menu, button, closeButton, badgeId, activeSet) {
     closeButton.addEventListener("click", () => closeMenu(menu, badgeId, activeSet));
 }
 
-function openMenu(menu) {
+export function openMenu(menu) {
     menu.classList.remove("translate-y-full");
     activeMenu = menu;
 }
