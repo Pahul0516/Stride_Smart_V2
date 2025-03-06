@@ -8,7 +8,7 @@ create_account_bp = Blueprint('createAccount', __name__)
 @create_account_bp.route('/createAccount',methods=['POST'])
 def createAccount():
     print('reached backend logic of the api')
-    accountRepo= AccountRepo('localhost','walk_safe_3','postgres','semiluna123')
+    accountRepo= AccountRepo('localhost','Maps_DB','postgres','Qwertyuiop12')
     accountService=AccountService(accountRepo)
     data = request.json
     userName=data.get('userName')

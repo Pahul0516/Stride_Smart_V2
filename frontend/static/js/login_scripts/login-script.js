@@ -28,7 +28,7 @@ async function googleLogin(userName,email)
     const requestData={ userName, email };
     console.log('resuqest data: ',requestData);
     try {
-        const response = await fetch("http://127.0.0.1:5501/googleLogin", {
+        const response = await fetch("http://127.0.0.1:5001/googleLogin", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -42,7 +42,7 @@ async function googleLogin(userName,email)
             alert("Logged in successfully!");
             console.log("Server Response:", result);
             setSessionDetails(result);
-            window.location.href = "http://127.0.0.1:5501/map";
+            window.location.href = "http://127.0.0.1:5001/map";
 
         } else {
             alert("Registration failed: " + (result.message || "Unknown error"));
@@ -69,7 +69,7 @@ export async function logOut()
     sessionStorage.removeItem("username");
     sessionStorage.removeItem("email");
     sessionStorage.removeItem("points");
-    window.location.href = "http://127.0.0.1:5501/login";
+    window.location.href = "http://127.0.0.1:5001/login";
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -97,7 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const requestData = { email, password };
 
         try {
-            const response = await fetch("http://127.0.0.1:5501/login", {
+            const response = await fetch("http://127.0.0.1:5001/login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -112,7 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 alert("Logged in successfully!");
                 //keep data about logged in user
                 setSessionDetails(result);
-                window.location.href = "http://127.0.0.1:5501/map";
+                window.location.href = "http://127.0.0.1:5001/map";
             } else {
                 alert("Registration failed: " + (result));
             }

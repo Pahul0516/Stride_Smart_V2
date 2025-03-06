@@ -6,7 +6,7 @@
     <title>Stride Smart</title>
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Anton&family=Poppins:wght@400;700&family=Bebas+Neue&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="icon" type="image/png" href="http://127.0.0.1:5501/static/img/logo.png">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
 
     <style>
         @keyframes float {
@@ -117,7 +117,7 @@
                     class="mt-6 bg-[#3A4D39] text-[#FCFAEE] p-2 rounded-md hover:scale-110 transition-all flex items-center gap-2"
                     id="googleLoginButton">
                 Log in with Google
-                <img src="http://127.0.0.1:5501/static/img/search.png" alt="GoogleLogo" class="w-4">
+                <img src="{{ url_for('static', filename='img/search.png') }}" alt="GoogleLogo" class="w-4">
             </button>
 
         </form>
@@ -127,7 +127,7 @@
             <span class="absolute left-0 bottom-0 w-0 h-[2px] bg-[#3A4D39] transition-all duration-300 group-hover:w-full"></span>
         </a>
 
-        <a href="http://127.0.0.1:5501/register" class="relative text-sm text-[#3A4D39] mt-2 group">
+        <a href="{{ url_for('app.register') }}" class="relative text-sm text-[#3A4D39] mt-2 group">
             Don't have an account?
             <span class="font-bold text-[#3A4D39] relative">
                 Register
@@ -135,7 +135,7 @@
             </span>
         </a>
 
-        <a href="http://127.0.0.1:5501/map" class="relative text-sm text-[#3A4D39] mt-2 group">
+        <a href="{{ url_for('app.map_page') }}" class="relative text-sm text-[#3A4D39] mt-2 group">
             Explore as a guest
             <span class="absolute left-0 bottom-0 w-0 h-[2px] bg-[#3A4D39] transition-all duration-300 group-hover:w-full"></span>
         </a>
@@ -143,7 +143,7 @@
     </div>
 
 
-    <img src="http://127.0.0.1:5501/static/img/figma3.png" class="rounded-lg w-full max-h-[24vh] object-contain mb-10 relative z-10" alt="Walk1">
+    <img src="{{ url_for('static', filename='img/figma3.png') }}" class="rounded-lg w-full max-h-[24vh] object-contain mb-10 relative z-10" alt="Walk1">
 
 </div>
 
@@ -163,12 +163,12 @@
         </div>
 
         <div class="flex items-center space-x-4">
-            <img src="http://127.0.0.1:5501/static/img/UBB.png" alt="UBB Logo" class="w-14 sm:w-16 lg:w-20">
-            <img src="http://127.0.0.1:5501/static/img/M100.png" alt="M100 Logo" class="w-14 sm:w-16 lg:w-20">
+            <img src="{{ url_for('static', filename='img/UBB.png') }}" alt="UBB Logo" class="w-14 sm:w-16 lg:w-20">
+            <img src="{{ url_for('static', filename='img/M100.png') }}" alt="M100 Logo" class="w-14 sm:w-16 lg:w-20">
         </div>
 
     </div>
 </footer>
-<script type="module" src="../static/js/login_scripts/login-script.js"></script>
+<script type="module" src="{{url_for ('static', filename='js/login_scripts/login-script.js') }}"></script>
 </body>
 </html>

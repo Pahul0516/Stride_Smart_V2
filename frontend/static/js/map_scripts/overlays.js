@@ -1,6 +1,6 @@
-import {setupTouristPopup, removeMarkers, markers, activeTouristCategories} from "http://127.0.0.1:5501/static/js/map_scripts/tourist.js";
-import {map} from "http://127.0.0.1:5501/static/js/map_scripts/map.js";
-import {fetchReports,clearReportsFromMap} from "http://127.0.0.1:5501/static/js/map_scripts/reports.js"
+import {setupTouristPopup, removeMarkers, markers, activeTouristCategories} from "http://127.0.0.1:5001/static/js/map_scripts/tourist.js";
+import {map} from "http://127.0.0.1:5001/static/js/map_scripts/map.js";
+import {fetchReports,clearReportsFromMap} from "http://127.0.0.1:5001/static/js/map_scripts/reports.js"
 
 export let overlayLayers = {};
 export let circleLayers = {};

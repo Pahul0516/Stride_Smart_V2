@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log('request data: ',requestData);
 
         try {
-            const response = await fetch("http://127.0.0.1:5501/createAccount", {
+            const response = await fetch("http://127.0.0.1:5001/createAccount", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 console.log("Server Response:", result);
                 
                 setSessionDetails(result);
-                window.Location.href="http://127.0.0.1:5501/map";
+                window.Location.href="http://127.0.0.1:5001/map";
             } else {
                 alert("Registration failed: " + (result));
             }

@@ -8,7 +8,7 @@ login_bp = Blueprint('login', __name__)
 @login_bp.route('/login',methods=['POST'])
 def login():
     print('reached backend logic of the api')
-    accountRepo= AccountRepo('localhost','walk_safe_3','postgres','semiluna123')
+    accountRepo= AccountRepo('localhost','Maps_DB','postgres','Qwertyuiop12')
     accountService=AccountService(accountRepo)
 
     data=request.json
@@ -23,7 +23,7 @@ def login():
     
 @login_bp.route('/googleLogin',methods=['POST'])
 def googleLogin():
-    accountRepo= AccountRepo('localhost','walk_safe_3','postgres','semiluna123')
+    accountRepo= AccountRepo('localhost','Maps_DB','postgres','Qwertyuiop12!')
     accountService=AccountService(accountRepo)
     data=request.json
     email=data.get('email')
