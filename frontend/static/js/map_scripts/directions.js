@@ -49,6 +49,10 @@ export function showInitialDirections() {
     }
 }
 
+export let routeLayer;
+let fromAutocomplete, toAutocomplete;
+let fromLatLng, toLatLng;
+
 export function showDirections() {
     if (!userLocation || !getDestination()) {
         console.error("User location or destination is not set.");
@@ -109,6 +113,9 @@ export function showDirections() {
 
     document.getElementById("exit-button").addEventListener("click", () => {
         resetPlacePicker();
+        if (routeLayer) {
+            routeLayer.setMap(null);
+        }
     });
 
     fromInput.addEventListener("change", (event) => {
@@ -239,4 +246,75 @@ function updatePlaceOverview(placeName, type) {
     });
 }
 
+export function getDirections(startCoords,endCoords)
+{
+    console.log('in GETdIRECTIONS endcOOOORDS: ',endCoords);
+    if(activeFilters.size === 1)
+    {
+        getNaturePath(startCoords, endCoords);
+    }
+    
+}
 
+async function getNaturePath(startCoords,endCoords)
+{
+    console.log('in fetch endcOOOORDS: ',endCoords);
+    fetch("http://127.0.0.1:5501/get_greenest_path", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ startCoords, endCoords })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Greenest path:", data);
+        if (routeLayer) {
+            routeLayer.setMap(null);
+        }
+        routeLayer = new google.maps.Data();
+        routeLayer.addGeoJson(data);
+        routeLayer.setStyle(function(feature) {
+            return {
+                strokeColor:"#2eb65d", 
+                strokeWeight: 4
+            };
+        });
+        routeLayer.setMap(map.innerMap);
+    })  
+}
+
+export function initFromAutocomplete() {
+    fromAutocomplete = new google.maps.places.Autocomplete(
+        document.getElementById('from-location'),
+        { types: ['geocode'] } // Restrict to addresses
+    );
+
+    fromAutocomplete.addListener('place_changed', () => {
+        let place = fromAutocomplete.getPlace();
+
+        if (!place.geometry) {
+            console.error("No details available for input:", place);
+            return;
+        }
+
+        fromLatLng = {
+            lat: place.geometry.location.lat(),
+            lng: place.geometry.location.lng()
+        };
+
+        console.log("Selected location:", fromLatLng); // Check in console
+        console.log('destionation: ',destination);
+    });
+}
+
+function getStartLocation()
+{
+    let place = fromAutocomplete.getPlace();
+    fromLatLng = {
+        lat: place.geometry.location.lat(),
+        lng: place.geometry.location.lng()
+    };
+    console.log('selected location: ',fromLatLng);
+    console.log('destination: ',destination);
+}

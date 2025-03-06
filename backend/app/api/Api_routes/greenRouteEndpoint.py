@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify, current_app
 from app.services.GreenPathService import GreenPath
+from app.repositories.GreenRouteRepo import GreenRouteRepo
 from itertools import pairwise
 
 green_routes_bp = Blueprint('green_routes', __name__)
@@ -8,11 +9,12 @@ green_routes_bp = Blueprint('green_routes', __name__)
 def get_greenest_route():
 
     G = current_app.config["CustomGraph"]
+    #greenRepo = GreenRouteRepo(G,'localhost','walk_safe_3','postgres','semiluna123')
     greenPath = GreenPath(G)
-
+    
     data = request.json
-    start_coords = data.get('userLocation')
-    goal_coords = data.get('destination')
+    start_coords = data.get('startCoords')
+    goal_coords = data.get('endCoords')
     if goal_coords==None:
         return jsonify({'error': 'No destination provided'}), 400
     else:
