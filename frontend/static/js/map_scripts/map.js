@@ -3,7 +3,8 @@ import { fetchWeatherData } from "http://127.0.0.1:5501/static/js/map_scripts/we
 import {getLatLng, showDirections, showInitialDirections} from "http://127.0.0.1:5501/static/js/map_scripts/directions.js";
 import {activeMenu, closeMenu} from "http://127.0.0.1:5501/static/js/map_scripts/menu.js";
 import { logOut } from "http://127.0.0.1:5501/static/js/login_scripts/login-script.js";
-
+import { routeLayer } from "http://127.0.0.1:5501/static/js/map_scripts/directions.js";
+import { initFromAutocomplete} from "http://127.0.0.1:5501/static/js/map_scripts/directions.js";
 export let map, destination, overview, directionsService, directionsRenderer, geocoder, userLocation, marker;
 
 export async function init() {
@@ -33,6 +34,7 @@ export async function init() {
     setupPlaceOverviewButtons();
     setupPlaceOverview();
     setupUserScore();
+    initFromAutocomplete();
 }
 
 async function setupUserScore(){
@@ -98,6 +100,12 @@ export function setupGeolocation() {
 
 export function setupEventListeners() {
     map.innerMap.addListener("click", (event) => {
+        if(routeLayer)
+            {
+                routeLayer.setMap(null);
+            }
+        resetPlacePicker();
+
         destination = {
             lat: event.latLng.lat(),
             lng: event.latLng.lng(),
