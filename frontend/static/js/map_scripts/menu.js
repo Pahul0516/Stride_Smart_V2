@@ -1,4 +1,4 @@
-import {clearAllOverlays} from "http://127.0.0.1:5501/static/js/map_scripts/overlays.js";
+import {clearAllOverlays} from "http://127.0.0.1:5001/static/js/map_scripts/overlays.js";
 
 const menus = [
     { buttonId: "filtersButton", menuId: "filterMenu", closeId: "closeFilterMenu", badgeId: "filterBadge", activeSet: new Set() },

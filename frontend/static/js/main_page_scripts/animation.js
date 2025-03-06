@@ -4,7 +4,7 @@ export function setupAnimation() {
         renderer: "svg",
         loop: true,
         autoplay: true,
-        path: "http://127.0.0.1:5501/static/animations/loading.json"
+        path: "http://127.0.0.1:5001/static/animations/loading.json"
     });
 
     window.addEventListener("load", () => {

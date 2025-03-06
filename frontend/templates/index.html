@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Anton&family=Poppins:wght@400;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.9.6/lottie.min.js"></script>
-    <link rel="icon" type="image/png" href=" http://127.0.0.1:5501/static/img/logo.png">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
     <style>
 
         .fade-in {
@@ -93,12 +93,12 @@
     <button id="closeMenu" class="absolute top-6 left-8 text-4xl text-[#f0e7d8] hover:scale-110 transition-transform hover:opacity-80">&times;</button>
 
     <nav class="flex flex-col space-y-8 text-[#f0e7d8] text-4xl font-bold items-center">
-        <a href="http://127.0.0.1:5501/login" class="relative group">
+        <a href="{{ url_for('app.login') }}" class="relative group">
             LOG IN
             <span class="absolute left-0 bottom-0 w-0 h-[2px] bg-[#f0e7d8] transition-all duration-300 group-hover:w-full"></span>
         </a>
 
-        <a href="http://127.0.0.1:5501/map" class="relative group">
+        <a href="{{ url_for('app.map_page') }}" class="relative group">
             NAVIGATE
             <span class="absolute left-0 bottom-0 w-0 h-[2px] bg-[#f0e7d8] transition-all duration-300 group-hover:w-full"></span>
         </a>
@@ -148,13 +148,13 @@
             YOUR PRIORITIES YOUR PATH
         </h2>
         <div class="mt-10 flex justify-center">
-            <a href="http://127.0.0.1:5501/login" class="px-6 py-3 sm:px-8 sm:py-3 lg:px-10 lg:py-4 text-lg font-bold bg-transparent border-2 border-[#3A4D39] text-[#3A4D39] rounded-full transition transform hover:scale-110">
+            <a href="{{ url_for('app.login') }}" class="px-6 py-3 sm:px-8 sm:py-3 lg:px-10 lg:py-4 text-lg font-bold bg-transparent border-2 border-[#3A4D39] text-[#3A4D39] rounded-full transition transform hover:scale-110">
                 Get Started
             </a>
         </div>
     </div>
 
-    <img src="http://127.0.0.1:5501/static/img/figma3.png" class="rounded-lg w-full max-h-[80vh] object-contain mb-10 relative z-10" alt="Walk1">
+    <img src="{{ url_for('static', filename='img/figma3.png') }}" class="rounded-lg w-full max-h-[80vh] object-contain mb-10 relative z-10" alt="Walk1">
 
     <div id="scrollArrow" class="absolute bottom-3 animate-bounce transition-opacity duration-500 opacity-100 z-10">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-[#3A4D39]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -177,7 +177,7 @@
             </p>
 <!--        </div>-->
 <!--        <div class="lg:w-1/2 flex justify-end">-->
-<!--            <img src="http://127.0.0.1:5501/static/img/walk1.png" class="rounded-lg w-3/4 lg:w-2/3 hidden lg:block" alt="Walk1">-->
+<!--            <img src="http://127.0.0.1:5001/static/img/walk1.png" class="rounded-lg w-3/4 lg:w-2/3 hidden lg:block" alt="Walk1">-->
 <!--        </div>-->
     </div>
 
@@ -188,7 +188,7 @@
             </p>
 <!--        </div>-->
 <!--        <div class="lg:w-1/2 flex justify-start">-->
-<!--            <img src="http://127.0.0.1:5501/static/img/old-people.png" class="rounded-lg w-3/4 lg:w-2/3 hidden lg:block" alt="Old People Walking">-->
+<!--            <img src="http://127.0.0.1:5001/static/img/old-people.png" class="rounded-lg w-3/4 lg:w-2/3 hidden lg:block" alt="Old People Walking">-->
 <!--        </div>-->
     </div>
 
@@ -199,7 +199,7 @@
             </p>
 <!--        </div>-->
 <!--        <div class="lg:w-1/2 flex justify-end">-->
-<!--            <img src="http://127.0.0.1:5501/static/img/photographer.png" class="rounded-lg w-3/4 lg:w-2/3 hidden lg:block" alt="Photographer">-->
+<!--            <img src="http://127.0.0.1:5001/static/img/photographer.png" class="rounded-lg w-3/4 lg:w-2/3 hidden lg:block" alt="Photographer">-->
 <!--        </div>-->
     </div>
     <svg class="w-screen absolute overflow-hidden -bottom-1 left-0 max-h-48 md:max-h-64 lg:max-h-72" viewBox="0 0 1440 320" preserveAspectRatio="none">
@@ -325,7 +325,7 @@
         </p>
 
         <div class="mt-20 flex justify-center space-x-3">
-            <a href="http://127.0.0.1:5501/map" class="px-6 py-3 sm:px-8 sm:py-3 lg:px-10 lg:py-4 text-lg font-bold bg-transparent border-2 border-[#FCFAEE] text-[#FCFAEE] rounded-full transition transform hover:scale-110 hover:bg-[#FCFAEE] hover:text-[#3A4D39]">
+            <a href="{{ url_for('app.map_page') }}" class="px-6 py-3 sm:px-8 sm:py-3 lg:px-10 lg:py-4 text-lg font-bold bg-transparent border-2 border-[#FCFAEE] text-[#FCFAEE] rounded-full transition transform hover:scale-110 hover:bg-[#FCFAEE] hover:text-[#3A4D39]">
                 Navigate
             </a>
             <button id="backToTop" class="px-6 py-3 sm:px-8 sm:py-3 lg:px-10 lg:py-4 text-lg font-bold bg-transparent border-2 border-[#FCFAEE] text-[#FCFAEE] rounded-full transition transform hover:scale-110 hover:bg-[#FCFAEE] hover:text-[#3A4D39]">
@@ -356,8 +356,8 @@
         </div>
 
         <div class="flex items-center space-x-4">
-            <img src="http://127.0.0.1:5501/static/img/UBB.png" alt="UBB Logo" class="w-14 sm:w-16 lg:w-20">
-            <img src="http://127.0.0.1:5501/static/img/M100.png" alt="M100 Logo" class="w-14 sm:w-16 lg:w-20">
+            <img src="{{ url_for('static', filename='img/UBB.png') }}" alt="UBB Logo" class="w-14 sm:w-16 lg:w-20">
+            <img src="{{ url_for('static', filename='img/M100.png') }}" alt="M100 Logo" class="w-14 sm:w-16 lg:w-20">
         </div>
 
     </div>
@@ -375,7 +375,7 @@
     </div>
 </div>
 
-<script type="module" src="http://127.0.0.1:5501/static/js/main_page_scripts/main.js"></script>
+<script type="module" src="{{ url_for('static', filename='js/main_page_scripts/main.js') }}"></script>
 </body>
 </html>
 

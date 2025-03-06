@@ -11,8 +11,8 @@
     <script src="https://cdn.jsdelivr.net/npm/heatmap.js@2.0.5/build/heatmap.min.js"></script>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="http://127.0.0.1:5501/static/css/map-style.css"/>
-    <link rel="icon" type="image/png" href="http://127.0.0.1:5501/static/img/logo.png">
+    <link rel="stylesheet" href="/static/css/map-style.css"/>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
 </head>
 <body class="text-xs">
 
@@ -141,19 +141,19 @@
     </div>
     <div class="flex flex-wrap gap-3 justify-center mt-6 mb-24">
         <button class="chip flex items-center gap-2 px-6 py-2 rounded-full bg-white text-gray-700 shadow-md transition-all duration-300" data-category="landmark">
-            <img src="http://127.0.0.1:5501/static/img/landmark.png" class="w-5 h-5" alt="Landmark"> Landmark
+            <img src="{{ url_for('static', filename='img/landmark.png') }}" class="w-5 h-5" alt="Landmark"> Landmark
         </button>
         <button class="chip flex items-center gap-2 px-6 py-2 rounded-full bg-white text-gray-700 shadow-md transition-all duration-300" data-category="museum">
-            <img src="http://127.0.0.1:5501/static/img/museum.png" class="w-5 h-5" alt="Museum"> Museum
+            <img src="{{ url_for('static', filename='img/museum.png') }}" class="w-5 h-5" alt="Museum"> Museum
         </button>
         <button class="chip flex items-center gap-2 px-6 py-2 rounded-full bg-white text-gray-700 shadow-md transition-all duration-300" data-category="cafe">
-            <img src="http://127.0.0.1:5501/static/img/cafe.png" class="w-5 h-5" alt="Cafe"> Cafe
+            <img src="{{ url_for('static', filename='img/cafe.png') }}" class="w-5 h-5" alt="Cafe"> Cafe
         </button>
         <button class="chip flex items-center gap-2 px-6 py-2 rounded-full bg-white text-gray-700 shadow-md transition-all duration-300" data-category="restaurant">
-            <img src="http://127.0.0.1:5501/static/img/restaurant.png" class="w-5 h-5" alt="Restaurant"> Restaurant
+            <img src="{{ url_for('static', filename='img/restaurant.png') }}" class="w-5 h-5" alt="Restaurant"> Restaurant
         </button>
         <button class="chip flex items-center gap-2 px-6 py-2 rounded-full bg-white text-gray-700 shadow-md transition-all duration-300" data-category="entertainment">
-            <img src="http://127.0.0.1:5501/static/img/entertainment.png" class="w-5 h-5" alt="Entertainment"> Entertainment
+            <img src="{{ url_for('static', filename='img/entertainment.png') }}" class="w-5 h-5" alt="Entertainment"> Entertainment
         </button>
     </div>
 </div>
@@ -172,25 +172,25 @@
 
     <div class="grid grid-cols-2 gap-4 mt-4 mb-20">
         <button class="filter-option flex items-center gap-2 p-2.5 rounded-full bg-white text-gray-700 transition-all duration-200 shadow-md" data-category="thermal-comfort-f">
-            <img src="http://127.0.0.1:5501/static/img/cold1.png" alt="Thermal Comfort" class="w-8 h-8"> Thermal Comfort
+            <img src="{{ url_for('static', filename='img/cold1.png') }}" alt="Thermal Comfort" class="w-8 h-8"> Thermal Comfort
         </button>
         <button class="filter-option flex items-center gap-2 p-2.5 rounded-full bg-white text-gray-700 transition-all duration-200 shadow-md" data-category="clean-air-f">
-            <img src="http://127.0.0.1:5501/static/img/ventilation1.png" alt="Air Quality" class="w-8 h-8"> Clean Air
+            <img src="{{ url_for('static', filename='img/ventilation1.png') }}" alt="Air Quality" class="w-8 h-8"> Clean Air
         </button>
         <button class="filter-option flex items-center gap-2 p-2.5 rounded-full bg-white text-gray-700 transition-all duration-200 shadow-md" data-category="nature-path-f">
-            <img src="http://127.0.0.1:5501/static/img/forest1.png" alt="Green Areas" class="w-8 h-8"> Nature Path
+            <img src="{{ url_for('static', filename='img/forest1.png') }}" alt="Green Areas" class="w-8 h-8"> Nature Path
         </button>
         <button class="filter-option flex items-center gap-2 p-2.5 rounded-full bg-white text-gray-700 transition-all duration-200 shadow-md" data-category="safety-trail-f">
-            <img src="http://127.0.0.1:5501/static/img/safe-zone1.png" alt="Safety" class="w-8 h-8"> Safety Trail
+            <img src="{{ url_for('static', filename='img/safe-zone1.png') }}" alt="Safety" class="w-8 h-8"> Safety Trail
         </button>
         <button class="filter-option flex items-center gap-2 p-2.5 rounded-full bg-white text-gray-700 transition-all duration-200 shadow-md" data-category="accessible-f">
-            <img src="http://127.0.0.1:5501/static/img/elderly1.png" alt="Accessibility" class="w-8 h-8"> Accessible Adventure
+            <img src="{{ url_for('static', filename='img/elderly1.png') }}" alt="Accessibility" class="w-8 h-8"> Accessible Adventure
         </button>
         <button class="filter-option flex items-center gap-2 p-3 rounded-full bg-white text-gray-700 transition-all duration-200 shadow-md" data-category="discover-explore-f">
-            <img src="http://127.0.0.1:5501/static/img/tour-guide1.png" alt="Traveler" class="w-8 h-8"> Discover & Explore
+            <img src="{{ url_for('static', filename='img/tour-guide1.png') }}" alt="Traveler" class="w-8 h-8"> Discover & Explore
         </button>
         <button class="justify-center filter-option flex items-center gap-2 p-2.5 rounded-full bg-white text-gray-700 transition-all duration-200 col-span-2 shadow-md" data-category="reports-f">
-            <img src="http://127.0.0.1:5501/static/img/complain1.png" alt="Reports" class="w-8 h-8"> Navigator's Reports
+            <img src="{{ url_for('static', filename='img/complain1.png') }}" alt="Reports" class="w-8 h-8"> Navigator's Reports
         </button>
     </div>
 </div>
@@ -210,25 +210,25 @@
 
     <div class="grid grid-cols-2 gap-4 mt-4 mb-20">
         <button class="overlay-option flex items-center gap-2 p-2.5 rounded-full bg-white text-gray-700 transition-all duration-200 shadow-md" data-category="thermal-comfort-o">
-            <img src="http://127.0.0.1:5501/static/img/cold1.png" alt="Thermal Comfort" class="w-8 h-8"> Thermal Comfort
+            <img src="{{ url_for('static', filename='img/cold1.png') }}" alt="Thermal Comfort" class="w-8 h-8"> Thermal Comfort
         </button>
         <button class="overlay-option flex items-center gap-2 p-2.5 rounded-full bg-white text-gray-700 transition-all duration-200 shadow-md" data-category="clean-air-o">
-            <img src="http://127.0.0.1:5501/static/img/ventilation1.png" alt="Air Quality" class="w-8 h-8"> Clean Air
+            <img src="{{ url_for('static', filename='img/ventilation1.png') }}" alt="Air Quality" class="w-8 h-8"> Clean Air
         </button>
         <button class="overlay-option flex items-center gap-2 p-2.5 rounded-full bg-white text-gray-700 transition-all duration-200 shadow-md" data-category="nature-path-o">
-            <img src="http://127.0.0.1:5501/static/img/forest1.png" alt="Green Areas" class="w-8 h-8"> Nature Path
+            <img src="{{ url_for('static', filename='img/forest1.png') }}" alt="Green Areas" class="w-8 h-8"> Nature Path
         </button>
         <button class="overlay-option flex items-center gap-2 p-2.5 rounded-full bg-white text-gray-700 transition-all duration-200 shadow-md" data-category="safety-trail-o">
-            <img src="http://127.0.0.1:5501/static/img/safe-zone1.png" alt="Safety" class="w-8 h-8"> Safety Trail
+            <img src="{{ url_for('static', filename='img/safe-zone1.png') }}" alt="Safety" class="w-8 h-8"> Safety Trail
         </button>
         <button class="overlay-option flex items-center gap-2 p-2.5 rounded-full bg-white text-gray-700 transition-all duration-200 shadow-md" data-category="accessible-o">
-            <img src="http://127.0.0.1:5501/static/img/elderly1.png" alt="Accessibility" class="w-8 h-8"> Accessible Adventure
+            <img src="{{ url_for('static', filename='img/elderly1.png') }}" alt="Accessibility" class="w-8 h-8"> Accessible Adventure
         </button>
         <button class="overlay-option flex items-center gap-2 p-2.5 rounded-full bg-white text-gray-700 transition-all duration-200 shadow-md" data-category="discover-explore-o">
-            <img src="http://127.0.0.1:5501/static/img/tour-guide1.png" alt="Traveler" class="w-8 h-8"> Discover & Explore
+            <img src="{{ url_for('static', filename='img/tour-guide1.png') }}" alt="Traveler" class="w-8 h-8"> Discover & Explore
         </button>
         <button class="justify-center overlay-option flex items-center gap-2 p-2.5 rounded-full bg-white text-gray-700 transition-all duration-200 col-span-2 shadow-md" data-category="reports-o">
-            <img src="http://127.0.0.1:5501/static/img/complain1.png" alt="Reports" class="w-8 h-8"> Navigator's Reports
+            <img src="{{ url_for('static', filename='img/complain1.png') }}" alt="Reports" class="w-8 h-8"> Navigator's Reports
         </button>
     </div>
 </div>
@@ -241,7 +241,7 @@
     </div>
 
     <div class="flex items-center mt-4 space-x-4">
-        <img id="weather-icon" class="w-16 h-16" src="http://127.0.0.1:5501/static/img/cloud.png" alt="Weather Icon" />
+        <img id="weather-icon" class="w-16 h-16" src="{{ url_for('static', filename='img/cloud.png') }}" alt="Weather Icon" />
         <div>
             <h3 id="weather-condition" class="text-lg font-medium text-gray-700">Loading...</h3>
             <p id="temperature" class="text-lg font-bold text-gray-900">--°C</p>
@@ -274,7 +274,7 @@
 
     <div class="mt-4 flex items-center justify-between">
         <div class="flex items-center">
-            <img src="http://127.0.0.1:5501/static/img/high-score.png" alt="Score Icon" class="w-12 h-12">
+            <img src="{{ url_for('static', filename='img/high-score.png') }}" alt="Score Icon" class="w-12 h-12">
             <div class="ml-3">
                 <p class="text-lg font-semibold">Current Score</p>
                 <p id="userScore" class="text-lg font-bold text-gray-900">1200 XP</p>
@@ -310,7 +310,7 @@
 <div class="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-lg bg-[#3A4D39] shadow-lg rounded-full p-2 pl-6 pr-6 flex justify-between items-center">
     <div class="relative">
         <button id="filtersButton" class="flex flex-col items-center">
-            <img src="http://127.0.0.1:5501/static/img/filter.png" alt="Filters" class="w-6 h-6 filter invert">
+            <img src="{{ url_for('static', filename='img/filter.png') }}" alt="Filters" class="w-6 h-6 filter invert">
         </button>
         <span id="filterBadge"
               class="hidden absolute -top-1 -right-2 bg-red-600 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">0
@@ -318,23 +318,23 @@
     </div>
     <div class="relative">
         <button id="overlaysButton" class="flex flex-col items-center">
-            <img src="http://127.0.0.1:5501/static/img/geographical.png" alt="Filters" class="w-8 h-8 xs:w-6 xs:h-6 filter invert">
+            <img src="{{ url_for('static', filename='img/geographical.png') }}" alt="Filters" class="w-8 h-8 xs:w-6 xs:h-6 filter invert">
         </button>
         <span id="overlayBadge"
               class="hidden absolute -top-1 -right-2 bg-red-600 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">0
         </span>
     </div>
     <button id="centralizeButton" class="flex-col items-center bg-[#DA8359] p-2 rounded-full shadow-xl border-2 border-white -mt-12">
-        <img src="http://127.0.0.1:5501/static/img/target2.png" alt="Center" class="w-11 h-11 xs:w-9 xs:h-9 filter invert">
+        <img src="{{ url_for('static', filename='img/target2.png') }}" alt="Center" class="w-11 h-11 xs:w-9 xs:h-9 filter invert">
     </button>
     <button id="weatherButton" class="flex flex-col items-center">
-        <img src="http://127.0.0.1:5501/static/img/cloud.png" alt="Weather" class="w-8 h-8 xs:w-6 xs:h-6 filter invert">
+        <img src="{{ url_for('static', filename='img/cloud.png') }}" alt="Weather" class="w-8 h-8 xs:w-6 xs:h-6 filter invert">
     </button>
     <button id="profileButton" class="flex flex-col items-center">
-        <img src="http://127.0.0.1:5501/static/img/user.png" alt="Profile" class="w-7 h-7 xs:w-5 xs:h-5 filter invert">
+        <img src="{{ url_for('static', filename='img/user.png') }}" alt="Profile" class="w-7 h-7 xs:w-5 xs:h-5 filter invert">
     </button>
 </div>
 
-<script type="module" src="http://127.0.0.1:5501/static/js/map_scripts/main-map.js"></script>
+<script type="module" src="{{ url_for('static', filename='js/map_scripts/main-map.js') }}" defer></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-import {hideOverview, showOverview} from "http://127.0.0.1:5501/static/js/map_scripts/map.js";
+import {hideOverview, showOverview} from "http://127.0.0.1:5001/static/js/map_scripts/map.js";
 
 const hazardState = {
     currentLocation: null,
