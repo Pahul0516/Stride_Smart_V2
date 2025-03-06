@@ -31,9 +31,5 @@ six==1.17.0
 tzdata==2025.1
 urllib3==2.3.0
 Werkzeug==3.1.3
-<<<<<<< HEAD
 gunicorn==21.2.0
 bcrypt==4.3.0
-=======
-gunicorn==21.2.0
->>>>>>> 1e6ccadcdac15ed112e77ff2491160c4c4f55b34
