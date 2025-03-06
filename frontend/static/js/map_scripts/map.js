@@ -50,6 +50,7 @@ export function setupMap() {
         category: location.category,
         icon: {
             url: "http://127.0.0.1:5001/static/img/point.png",
+            url: "http://127.0.0.1:5001/static/img/point.png",
             scaledSize: new google.maps.Size(40, 40),
         }
         });
@@ -80,6 +81,7 @@ export function setupGeolocation() {
                     map: map.innerMap,
                     title: "You are here",
                     icon: {
+                        url: "http://127.0.0.1:5001/static/img/map_dot.svg",
                         url: "http://127.0.0.1:5001/static/img/map_dot.svg",
                         scaledSize: new google.maps.Size(20, 20),
                     }
