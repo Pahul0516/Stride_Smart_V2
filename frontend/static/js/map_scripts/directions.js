@@ -6,8 +6,12 @@ import {
     directionsRenderer,
     userLocation,
     marker,
-    resetPlacePicker, showOverview, hideOverview, updateTravelTime
+    googleMap,
+    resetPlacePicker, showOverview, updateTravelTime
 } from "./map.js";
+
+import {gmpxActive} from "./overlays.js";
+import {activeFilters} from "./menu.js";
 
 export function showInitialDirections() {
     if (userLocation && destination) {
@@ -19,7 +23,20 @@ export function showInitialDirections() {
             },
             (response, status) => {
                 if (status === "OK") {
-                    directionsRenderer.setDirections(response);
+                    directionsRenderer.setMap(gmpxActive ? map.innerMap : googleMap);
+                    if(activeFilters.size === 0) {
+                        directionsRenderer.setDirections(response);
+                        directionsRenderer.setOptions({
+                            polylineOptions: {
+                                strokeColor: "#083708",
+                                strokeOpacity: 0.7,
+                                strokeWeight: 5,
+                                zIndex: 1000
+                            },
+                            suppressMarkers: true,
+                            preserveViewport: true
+                        });
+                    }
                 } else {
                     alert("Directions request failed due to " + status);
                 }
@@ -168,20 +185,22 @@ function calculateNewRoute(fromCoords, toCoords) {
         return;
     }
 
-    directionsService.route(
-        {
-            origin: fromCoords,
-            destination: toCoords,
-            travelMode: google.maps.TravelMode.WALKING,
-        },
-        (response, status) => {
-            if (status === "OK") {
-                directionsRenderer.setDirections(response);
-            } else {
-                alert("Directions request failed: " + status);
+    if(activeFilters.size === 0) {
+        directionsService.route(
+            {
+                origin: fromCoords,
+                destination: toCoords,
+                travelMode: google.maps.TravelMode.WALKING,
+            },
+            (response, status) => {
+                if (status === "OK") {
+                    directionsRenderer.setDirections(response);
+                } else {
+                    alert("Directions request failed: " + status);
+                }
             }
-        }
-    );
+        );
+    }
 }
 
 function updatePlaceOverview(placeName, type) {
