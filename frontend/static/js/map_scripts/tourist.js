@@ -1,7 +1,8 @@
-import { map } from "http://127.0.0.1:5001/static/js/map_scripts/map.js";
-import { activateTouristButton, deactivateTouristButton } from "http://127.0.0.1:5001/static/js/map_scripts/menu.js";
+import { map } from "./map.js";
+import { activateTouristButton, deactivateTouristButton } from "./menu.js";
 
 export let markers = [];
+export let bucketList = [];
 export let activeTouristCategories = new Set();
 
 export function setupTouristPopup() {
@@ -22,10 +23,15 @@ export function setupTouristPopup() {
 
     closeTouristPopup.addEventListener("click", () => {
         closeTouristPopupHandler();
-    }, { once: true });
+    });
 
     attachChipListeners();
     setupClearButton();
+    setupBucketListButton();
+
+    document.getElementById("clear-bucket-list").addEventListener("click", ()=> {
+        clearBucketList();
+    });
 }
 
 function closeTouristPopupHandler() {
@@ -82,15 +88,22 @@ async function fetchTouristData(category) {
 }
 
 function addMarkers(category, locations) {
-    const iconUrl = `http://127.0.0.1:5001/static/img//${category}.png`;
     locations.forEach(location => {
+        const isInBucketList = bucketList.some(item => item.latitude === location.latitude && item.longitude === location.longitude);
+        const iconUrl = isInBucketList ? `../icons/${category}2.png` : `../icons/${category}.png`;
+
         const marker = new google.maps.Marker({
             position: { lat: location.latitude, lng: location.longitude },
             map: map.innerMap,
             title: location.name,
             category: category,
-            icon: { url: iconUrl, scaledSize: new google.maps.Size(25, 25) }
+            icon: { url: iconUrl, scaledSize: new google.maps.Size(30, 30) }
         });
+
+        marker.addListener("click", () => {
+            setupAddToBucketListPopup(location);
+        });
+
         markers.push(marker);
     });
 }
@@ -138,4 +151,190 @@ function updateButtonState() {
     } else {
         activateTouristButton();
     }
+}
+
+function setupAddToBucketListPopup(location) {
+    const popup = document.getElementById("add-to-bucket-list");
+    const closeButton = document.getElementById("close-add-to-bucket-list");
+    const questionElement = document.getElementById("popup-question");
+    const yesButton = document.getElementById("yes-bucket-list-button");
+    const noButton = document.getElementById("no-bucket-list-button");
+    const touristPopup = document.getElementById("touristPopup");
+
+    if (!popup || !closeButton || !yesButton || !noButton) {
+        console.error("One or more elements for the Add to Bucket List popup are missing.");
+        return;
+    }
+
+    popup.classList.remove("hidden");
+    document.getElementById("popup-location-name").textContent = location.name;
+    // touristPopup.classList.add("hidden", "translate-y-full");
+
+    const isInBucketList = bucketList.some(item => item.name === location.name);
+    const marker = markers.find(m => m.title === location.name);
+
+    if (isInBucketList) {
+        questionElement.textContent = "Cross this off the list?";
+        yesButton.textContent = "Yes, off it goes!";
+        noButton.textContent = "No, keeping it!";
+        yesButton.onclick = () => {
+            removeFromBucketList(location.name);
+            if (marker) {
+                marker.setIcon({
+                    url: `../icons/${location.category}.png`,
+                    scaledSize: new google.maps.Size(30, 30)
+                });
+            }
+            closeAddToBucketListPopup();
+            // touristPopup.classList.remove("hidden", "translate-y-full");
+        };
+        noButton.onclick = () => {
+            closeAddToBucketListPopup();
+            // touristPopup.classList.remove("hidden", "translate-y-full");
+        }
+    } else {
+        questionElement.textContent = "Bucket list-worthy or not?";
+        yesButton.textContent = "Yes, add it!";
+        noButton.textContent = "No, I'll pass!";
+        yesButton.onclick = () => {
+            addToBucketList(location);
+            addToBucketList(location);
+            if (marker) {
+                marker.setIcon({
+                    url: `../icons/${location.category}2.png`,
+                    scaledSize: new google.maps.Size(30, 30)
+                });
+            }
+            closeAddToBucketListPopup();
+            // touristPopup.classList.remove("hidden", "translate-y-full");
+        };
+        noButton.onclick = () => {
+            closeAddToBucketListPopup();
+            // touristPopup.classList.remove("hidden", "translate-y-full");
+        }
+    }
+
+    closeButton.onclick = () => {
+        closeAddToBucketListPopup();
+        // touristPopup.classList.remove("hidden", "translate-y-full");
+    };
+
+    updateBucketListButtonVisibility();
+}
+
+function closeAddToBucketListPopup() {
+    const popup = document.getElementById("add-to-bucket-list");
+    if (popup) {
+        popup.classList.add("hidden");
+    }
+}
+
+function setupBucketListButton(){
+    const bucketListButton = document.getElementById("bucket-list-btn");
+    const closeBucketListButton = document.getElementById("close-buckets-list");
+
+    bucketListButton.addEventListener("click", () => {
+        showBucketList();
+    })
+
+    closeBucketListButton.addEventListener("click", () => {
+        hideBucketList();
+    })
+}
+
+function updateBucketListButtonVisibility() {
+    const button = document.getElementById("bucket-list-btn");
+    button.classList.toggle("hidden", bucketList.length === 0);
+}
+
+function showBucketList() {
+    const popup = document.getElementById("bucket-list-popup");
+    const touristPopup = document.getElementById("touristPopup");
+    // touristPopup.classList.add("hidden", "translate-y-full");
+    popup.classList.remove("hidden");
+}
+
+function hideBucketList() {
+    const popup = document.getElementById("bucket-list-popup");
+    const touristPopup = document.getElementById("touristPopup");
+    // touristPopup.classList.remove("hidden", "translate-y-full");
+    popup.classList.add("hidden");
+}
+
+function addToBucketList(location) {
+    if (!bucketList.some(item => item.name === location.name)) {
+        bucketList.push(location);
+        updateBucketListUI();
+        updateBucketListButtonVisibility();
+    }
+}
+
+function updateBucketListUI() {
+    const listContainer = document.getElementById("bucket-list");
+    listContainer.innerHTML = "";
+
+    bucketList.forEach((location, index) => {
+        const listItem = document.createElement("li");
+        listItem.classList.add(
+            "flex", "items-center", "bg-white", "shadow-sm", "px-4", "py-3", "rounded-lg",
+            "transition-all", "duration-200"
+        );
+
+        const iconUrl = `../icons/${location.category}.png`;
+
+        const categorySpan = document.createElement("span");
+        categorySpan.classList.add("w-12", "flex", "justify-center", "items-center");
+
+        const categoryIcon = document.createElement("img");
+        categoryIcon.src = iconUrl;
+        categoryIcon.alt = location.category;
+        categoryIcon.classList.add("w-6", "h-6", "object-contain");
+
+        categorySpan.appendChild(categoryIcon);
+
+        const locationSpan = document.createElement("span");
+        locationSpan.classList.add("flex-grow", "font-semibold", "truncate", "text-center");
+        locationSpan.textContent = location.name;
+
+        const removeButton = document.createElement("button");
+        removeButton.classList.add("w-12", "text-right", "text-[#DA8359]", "hover:text-red-600", "transition-all", "duration-200");
+        removeButton.textContent = "X";
+        removeButton.addEventListener("click", () => removeFromBucketList(location, index));
+
+        listItem.appendChild(categorySpan);
+        listItem.appendChild(locationSpan);
+        listItem.appendChild(removeButton);
+
+        listContainer.appendChild(listItem);
+    });
+}
+
+function removeFromBucketList(location, index) {
+
+    bucketList.splice(index, 1);
+    updateBucketListUI();
+    updateBucketListButtonVisibility();
+    updateMarkers();
+}
+
+function clearBucketList() {
+    bucketList = [];
+    updateBucketListUI();
+    updateBucketListButtonVisibility();
+    updateMarkers();
+}
+
+function updateMarkers() {
+    markers.forEach(marker => {
+        const isInBucketList = bucketList.some(item =>
+            item.latitude === marker.getPosition().lat() &&
+            item.longitude === marker.getPosition().lng()
+        );
+
+        const iconUrl = isInBucketList
+            ? `../icons/${marker.category}2.png`
+            : `../icons/${marker.category}.png`;
+
+        marker.setIcon({ url: iconUrl, scaledSize: new google.maps.Size(30, 30) });
+    });
 }

@@ -1,45 +1,38 @@
-import {clearAllOverlays} from "http://127.0.0.1:5001/static/js/map_scripts/overlays.js";
-import {fetchReports} from "http://127.0.0.1:5001/static/js/map_scripts/reports.js"
+import {clearAllOverlays, activeLayer} from "./overlays.js";
 
 const menus = [
-    { buttonId: "filtersButton", menuId: "filterMenu", closeId: "closeFilterMenu", badgeId: "filterBadge", activeSet: new Set() },
-    { buttonId: "overlaysButton", menuId: "overlayMenu", closeId: "closeOverlayMenu", badgeId: "overlayBadge", activeSet: new Set() },
-    { buttonId: "weatherButton", menuId: "weatherMenu", closeId: "closeWeatherMenu", badgeId: null, activeSet: null },
-    { buttonId: "profileButton", menuId: "profileMenu", closeId: "closeProfileMenu", badgeId: null, activeSet: null }
+    { buttonId: "filtersButton", menuId: "filterMenu", closeId: "closeFilterMenu", badgeId: "filterBadge" },
+    { buttonId: "overlaysButton", menuId: "overlayMenu", closeId: "closeOverlayMenu", badgeId: null },
+    { buttonId: "weatherButton", menuId: "weatherMenu", closeId: "closeWeatherMenu", badgeId: null },
+    { buttonId: "profileButton", menuId: "profileMenu", closeId: "closeProfileMenu", badgeId: null }
 ];
 
 export let activeMenu = null;
+export const activeFilters = new Set();
 
 export function setupMenus() {
+
     menus.forEach(setupMenu);
+
     setupToggleButtons(
         ".filter-option",
-        menus[0].activeSet,
         menus[0].badgeId,
         document.querySelector("#clearFiltersContainer"),
         document.querySelector("#clearFiltersButton")
     );
-
-    setupToggleButtons(
-        ".overlay-option",
-        menus[1].activeSet,
-        menus[1].badgeId,
-        document.querySelector("#clearOverlaysContainer"),
-        document.querySelector("#clearOverlaysButton")
-    );
 }
 
-function setupMenu({ buttonId, menuId, closeId, badgeId, activeSet }) {
+function setupMenu({ buttonId, menuId, closeId, badgeId }) {
     const button = document.querySelector(`#${buttonId}`);
     const menu = document.querySelector(`#${menuId}`);
     const closeButton = document.querySelector(`#${closeId}`);
 
     if (!button || !menu || !closeButton) return;
 
-    toggleMenu(menu, button, closeButton, badgeId, activeSet);
+    toggleMenu(menu, button, closeButton, badgeId);
 }
 
-function toggleMenu(menu, button, closeButton, badgeId, activeSet) {
+function toggleMenu(menu, button, closeButton, badgeId) {
     function handleToggle() {
         if (activeMenu === menu) {
             closeMenu(menu);
@@ -54,28 +47,28 @@ function toggleMenu(menu, button, closeButton, badgeId, activeSet) {
             hideTouristPopup();
         }
 
-        if (badgeId && activeSet) {
-            updateActiveNumber(badgeId, activeSet, null);
+        if (badgeId && activeFilters) {
+            updateActiveNumber(badgeId, null);
         }
     }
 
     button.addEventListener("click", handleToggle);
-    closeButton.addEventListener("click", () => closeMenu(menu, badgeId, activeSet));
+    closeButton.addEventListener("click", () => closeMenu(menu, badgeId));
 }
 
-function openMenu(menu) {
+export function openMenu(menu) {
     menu.classList.remove("translate-y-full");
     activeMenu = menu;
 }
 
-export function closeMenu(menu, badgeId = null, activeSet = null) {
+export function closeMenu(menu, badgeId = null) {
     menu.classList.add("translate-y-full");
     if (activeMenu === menu) {
         activeMenu = null;
     }
 
-    if (badgeId && activeSet) {
-        updateActiveNumber(badgeId, activeSet, null);
+    if (badgeId && activeFilters) {
+        updateActiveNumber(badgeId, null);
     }
 }
 
@@ -95,66 +88,63 @@ function hideTouristPopup() {
     }
 }
 
-function updateActiveNumber(badgeId, activeSet, container) {
+function updateActiveNumber(badgeId, container) {
     if (badgeId) {
-        const badge = document.querySelector(`#${badgeId}`);
+        const badge = document.getElementById("filterBadge");
         if (badge) {
-            badge.textContent = activeSet.size;
-            badge.classList.toggle("hidden", activeSet.size === 0);
+            badge.textContent = activeFilters.size.toString();
+            badge.classList.toggle("hidden", activeFilters.size === 0);
         }
     }
 
     if (container) {
-        container.classList.toggle("hidden", activeSet.size === 0);
+        container.classList.toggle("hidden", activeFilters.size === 0);
     }
 }
 
-function setupToggleButtons(buttonClass, activeSet, badgeId, clearButtonContainer, clearButton) {
+function setupToggleButtons(buttonClass, badgeId, clearButtonContainer, clearButton) {
     const buttons = document.querySelectorAll(buttonClass);
 
     buttons.forEach(button => {
-        button.addEventListener("click", () => handleToggleButton(button, activeSet, badgeId, clearButtonContainer));
+        button.addEventListener("click", () => handleToggleButton(button, badgeId, clearButtonContainer));
     });
 
-    clearButton.addEventListener("click", () => handleClearButton(activeSet, badgeId, clearButtonContainer, buttons));
+    clearButton.addEventListener("click", () => handleClearButton(badgeId, clearButtonContainer, buttons));
 }
 
-function handleToggleButton(button, activeSet, badgeId, clearButtonContainer) {
+function handleToggleButton(button, badgeId, clearButtonContainer) {
     const category = button.dataset.category;
     if (!category) return;
 
-    if (!(category === "discover-explore-o" && activeSet.has(category))) {
-        toggleCategory(button, category, activeSet);
-        updateActiveNumber(badgeId, activeSet, clearButtonContainer);
+    if (!(category === "discover-explore-o" && activeFilters.has(category))) {
+        toggleCategory(button, category);
+        updateActiveNumber(badgeId, clearButtonContainer);
     }
 }
 
-function toggleCategory(button, category, activeSet) {
-    if (activeSet.has(category)) {
-        if(!(category === "discover-explore-o" && activeSet.has(category)))
-            activeSet.delete(category);
+function toggleCategory(button, category) {
+    if (activeFilters.has(category)) {
+        if(!(category === "discover-explore-o" && activeFilters.has(category)))
+            activeFilters.delete(category);
     } else {
-        activeSet.add(category);
+        activeFilters.add(category);
     }
 
-    button.classList.toggle("bg-white", !activeSet.has(category));
-    button.classList.toggle("bg-[#A5B68D]", activeSet.has(category));
-    button.classList.toggle("text-gray-700", !activeSet.has(category));
-    button.classList.toggle("text-white", activeSet.has(category));
-    button.classList.toggle("shadow-lg", activeSet.has(category));
-    button.classList.toggle("scale-105", activeSet.has(category));
+    button.classList.toggle("bg-white", !activeFilters.has(category));
+    button.classList.toggle("bg-[#A5B68D]", activeFilters.has(category));
+    button.classList.toggle("text-gray-700", !activeFilters.has(category));
+    button.classList.toggle("text-white", activeFilters.has(category));
+    button.classList.toggle("shadow-lg", activeFilters.has(category));
+    button.classList.toggle("scale-105", activeFilters.has(category));
 }
 
-function handleClearButton(activeSet, badgeId, clearButtonContainer, buttons) {
-    clearAllOverlays();
-    activeSet.clear();
-
+function handleClearButton(badgeId, clearButtonContainer, buttons) {
+    activeFilters.clear();
     buttons.forEach(button => resetButtonStyle(button));
-
-    updateActiveNumber(badgeId, activeSet, clearButtonContainer);
+    updateActiveNumber(badgeId, clearButtonContainer);
 }
 
-function resetButtonStyle(button) {
+export function resetButtonStyle(button) {
     button.classList.add("bg-white");
     button.classList.remove("bg-[#A5B68D]");
     button.classList.add("text-gray-700");
@@ -167,19 +157,18 @@ export function deactivateTouristButton() {
     const touristButton = document.querySelector('[data-category="discover-explore-o"]');
     if (!touristButton) return;
 
-    menus[1].activeSet.delete("discover-explore-o");
-
     resetButtonStyle(touristButton);
+    activeLayer[0] = null;
     touristButton.classList.remove("active");
 
-    updateActiveNumber(menus[1].badgeId, menus[1].activeSet, document.querySelector("#clearOverlaysContainer"));
+    updateActiveNumber(menus[1].badgeId, document.querySelector("#clearOverlaysContainer"));
 }
 
 export function activateTouristButton() {
     const touristButton = document.querySelector('[data-category="discover-explore-o"]');
     if (!touristButton) return;
 
-    menus[1].activeSet.add("discover-explore-o");
-    toggleCategory(touristButton, "discover-explore-o", menus[1].activeSet);
-    updateActiveNumber(menus[1].badgeId, menus[1].activeSet, document.querySelector("#clearOverlaysContainer"));
+    activeLayer[0] = touristButton;
+    toggleCategory(touristButton, "discover-explore-o");
+    updateActiveNumber(menus[1].badgeId, document.querySelector("#clearOverlaysContainer"));
 }
