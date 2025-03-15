@@ -16,7 +16,7 @@ class CustomGraph:
         self.G = ox.graph_from_place("Cluj-Napoca, Romania", network_type="walk")
         print('graph generated')
         self.host = "localhost"
-        self.dbname = "walk_safe_3"
+        self.dbname = "walk_safe_4"
         self.user = "postgres"
         self.password = "semiluna123"
         self.init_graph_dictionary()
@@ -28,6 +28,7 @@ class CustomGraph:
             data['accident_frequency'] = 0
             data['green_index'] = 0
             data['air mark']=0
+            data['accessibility']=0
         
     def get_graph(self):
         return self.G
@@ -131,59 +132,194 @@ class CustomGraph:
             i+=1
             data['accident_frequency'] = random.choice([0,1,2,3])
 
-    def accesibility_zone(self, cursor):
-        query = "select name, geom from accessibility"
-        cursor.execute(query)
-        results = cursor.fetchall()
+    def calculate_accessibility_index(self, edge, raster_src):
+        """
+        Calculate the accessibility index for an edge in the graph using raster data.
+        If pixel intensity > 150, the area is marked as unaccessible (1), otherwise accessible (0).
+        """
+        buffer_distance = 0.000020  # Define a buffer zone around the edge
+        u, v, edge_data = edge
+        
+        # Get the geometry of the edge
+        if 'geometry' in edge_data:
+            edge_geometry = edge_data['geometry']
+        else:
+            u_coords = self.G.nodes[u]['x'], self.G.nodes[u]['y']
+            v_coords = self.G.nodes[v]['x'], self.G.nodes[v]['y']
+            edge_geometry = LineString([u_coords, v_coords])
+        
+        # Create a buffer around the edge
+        try:
+            edge_buffer = edge_geometry.buffer(buffer_distance)
+        except Exception as e:
+            print(e)
+            return None
 
-        if 'accessible_polygons' not in self.G.graph:
-            self.G.graph['accessible_polygons'] = []
-        if 'non_accessible_polygons' not in self.G.graph:
-            self.G.graph['non_accessible_polygons'] = []
+        if not edge_buffer.is_valid or edge_buffer.is_empty:
+            return None
 
-        for row in results:
-            name = row[0]
-            geom_wkb = row[1]
-            geom = wkb.loads(geom_wkb)
-            if name == "Zona accesibila":
-                self.G.graph['accessible_polygons'].append(geom)
-            else:
-                self.G.graph['non_accessible_polygons'].append(geom)
+        # Extract raster data within the buffer
+        shapes = [edge_buffer.__geo_interface__]  
+        out_image, out_transform = mask(raster_src, shapes, crop=True)
+        out_image = out_image.flatten()  # Convert to 1D array of pixel values
 
-        import random
+        # Define accessibility threshold
+        inaccessible_threshold = 138  # If pixel intensity > 150, it's unaccessible
+        print('out image:',out_image)
+        inaccessible_pixels = np.sum(out_image > inaccessible_threshold)
+        #print('inaccessbile pixels:',inaccessible_pixels)
+        #total_pixels = out_image.size
+        #print('total pixels:',total_pixels)
+
+        if(inaccessible_pixels>0):
+            accessibility=1
+        else:
+            accessibility=0
+
+        return accessibility
+    
+    def accessibility_raster(self, cursor):
+        """Fetches an accessibility raster and updates the graph edges with accessibility values."""
+        table_name = "accessible_raster"  # Change to the correct table name
+        raster_column = "raster_map"
+        raster_id = 2  # Change ID if needed
+        
+        # Query to fetch raster
+        sql = f"SELECT ST_AsTIFF({raster_column}) FROM {table_name} WHERE id_harta = %s"
+        cursor.execute(sql, (raster_id,))
+        raster_data = cursor.fetchone()
+
+        # Convert raster to bytes
+        if raster_data and raster_data[0]:
+            raster_bytes = io.BytesIO(raster_data[0])
+        else:
+            raster_bytes = None
+
+        if raster_bytes:
+            # Open the raster with rasterio
+            with rasterio.open(raster_bytes) as src:
+                i = 0
+                for edge in self.G.edges(data=True):
+                    i += 1
+                    accessibility = self.calculate_accessibility_index(edge, src)
+                    u, v, data = edge
+                    #pixel_values=self.extract_pixel_values_for_line_traversal(LineString(edge),src)
+                    #pixel_intensity=self.extract_pixel_intensities_for_line(LineString(edge),src)
+                    data['accessibility'] = accessibility
+                    print(f"edge {i} {accessibility}")
+        else:
+            print("Failed to fetch accessibility raster from the database.")
+
+
+    def extract_pixel_intensities_for_line(line, raster_src):
+        """
+        Extract the pixel intensities that the LineString (graph edge) traverses in the raster.
+        
+        Parameters:
+            line: A LineString representing the edge (from graph).
+            raster_src: The rasterio dataset object for the raster file.
+        
+        Returns:
+            pixel_values: List of pixel intensities that the line traverses.
+        """
+        try:
+            # Get the affine transformation from raster coordinates (row, col) to geospatial coordinates (lon, lat)
+            transform = raster_src.transform
+            
+            # List to store the pixel intensities
+            pixel_values = []
+            
+            # Loop through each point in the LineString to get the raster pixel coordinates it intersects
+            for point in line.coords:
+                lon, lat = point  # Unpack the longitude and latitude
+                
+                # Convert geospatial coordinates (lon, lat) to pixel coordinates (row, col)
+                col, row = ~transform * (lon, lat)  # Inverse of affine transform to get pixel (col, row)
+                
+                # Ensure the row and col are within the bounds of the raster
+                if 0 <= row < raster_src.height and 0 <= col < raster_src.width:
+                    row = int(row)
+                    col = int(col)
+                    
+                    # Read the pixel value at this row, col
+                    pixel_value = raster_src.read(1)[row, col]  # Read the first band (grayscale image)
+                    pixel_values.append(pixel_value)
+            
+            # Return the list of pixel values (intensities)
+            return pixel_values
+        except Exception as e:
+            print(f"An error occurred while extracting pixel intensities: {e}")
+            return []
+
+    def extract_pixel_values_for_line_traversal(line, raster_src):
+        try:
+            """
+            Extract pixel values for the exact pixels that the line traverses using Bresenham’s line algorithm
+            or direct pixel interpolation.
+            
+            Parameters:
+                line: A LineString geometry (the edge).
+                raster_src: A rasterio dataset object for the raster file.
+            
+            Returns:
+                pixel_values: List of pixel values that the line traverses.
+            """
+
+            pixel_values = []
+            
+            # Iterate through each pair of points in the LineString using rasterio's sample method
+            for coord in line.coords:
+                lon, lat = coord
+                # Convert the point's lon, lat to pixel coordinates
+                col, row = ~raster_src.transform * (lon, lat)
+                
+                # Ensure the coordinates are within bounds
+                if 0 <= row < raster_src.height and 0 <= col < raster_src.width:
+                    row = int(row)
+                    col = int(col)
+                    
+                    # Read the pixel value from the raster
+                    pixel_value = raster_src.read(1)[row, col]  # Read first band (adjust if multiple bands)
+                    pixel_values.append(pixel_value)
+            
+            return pixel_values
+        except Exception as e:
+            print(f"An error occurred while extracting pixel values: {e}")
+            return []
+
 
     def set_air_marks(self, cursor):
-        query = "SELECT osm_id, centroid_x, centroid_y, air_mark FROM air_marks;"  # Adjust table and column names as needed
-        cursor.execute(query)
-        results = cursor.fetchall()
-        
-        i = 1
-        for row in results:
-            print(i)
-            i += 1
-            centroid_x = row[1]
-            centroid_y = row[2]
-            air_quality = row[3]
-            print('coordinates:',centroid_x,centroid_y)
-            print('air quality',air_quality)
-            # Find the nearest edge to the centroid coordinates
-            point = Point(centroid_x, centroid_y)
-            edge = self.closest_edge_to_point(point)
-            #atribuim valoarea tuturor edge urilor dintr o arie -> 50m
-            if edge:
-                u, v, data = edge  # Unpack edge tuple
-                data['air_mark'] = air_quality  # Assign air quality mark to the edge data
-                print('air mark:')
-                print(air_quality)
+            query = "SELECT osm_id, centroid_x, centroid_y, air_mark FROM air_marks;"  # Adjust table and column names as needed
+            cursor.execute(query)
+            results = cursor.fetchall()
+            
+            i = 1
+            for row in results:
+                print(i)
+                i += 1
+                centroid_x = row[1]
+                centroid_y = row[2]
+                air_quality = row[3]
+                print('coordinates:',centroid_x,centroid_y)
+                print('air quality',air_quality)
+                # Find the nearest edge to the centroid coordinates
+                point = Point(centroid_x, centroid_y)
+                edge = self.closest_edge_to_point(point)
+                #atribuim valoarea tuturor edge urilor dintr o arie -> 50m
+                if edge:
+                    u, v, data = edge  # Unpack edge tuple
+                    data['air_mark'] = air_quality  # Assign air quality mark to the edge data
+                    print('air mark:')
+                    print(air_quality)
 
-        # If needed, apply the air quality mark to all edges (in case of missing data)
-        i = 1
-        for u, v, data in self.G.edges(data=True):
-            print(i)
-            i += 1
-            # You can assign a default air quality value or something random if no specific data is available
-            if 'air_mark' not in data:
-                data['air_mark'] = 0  # Example of assigning a random air quality mark
+            # If needed, apply the air quality mark to all edges (in case of missing data)
+            i = 1
+            for u, v, data in self.G.edges(data=True):
+                print(i)
+                i += 1
+                # You can assign a default air quality value or something random if no specific data is available
+                if 'air_mark' not in data:
+                    data['air_mark'] = 0  # Example of assigning a random air quality mark
 
     def get_tourist_points(self, cursor):
         query = "select category, geom from tourists"
@@ -214,7 +350,8 @@ class CustomGraph:
                     password=self.password
                 )
                 cursor = conn.cursor()
-                self.green_raster(cursor)
+                #self.green_raster(cursor)
+                #self.accessibility_raster(cursor)
                 #self.accident_frequency(cursor)
                 #self.accesibility_zone(cursor)
                 #self.get_tourist_points(cursor)

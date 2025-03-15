@@ -20,11 +20,13 @@
     <gmpx-api-loader key="AIzaSyCb3sc8wMxkO3AtrwFlfHuCJLCJqLccHU8" libraries="places,visualization" solution-channel="GMP_GE_mapsandplacesautocomplete_v1">
     </gmpx-api-loader>
 
-    <gmp-map center="46.770439,23.591423" zoom="15" map-id="WALK_SAFE_MAP" class="w-full h-full" id="map">
-        <div slot="control-block-start-inline-start" class="flex fixed border-transparent top-6 justify-center w-full z-10">
-            <gmpx-place-picker id="place-picker" country="ro" for-map="map" placeholder="Enter a place"></gmpx-place-picker>
-        </div>
-    </gmp-map>
+    <div slot="control-block-start-inline-start" class="flex fixed border-transparent top-6 justify-center w-full z-10">
+        <gmpx-place-picker id="place-picker" country="ro" for-map="map" placeholder="Enter a place"></gmpx-place-picker>
+    </div>
+    <gmp-map center="46.770439,23.591423" zoom="15" map-id="WALK_SAFE_MAP" class="w-full h-full" id="map">    </gmp-map>
+
+    <div id="google-maps-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none;"></div>
+
 
     <div id="directions-container" class="hidden absolute top-28 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-3 shadow-lg rounded-lg w-96 z-50">
         <label for="from-location" class="text-gray-600 text-xs mb-1">From:</label>

@@ -1,12 +1,12 @@
-import { showHazardReportForm } from "/projects/2/static/js/map_scripts/reports.js";
+import { showHazardReportForm, showCustomAlert } from "/projects/2/static/js/map_scripts/reports.js";
 import { fetchWeatherData } from "/projects/2/static/js/map_scripts/weather.js";
 import {getLatLng, showDirections, showInitialDirections} from "/projects/2/static/js/map_scripts/directions.js";
 import {activeMenu, closeMenu} from "/projects/2/static/js/map_scripts/menu.js";
 import { logOut } from "/projects/2/static/js/login_scripts/login-script.js";
-import { routeLayer } from "/projects/2/static/static/js/map_scripts/directions.js";
+import { routeLayer } from "/projects/2/static/js/map_scripts/directions.js";
 import { initFromAutocomplete} from "/projects/2/static/js/map_scripts/directions.js";
-
-export let map, destination, overview, directionsService, directionsRenderer, geocoder, userLocation, marker;
+export let map, googleMap, destination, overview, directionsService, directionsRenderer, geocoder, userLocation, marker;
+import {gmpxActive} from "/projects/2/static/js/map_scripts/overlays.js";
 
 export async function init() {
     const username=sessionStorage.getItem('username');

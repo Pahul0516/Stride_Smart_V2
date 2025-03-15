@@ -1,8 +1,11 @@
 import {setupTouristPopup, removeMarkers, markers, activeTouristCategories} from "/projects/2/static/js/map_scripts/tourist.js";
-import {map} from "/projects/2/static/js/map_scripts/map.js";
+import {map,googleMap} from "/projects/2/static/js/map_scripts/map.js";
+import {fetchReports,clearReportsFromMap} from "/projects/2/static/js/map_scripts/reports.js"
 
 export let overlayLayers = {};
 export let circleLayers = {};
+export let activeLayer = [null, null];
+export let gmpxActive = true;
 
 export function setupOverlays(){
     document.querySelectorAll('.overlay-option').forEach(button => {
@@ -20,9 +23,8 @@ export function setupOverlays(){
                     toggleOverlay("../data/filtered_cluj_polygons.geojson", "green");
                     break;
                 case 'accessible-o':
-                    toggleOverlay("../data/zone_accesibile_reprojected.geojson", "accessibility");
-                    toggleOverlay("../data/zone_neaccesibile_reprojected.geojson", "inaccessibility");
-                    break;
+                    console.log('accessible raster');
+                    toggleRasterOverlay(button, "accessibility");
                 case 'safety-trail-o':
                     toggleOverlay("../data/road_crash_density.geojson", "safety");
                     break;
@@ -39,6 +41,41 @@ export function setupOverlays(){
             }
         });
     });
+}
+
+function toggleRasterOverlay(button, type, season = "none") {
+    const googleMapsContainer = document.getElementById("google-maps-container");
+
+    if (gmpxActive) {
+        map.style.display = "none";
+        googleMapsContainer.style.display = "block";
+        gmpxActive = false;
+    }
+
+    // if (!googleMap) {
+    //     googleMap = new google.maps.Map(googleMapsContainer, {
+    //         center: { lat: 46.770439, lng: 23.591423 },
+    //         zoom: 15,
+    //         disableDefaultUI: true,
+    //         mapId: "563dd7b6a140b929",
+    //         gestureHandling: "greedy",
+    //         styles: []
+    //     });
+
+        initGooglePlacePicker();
+        //}
+
+    const tileLayer = new google.maps.ImageMapType({
+        getTileUrl: function (coord, zoom) {
+            let y_flipped = (1 << zoom) - coord.y - 1;
+            return `http://127.0.0.1:5001/tiles/${type}/${season}/${zoom}/${coord.x}/${y_flipped}.png`;
+        },
+        tileSize: new google.maps.Size(256, 256),
+        opacity: 0.6
+    });
+
+    googleMap.overlayMapTypes.push(tileLayer);
+    activeLayer = [button, tileLayer];
 }
 
 export async function toggleOverlay(filepath, layerName) {
