@@ -5,7 +5,8 @@ import {activeMenu, closeMenu} from "http://127.0.0.1:5501/static/js/map_scripts
 import { logOut } from "http://127.0.0.1:5501/static/js/login_scripts/login-script.js";
 import { routeLayer } from "http://127.0.0.1:5501/static/js/map_scripts/directions.js";
 import { initFromAutocomplete} from "http://127.0.0.1:5501/static/js/map_scripts/directions.js";
-export let map, destination, overview, directionsService, directionsRenderer, geocoder, userLocation, marker;
+export let map, googleMap, destination, overview, directionsService, directionsRenderer, geocoder, userLocation, marker;
+import {gmpxActive} from "http://127.0.0.1:5501/static/js/map_scripts/overlays.js";
 
 export async function init() {
     const username=sessionStorage.getItem('username');

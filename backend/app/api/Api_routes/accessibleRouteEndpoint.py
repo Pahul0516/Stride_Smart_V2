@@ -11,8 +11,8 @@ def get_accessible_route():
     accessibilityPath = AccessibilityPath(G)
 
     data = request.json
-    start_coords = data.get('userLocation')
-    goal_coords = data.get('destination')
+    start_coords = data.get('startCoords')
+    goal_coords = data.get('endCoords')
     if goal_coords==0:
         return jsonify({'error': 'No destination provided'}), 400
     else:

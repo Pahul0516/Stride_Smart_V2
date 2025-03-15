@@ -261,16 +261,23 @@ function updatePlaceOverview(placeName, type) {
 export function getDirections(startCoords,endCoords)
 {
     console.log('in GETdIRECTIONS endcOOOORDS: ',endCoords);
+    console.log('activeFilters: ',activeFilters);
+    activeFilters.forEach((value) => {
+        console.log('value: ',value);
+    });
+    if(activeFilters.has('nature-path-f'))
+    {
+        console.log('in nature path');
+    }
     if(activeFilters.size === 1)
     {
-        getNaturePath(startCoords, endCoords);
+        getAccessiblePath(startCoords, endCoords);
     }
     
 }
 
 async function getNaturePath(startCoords,endCoords)
 {
-    console.log('in fetch endcOOOORDS: ',endCoords);
     fetch("http://127.0.0.1:5501/get_greenest_path", {
         method: "POST",
         headers: {
@@ -289,6 +296,33 @@ async function getNaturePath(startCoords,endCoords)
         routeLayer.setStyle(function(feature) {
             return {
                 strokeColor:"#2eb65d", 
+                strokeWeight: 4
+            };
+        });
+        routeLayer.setMap(map.innerMap);
+    })  
+}
+
+async function getAccessiblePath(startCoords,endCoords)
+{
+    fetch("http://127.0.0.1:5501/get_accessible_path", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ startCoords, endCoords })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Accessible path:", data);
+        if (routeLayer) {
+            routeLayer.setMap(null);
+        }
+        routeLayer = new google.maps.Data();
+        routeLayer.addGeoJson(data);
+        routeLayer.setStyle(function(feature) {
+            return {
+                strokeColor:"#6ca3f2", 
                 strokeWeight: 4
             };
         });

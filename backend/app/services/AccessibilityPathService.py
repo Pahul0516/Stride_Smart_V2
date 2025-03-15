@@ -13,16 +13,8 @@ class AccessibilityPath:
 
     def custom_cost(self, u, v, data):
         length = data[0].get('length', float('inf'))
-        accessibility = True
-        point_u = Point(self.G.nodes[u]['x'], self.G.nodes[u]['y'])
-        point_v = Point(self.G.nodes[v]['x'], self.G.nodes[v]['y'])
-    
-        for polygon in self.G.graph['non_accessible_polygons']:
-            if polygon.contains(point_u) or polygon.contains(point_v):
-                print("punct inaccesibil")
-                accessibility = False
-        
-        if accessibility:
+        accessibility = data[0].get('accessibility', 0)
+        if accessibility==0:
             W = length
         else:
             W =  length + 99999999
