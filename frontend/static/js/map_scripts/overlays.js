@@ -89,6 +89,41 @@ function toggleRasterOverlay(button, type, season = "none") {
     activeLayer = [button, tileLayer];
 }
 
+function toggleRasterOverlay(button, type, season = "none") {
+    const googleMapsContainer = document.getElementById("google-maps-container");
+
+    if (gmpxActive) {
+        map.style.display = "none";
+        googleMapsContainer.style.display = "block";
+        gmpxActive = false;
+    }
+
+    // if (!googleMap) {
+    //     googleMap = new google.maps.Map(googleMapsContainer, {
+    //         center: { lat: 46.770439, lng: 23.591423 },
+    //         zoom: 15,
+    //         disableDefaultUI: true,
+    //         mapId: "563dd7b6a140b929",
+    //         gestureHandling: "greedy",
+    //         styles: []
+    //     });
+
+        initGooglePlacePicker();
+        //}
+
+    const tileLayer = new google.maps.ImageMapType({
+        getTileUrl: function (coord, zoom) {
+            let y_flipped = (1 << zoom) - coord.y - 1;
+            return `http://127.0.0.1:5001/tiles/${type}/${season}/${zoom}/${coord.x}/${y_flipped}.png`;
+        },
+        tileSize: new google.maps.Size(256, 256),
+        opacity: 0.6
+    });
+
+    googleMap.overlayMapTypes.push(tileLayer);
+    activeLayer = [button, tileLayer];
+}
+
 export async function toggleOverlay(button, filepath, layerName) {
     await addOverlayLayer(button, filepath, layerName);
 }
