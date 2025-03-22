@@ -20,6 +20,7 @@ def get_greenest_route():
     else:
         path = greenPath.get_path(start_coords,goal_coords,alpha = 0.5, beta = 0.5)
         coordinates = []
+        total_length=0
         for u, v in pairwise(path):
             # Get the coordinates for nodes u and v
             lat_u, lon_u = G.nodes[u]['y'], G.nodes[u]['x']
@@ -28,6 +29,16 @@ def get_greenest_route():
             # Add the coordinates to the list
             coordinates.append([lon_u, lat_u])
             coordinates.append([lon_v, lat_v])
+
+            edge_data = G.get_edge_data(u, v)
+            # If multiple edges exist (e.g., for bidirectional roads), take the first one
+            if isinstance(edge_data, dict):
+                length = edge_data[min(edge_data.keys())].get("length", 0)
+            else:
+                length = edge_data.get("length", 0)
+            
+            total_length += length
+            print('length: ',total_length)
 
         # Remove duplicate coordinates
         unique_coordinates = []
@@ -45,7 +56,8 @@ def get_greenest_route():
                         "coordinates": unique_coordinates
                     },
                     "properties": {
-                        "description": "Optimal walking route"
+                        "description": "Optimal walking route",
+                        "length": total_length
                     }
                 }
             ]

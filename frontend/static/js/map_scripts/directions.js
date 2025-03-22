@@ -271,8 +271,14 @@ export function getDirections(startCoords,endCoords)
     }
     if(activeFilters.size === 1)
     {
-        getAccessiblePath(startCoords, endCoords);
+        if(activeFilters.has('nature-path-f'))
+            getNaturePath(startCoords, endCoords);
+        else if(activeFilters.has('accessible-f'))
+            getAccessiblePath(startCoords,endCoords)
+        else if(activeFilters.has('safety-trail-f'))
+            getSafePath(startCoords,endCoords)
     }
+    else console.log('n avem ruta inca :(')
     
 }
 
@@ -300,6 +306,7 @@ async function getNaturePath(startCoords,endCoords)
             };
         });
         routeLayer.setMap(map.innerMap);
+        showInfo(data);
     })  
 }
 
@@ -327,7 +334,52 @@ async function getAccessiblePath(startCoords,endCoords)
             };
         });
         routeLayer.setMap(map.innerMap);
+        showInfo(data);
     })  
+}
+
+async function getSafePath(startCoords,endCoords)
+{
+    fetch("http://127.0.0.1:5501/get_safest_path", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ startCoords, endCoords })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Safest path:", data);
+        if (routeLayer) {
+            routeLayer.setMap(null);
+        }
+        routeLayer = new google.maps.Data();
+        routeLayer.addGeoJson(data);
+        routeLayer.setStyle(function(feature) {
+            return {
+                strokeColor:"#c94f67", 
+                strokeWeight: 4
+            };
+        });
+        routeLayer.setMap(map.innerMap);
+        showInfo(data);
+    })  
+}
+
+//display estimated distance and time taken for a route
+//different formula if accessibility is selected
+function showInfo(data,accessible=false) {
+    console.log('data: ',data);
+    console.log('data.features: ',data.features)
+    console.log('data.features[0]: ',data.features[0])
+    console.log('data.features[0]?.properties?.length: ',data.features[0]?.properties?.length)
+    let routeLength = Math.round(data.features[0]?.properties?.length || 0);
+    let estimated_time; //estimated time in minutes, knowing avg walking speed = 5km/h
+    if(accessible==true)
+        estimated_time=Math.round(routeLength/83/5);
+    else estimated_time=Math.round(routeLength/83);
+    let info="Distance: "+routeLength+" meters \nTime: "+estimated_time+" min";
+    alert(info);
 }
 
 export function initFromAutocomplete() {
