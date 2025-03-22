@@ -4,12 +4,12 @@ from itertools import pairwise
 
 accessible_route_bp = Blueprint('accessible_route', __name__)
 
-@accessible_route_bp.route('/get_accessible_path', methods=['POST'])
+@accessible_route_bp.route('/projects/2/get_accessible_path', methods=['POST'])
 def get_accessible_route():
 
     G = current_app.config["CustomGraph"]
     accessibilityPath = AccessibilityPath(G)
-
+    print("am ajuns in endpoint accesibil")
     data = request.json
     start_coords = data.get('startCoords')
     goal_coords = data.get('endCoords')

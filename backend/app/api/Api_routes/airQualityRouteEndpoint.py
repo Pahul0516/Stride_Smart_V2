@@ -4,7 +4,7 @@ from itertools import pairwise
 
 air_quality_route_bp = Blueprint('air_quality_route', __name__)
 
-@air_quality_route_bp.route('/get_air_quality_path', methods=['POST'])
+@air_quality_route_bp.route('/projects/2/get_air_quality_path', methods=['POST'])
 def get_air_quality_route():
 
     G = current_app.config["CustomGraph"]
