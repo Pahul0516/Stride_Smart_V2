@@ -6,9 +6,9 @@ import io
 
 # Database connection settings
 DB_SETTINGS = {
-    "dbname": "walk_safe_4",
+    "dbname": "maps_db",
     "user": "postgres",
-    "password": "semiluna123",
+    "password": "Qwertyuiop12!",
     "host": "localhost"
 }
 

@@ -16,9 +16,9 @@ class CustomGraph:
         self.G = ox.graph_from_place("Cluj-Napoca, Romania", network_type="walk")
         print('graph generated')
         self.host = "localhost"
-        self.dbname = "walk_safe_4"
+        self.dbname = "maps_db"
         self.user = "postgres"
-        self.password = "semiluna123"
+        self.password = "Qwertyuiop12!"
         self.init_graph_dictionary()
         self.connection()
         print('connection established')

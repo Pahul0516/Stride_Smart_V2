@@ -5,7 +5,7 @@ from itertools import pairwise
 combined_route_bp = Blueprint('combined_route', __name__)
 
 
-@combined_route_bp.route('/get_combined_path',methods=['POST'])
+@combined_route_bp.route('/projects/2/get_combined_path',methods=['POST'])
 def get_combined_route():
 
     G = current_app.config["CustomGraph"]

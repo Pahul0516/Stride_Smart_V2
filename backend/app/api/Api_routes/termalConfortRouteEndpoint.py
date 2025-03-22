@@ -4,7 +4,7 @@ from itertools import pairwise
 
 thermal_comfort_route_bp = Blueprint('thermal_comfort_route', __name__)
 
-@thermal_comfort_route_bp.route('/get_thermal_comfort_path',methods=['POST'])
+@thermal_comfort_route_bp.route('/projects/2/get_thermal_comfort_path',methods=['POST'])
 def get_thermal_comfort_route():
 
     G = current_app.config["CustomGraph"]

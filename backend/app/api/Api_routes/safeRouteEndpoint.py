@@ -4,11 +4,12 @@ from itertools import pairwise
 
 safest_route_bp = Blueprint('safest_route', __name__)
 
-@safest_route_bp.route('/get_safest_path',methods=['POST'])
+@safest_route_bp.route('/projects/2/get_safest_path',methods=['POST'])
 def get_safest_route():
         
     G = current_app.config["CustomGraph"]
     safetyPath = SaftyPath(G)
+    print("am ajuns in endpoint safe")
 
     data = request.json
     start_coords = data.get('startCoords')

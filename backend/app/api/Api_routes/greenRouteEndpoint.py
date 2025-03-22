@@ -5,12 +5,12 @@ from itertools import pairwise
 
 green_routes_bp = Blueprint('green_routes', __name__)
 
-@green_routes_bp.route('/get_greenest_path', methods=['POST'])
+@green_routes_bp.route('/projects/2/get_greenest_path', methods=['POST'])
 def get_greenest_route():
 
     G = current_app.config["CustomGraph"]
-    #greenRepo = GreenRouteRepo(G,'localhost','walk_safe_3','postgres','semiluna123')
     greenPath = GreenPath(G)
+    print("am ajuns in endpoint green")
     
     data = request.json
     start_coords = data.get('startCoords')

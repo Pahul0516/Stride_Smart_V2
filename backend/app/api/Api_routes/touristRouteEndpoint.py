@@ -4,7 +4,7 @@ from itertools import pairwise
 
 tourist_route_bp = Blueprint('tourist_route', __name__)
 
-@tourist_route_bp.route('/get_tourist_path',methods=['POST'])
+@tourist_route_bp.route('/projects/2/get_tourist_path',methods=['POST'])
 def get_tourist_route():
 
     G = current_app.config["CustomGraph"]

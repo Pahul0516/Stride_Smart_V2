@@ -272,7 +272,7 @@ export function getDirections(startCoords,endCoords)
 
 async function getNaturePath(startCoords,endCoords)
 {
-    fetch("http://127.0.0.1:5501/get_greenest_path", {
+    fetch("/projects/2/get_greenest_path", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -300,7 +300,7 @@ async function getNaturePath(startCoords,endCoords)
 
 async function getAccessiblePath(startCoords,endCoords)
 {
-    fetch("http://127.0.0.1:5501/get_accessible_path", {
+    fetch("/projects/2/get_accessible_path", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -328,7 +328,8 @@ async function getAccessiblePath(startCoords,endCoords)
 
 async function getSafePath(startCoords,endCoords)
 {
-    fetch("http://127.0.0.1:5501/get_safest_path", {
+
+    fetch("/projects/2/get_safest_path", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
