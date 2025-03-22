@@ -5,6 +5,7 @@ from flask_cors import CORS
 # from .routes import register_routes
 from app.repositories.GraphRepo import CustomGraph
 from app.routes import register_routes
+from app.services.scheduler import Scheduler
 
 def create_app():
 
@@ -13,6 +14,9 @@ def create_app():
     
     print('instantinating custom graph...')
     customGraph = CustomGraph()
+    scheduler=Scheduler(customGraph)
+    scheduler.start_thermal_comfort_thread()
+
     Aplication.config["CustomGraph"] = customGraph.get_graph()
     register_routes(Aplication)
     
