@@ -130,7 +130,7 @@ class CustomGraph:
         for u, v, data in self.G.edges(data = True):
             print(i)
             i+=1
-            data['accident_frequency'] = random.choice([0,1,2,3])
+            data['accident_frequency'] = 1
 
     def calculate_accessibility_index(self, edge, raster_src):
         """
@@ -353,7 +353,6 @@ class CustomGraph:
                 #self.green_raster(cursor)
                 #self.accessibility_raster(cursor)
                 #self.accident_frequency(cursor)
-                #self.accesibility_zone(cursor)
                 #self.get_tourist_points(cursor)
                 break
 
