@@ -6,21 +6,21 @@ from app.repositories.AccountRepo import AccountRepo
 
 report_bp = Blueprint('report_bp', __name__)
 
-@report_bp.route('/load_new_report',methods=['POST'])
+@report_bp.route('/projects/2/load_new_report',methods=['POST'])
 def load_new_report():
     data = request.json
     try:
-        reportRepo= ReportRepo('localhost','Maps_DB','postgres','Qwertyuiop12')
+        reportRepo= ReportRepo('localhost','maps_db','postgres','Qwertyuiop12!')
         reportRepo.add_report(data)
         return jsonify({'message': 'Report created successfully'}), 201
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@report_bp.route('/view_reports',methods=['GET'])
+@report_bp.route('/projects/2/view_reports',methods=['GET'])
 def send_all_reports():
     try:
-        reportRepo= ReportRepo('localhost','Maps_DB','postgres','Qwertyuiop12')
-        accountRepo=AccountRepo('localhost','Maps_DB','postgres','Qwertyuiop12')
+        reportRepo= ReportRepo('localhost','maps_db','postgres','Qwertyuiop12!')
+        accountRepo=AccountRepo('localhost','maps_db','postgres','Qwertyuiop12!')
         report_list = reportRepo.get_all_reports()
         reports = []
         for report in report_list:

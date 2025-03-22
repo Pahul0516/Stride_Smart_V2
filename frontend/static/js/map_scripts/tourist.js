@@ -1,5 +1,5 @@
-import { map } from "http://127.0.0.1:5001/static/js/map_scripts/map.js";
-import { activateTouristButton, deactivateTouristButton } from "http://127.0.0.1:5001/static/js/map_scripts/menu.js";
+import { map } from "/projects/2/static/js/map_scripts/map.js";
+import { activateTouristButton, deactivateTouristButton } from "/projects/2/static/js/map_scripts/menu.js";
 
 export let markers = [];
 export let activeTouristCategories = new Set();
@@ -82,7 +82,7 @@ async function fetchTouristData(category) {
 }
 
 function addMarkers(category, locations) {
-    const iconUrl = `http://127.0.0.1:5001/static/img//${category}.png`;
+    const iconUrl = `/projects/2/static/img//${category}.png`;
     locations.forEach(location => {
         const marker = new google.maps.Marker({
             position: { lat: location.latitude, lng: location.longitude },

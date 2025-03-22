@@ -7,7 +7,7 @@ import {
     userLocation,
     marker,
     resetPlacePicker, showOverview, hideOverview, updateTravelTime
-} from "./map.js";
+} from "/projects/2/static/js/map_scripts/map.js";
 
 export function showInitialDirections() {
     if (userLocation && destination) {

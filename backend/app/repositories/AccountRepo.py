@@ -20,7 +20,7 @@ class AccountRepo:
     def setAccountId(self,account):
         try:
             cursor = self.__connection.cursor()
-            query = "SELECT account_id FROM accounts WHERE email = %s"
+            query = "SELECT user_id FROM accounts WHERE email = %s"
             cursor.execute(query, (account.getEmail()))
             result = cursor.fetchone()
             print('id: ',result[0])
@@ -42,14 +42,16 @@ class AccountRepo:
         
         except Exception as e:
             print(f'Exception: {e}')
-        
-    def findAccount(self,email):
+
+    def findAccount(self, email):
         try:
             cursor = self.__connection.cursor()
             query = "SELECT * FROM accounts WHERE email = %s"
             cursor.execute(query, (email,))
             result = cursor.fetchone()
-            print('account: ',result)
+            if result is None:
+                return None
+            print('account: ', result)
             return result
 
         except Exception as e:

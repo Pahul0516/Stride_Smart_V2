@@ -5,10 +5,10 @@ from app.repositories.AccountRepo import AccountRepo
 
 login_bp = Blueprint('login', __name__)
 
-@login_bp.route('/login',methods=['POST'])
+@login_bp.route('/projects/2/login',methods=['POST'])
 def login():
     print('reached backend logic of the api')
-    accountRepo= AccountRepo('localhost','Maps_DB','postgres','Qwertyuiop12')
+    accountRepo= AccountRepo('localhost','maps_db','postgres','Qwertyuiop12!')
     accountService=AccountService(accountRepo)
 
     data=request.json
@@ -21,9 +21,9 @@ def login():
     except Exception as e:
         return jsonify(str(e)),404
     
-@login_bp.route('/googleLogin',methods=['POST'])
+@login_bp.route('/projects/2/googleLogin',methods=['POST'])
 def googleLogin():
-    accountRepo= AccountRepo('localhost','Maps_DB','postgres','Qwertyuiop12!')
+    accountRepo= AccountRepo('localhost','maps_db','postgres','Qwertyuiop12!')
     accountService=AccountService(accountRepo)
     data=request.json
     email=data.get('email')

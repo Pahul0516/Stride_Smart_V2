@@ -1,8 +1,8 @@
-import { showHazardReportForm } from "http://127.0.0.1:5001/static/js/map_scripts/reports.js";
-import { fetchWeatherData } from "http://127.0.0.1:5001/static/js/map_scripts/weather.js";
-import {getLatLng, showDirections, showInitialDirections} from "http://127.0.0.1:5001/static/js/map_scripts/directions.js";
-import {activeMenu, closeMenu} from "http://127.0.0.1:5001/static/js/map_scripts/menu.js";
-import { logOut } from "http://127.0.0.1:5001/static/js/login_scripts/login-script.js";
+import { showHazardReportForm } from "/projects/2/static/js/map_scripts/reports.js";
+import { fetchWeatherData } from "/projects/2/static/js/map_scripts/weather.js";
+import {getLatLng, showDirections, showInitialDirections} from "/projects/2/static/js/map_scripts/directions.js";
+import {activeMenu, closeMenu} from "/projects/2/static/js/map_scripts/menu.js";
+import { logOut } from "/projects/2/static/js/login_scripts/login-script.js";
 
 export let map, destination, overview, directionsService, directionsRenderer, geocoder, userLocation, marker;
 
@@ -49,8 +49,8 @@ export function setupMap() {
         title: location.name,
         category: location.category,
         icon: {
-            url: "http://127.0.0.1:5001/static/img/point.png",
-            url: "http://127.0.0.1:5001/static/img/point.png",
+            url: "/projects/2/static/img/point.png",
+            url: "/projects/2/static/img/point.png",
             scaledSize: new google.maps.Size(40, 40),
         }
         });
@@ -81,8 +81,8 @@ export function setupGeolocation() {
                     map: map.innerMap,
                     title: "You are here",
                     icon: {
-                        url: "http://127.0.0.1:5001/static/img/map_dot.svg",
-                        url: "http://127.0.0.1:5001/static/img/map_dot.svg",
+                        url: "https://www.scs.ubbcluj.ro/projects/2/static/img/map_dot.svg",
+                        url: "https://www.scs.ubbcluj.ro/projects/2/static/img/map_dot.svg",
                         scaledSize: new google.maps.Size(20, 20),
                     }
                 });
