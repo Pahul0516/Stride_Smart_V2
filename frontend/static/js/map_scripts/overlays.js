@@ -1,10 +1,10 @@
-import {activeTouristCategories, markers, removeMarkers, setupTouristPopup} from "http://127.0.0.1:5501/static/js/map_scripts/tourist.js";
-import {map, googleMap, initGooglePlacePicker} from "http://127.0.0.1:5501/static/js/map_scripts/map.js";
+import {activeTouristCategories, markers, removeMarkers, setupTouristPopup} from "/projects/2/static/js/map_scripts/tourist.js";
+import {map, googleMap, initGooglePlacePicker} from "/projects/2/static/js/map_scripts/map.js";
 import {
     deactivateTouristButton,
     resetButtonStyle
-} from "http://127.0.0.1:5501/static/js/map_scripts/menu.js";
-import {fetchReports} from "http://127.0.0.1:5501/static/js/map_scripts/reports.js";
+} from "/projects/2/static/js/map_scripts/menu.js";
+import {fetchReports} from "/projects/2/static/js/map_scripts/reports.js";
 
 export let activeLayer = [null, null];
 export let circleLayers = [];
@@ -52,6 +52,41 @@ export function setupOverlays() {
             }
         });
     });
+}
+
+function toggleRasterOverlay(button, type, season = "none") {
+    const googleMapsContainer = document.getElementById("google-maps-container");
+
+    if (gmpxActive) {
+        map.style.display = "none";
+        googleMapsContainer.style.display = "block";
+        gmpxActive = false;
+    }
+
+    // if (!googleMap) {
+    //     googleMap = new google.maps.Map(googleMapsContainer, {
+    //         center: { lat: 46.770439, lng: 23.591423 },
+    //         zoom: 15,
+    //         disableDefaultUI: true,
+    //         mapId: "563dd7b6a140b929",
+    //         gestureHandling: "greedy",
+    //         styles: []
+    //     });
+
+        initGooglePlacePicker();
+        //}
+
+    const tileLayer = new google.maps.ImageMapType({
+        getTileUrl: function (coord, zoom) {
+            let y_flipped = (1 << zoom) - coord.y - 1;
+            return `http://127.0.0.1:5001/tiles/${type}/${season}/${zoom}/${coord.x}/${y_flipped}.png`;
+        },
+        tileSize: new google.maps.Size(256, 256),
+        opacity: 0.6
+    });
+
+    googleMap.overlayMapTypes.push(tileLayer);
+    activeLayer = [button, tileLayer];
 }
 
 export async function toggleOverlay(button, filepath, layerName) {

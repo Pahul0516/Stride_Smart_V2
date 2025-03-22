@@ -1,5 +1,5 @@
-import {getDestination, hideOverview, showOverview} from "http://127.0.0.1:5501/static/js/map_scripts/map.js";
-import {reportMarkers} from "http://127.0.0.1:5501/static/js/overlays/map.js";
+import {getDestination, hideOverview, showOverview} from "/projects/2/static/static/js/map_scripts/map.js";
+import {reportMarkers} from "/projects/2/static/static/js/overlays/map.js";
 
 const hazardState = {
     currentLocation: null,
@@ -164,7 +164,7 @@ function handleFormSubmit(event) {
 
 function loadReport(hazardData)
 {
-    fetch('http://127.0.0.1:5501/load_new_report', {
+    fetch('/projects/2/load_new_report', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -219,10 +219,10 @@ export function showCustomAlert(message, type = "error") {
 
     if (type === "success") {
         document.getElementById("alert-heading").textContent = "Report submitted successfully!";
-        alertIcon.src = "http://127.0.0.1:5501/static/img/check.png";
+        alertIcon.src = "/projects/2/static/static/img/check.png";
     } else {
         document.getElementById("alert-heading").textContent = "Error";
-        alertIcon.src = "http://127.0.0.1:5501/static/img/error.png";
+        alertIcon.src = "/projects/2/static/img/error.png";
     }
 
     alertIcon.classList.remove("hidden");
@@ -244,7 +244,7 @@ function hideCustomAlert() {
 export async function fetchReports()
 {
     try {
-        const response = await fetch('http://127.0.0.1:5501/view_reports');
+        const response = await fetch('/projects/2/view_reports');
         const reports = await response.json();
         await displayReportsOnMap(reports);
     } catch (error) {
@@ -258,10 +258,10 @@ async function displayReportsOnMap(reports)
         console.log(report);
         let icon_id;
         let url;
-        if(report.type==='pothole') url='http://127.0.0.1:5501/static/img/report-pothole.png';
-        else if(report.type==='construction') url='http://127.0.0.1:5501/static/img/report-construction.png';
-        else if(report.type==='broken-sidewalk'|| report.type==='sidewalk') url='http://127.0.0.1:5501/static/img/report-sidewalk.png';
-        else url='http://127.0.0.1:5501/static/img/report-other.png';
+        if(report.type==='pothole') url='/projects/2/static/img/report-pothole.png';
+        else if(report.type==='construction') url='/projects/2/static/img/report-construction.png';
+        else if(report.type==='broken-sidewalk'|| report.type==='sidewalk') url='/projects/2/static/img/report-sidewalk.png';
+        else url='/projects/2/static/img/report-other.png';
         console.log(`icon id: ${icon_id}`);
         const icon = {
             url: url,

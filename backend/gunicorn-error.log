@@ -1,0 +1,470 @@
+[2025-03-07 13:47:43 +0200] [110377] [DEBUG] Current configuration:
+  config: ./gunicorn.conf.py
+  wsgi_app: None
+  bind: ['127.0.0.1:5001']
+  backlog: 2048
+  workers: 3
+  worker_class: sync
+  threads: 1
+  worker_connections: 1000
+  max_requests: 0
+  max_requests_jitter: 0
+  timeout: 30
+  graceful_timeout: 30
+  keepalive: 2
+  limit_request_line: 4094
+  limit_request_fields: 100
+  limit_request_field_size: 8190
+  reload: False
+  reload_engine: auto
+  reload_extra_files: []
+  spew: False
+  check_config: False
+  print_config: False
+  preload_app: False
+  sendfile: None
+  reuse_port: False
+  chdir: /home/paul.berindeie/Stride_Smart/backend
+  daemon: False
+  raw_env: []
+  pidfile: None
+  worker_tmp_dir: None
+  user: 1000
+  group: 1000
+  umask: 0
+  initgroups: False
+  tmp_upload_dir: None
+  secure_scheme_headers: {'X-FORWARDED-PROTOCOL': 'ssl', 'X-FORWARDED-PROTO': 'https', 'X-FORWARDED-SSL': 'on'}
+  forwarded_allow_ips: ['127.0.0.1']
+  accesslog: None
+  disable_redirect_access_to_syslog: False
+  access_log_format: %(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"
+  errorlog: gunicorn-error.log
+  loglevel: debug
+  capture_output: True
+  logger_class: gunicorn.glogging.Logger
+  logconfig: None
+  logconfig_dict: {}
+  logconfig_json: None
+  syslog_addr: udp://localhost:514
+  syslog: False
+  syslog_prefix: None
+  syslog_facility: user
+  enable_stdio_inheritance: False
+  statsd_host: None
+  dogstatsd_tags: 
+  statsd_prefix: 
+  proc_name: None
+  default_proc_name: app.factory:create_app()
+  pythonpath: None
+  paste: None
+  on_starting: <function OnStarting.on_starting at 0x7f1de710c540>
+  on_reload: <function OnReload.on_reload at 0x7f1de710c680>
+  when_ready: <function WhenReady.when_ready at 0x7f1de710c7c0>
+  pre_fork: <function Prefork.pre_fork at 0x7f1de710c900>
+  post_fork: <function Postfork.post_fork at 0x7f1de710ca40>
+  post_worker_init: <function PostWorkerInit.post_worker_init at 0x7f1de710cb80>
+  worker_int: <function WorkerInt.worker_int at 0x7f1de710ccc0>
+  worker_abort: <function WorkerAbort.worker_abort at 0x7f1de710ce00>
+  pre_exec: <function PreExec.pre_exec at 0x7f1de710cf40>
+  pre_request: <function PreRequest.pre_request at 0x7f1de710d080>
+  post_request: <function PostRequest.post_request at 0x7f1de710d120>
+  child_exit: <function ChildExit.child_exit at 0x7f1de710d260>
+  worker_exit: <function WorkerExit.worker_exit at 0x7f1de710d3a0>
+  nworkers_changed: <function NumWorkersChanged.nworkers_changed at 0x7f1de710d4e0>
+  on_exit: <function OnExit.on_exit at 0x7f1de710d620>
+  ssl_context: <function NewSSLContext.ssl_context at 0x7f1de710d800>
+  proxy_protocol: False
+  proxy_allow_ips: ['127.0.0.1']
+  keyfile: None
+  certfile: None
+  ssl_version: 2
+  cert_reqs: 0
+  ca_certs: None
+  suppress_ragged_eofs: True
+  do_handshake_on_connect: False
+  ciphers: None
+  raw_paste_global_conf: []
+  strip_header_spaces: False
+[2025-03-07 13:47:43 +0200] [110377] [INFO] Starting gunicorn 21.2.0
+[2025-03-07 13:47:43 +0200] [110377] [DEBUG] Arbiter booted
+[2025-03-07 13:47:43 +0200] [110377] [INFO] Listening at: http://127.0.0.1:5001 (110377)
+[2025-03-07 13:47:43 +0200] [110377] [INFO] Using worker: sync
+[2025-03-07 13:47:43 +0200] [110378] [INFO] Booting worker with pid: 110378
+[2025-03-07 13:47:44 +0200] [110379] [INFO] Booting worker with pid: 110379
+[2025-03-07 13:47:44 +0200] [110380] [INFO] Booting worker with pid: 110380
+[2025-03-07 13:47:44 +0200] [110377] [DEBUG] 3 workers
+[2025-03-07 13:48:06 +0200] [110379] [DEBUG] GET /projects/2/register
+[2025-03-07 13:48:06 +0200] [110378] [DEBUG] GET /projects/2/static/js/login_scripts/register-script.js
+[2025-03-07 13:48:07 +0200] [110380] [DEBUG] GET /projects/2/static/img/figma3.png
+[2025-03-07 13:48:07 +0200] [110379] [DEBUG] GET /projects/2/static/img/UBB.png
+[2025-03-07 13:48:07 +0200] [110380] [DEBUG] GET /projects/2/static/img/M100.png
+[2025-03-07 13:48:10 +0200] [110380] [DEBUG] GET /projects/2/
+[2025-03-07 13:48:10 +0200] [110379] [DEBUG] GET /projects/2/static/js/main_page_scripts/main.js
+[2025-03-07 13:48:10 +0200] [110379] [DEBUG] GET /projects/2/static/img/figma3.png
+[2025-03-07 13:48:10 +0200] [110380] [DEBUG] GET /projects/2/static/img/UBB.png
+[2025-03-07 13:48:10 +0200] [110378] [DEBUG] GET /projects/2/static/img/M100.png
+[2025-03-07 13:48:11 +0200] [110380] [DEBUG] GET /projects/2/static/js/main_page_scripts/scroll.js
+[2025-03-07 13:48:11 +0200] [110379] [DEBUG] GET /projects/2/static/js/main_page_scripts/animation.js
+[2025-03-07 13:48:11 +0200] [110378] [DEBUG] GET /projects/2/static/js/main_page_scripts/menu_toggle.js
+[2025-03-07 13:48:11 +0200] [110380] [DEBUG] GET /projects/2/static/js/main_page_scripts/info_popups.js
+[2025-03-07 13:48:11 +0200] [110379] [DEBUG] GET /projects/2/static/animations/loading.json
+[2025-03-07 13:48:21 +0200] [110380] [DEBUG] GET /projects/2/login
+[2025-03-07 13:48:22 +0200] [110379] [DEBUG] GET /projects/2/static/js/login_scripts/login-script.js
+[2025-03-07 13:48:22 +0200] [110379] [DEBUG] GET /projects/2/static/img/search.png
+[2025-03-07 13:48:22 +0200] [110380] [DEBUG] GET /projects/2/static/img/figma3.png
+[2025-03-07 13:48:22 +0200] [110380] [DEBUG] GET /projects/2/static/img/M100.png
+[2025-03-07 13:48:22 +0200] [110380] [DEBUG] GET /projects/2/static/img/UBB.png
+[2025-03-07 13:48:28 +0200] [110380] [DEBUG] POST /projects/2/login
+[2025-03-07 13:49:38 +0200] [110379] [DEBUG] POST /projects/2/login
+[2025-03-07 13:49:53 +0200] [110380] [DEBUG] GET /projects/2/map
+[2025-03-07 13:49:53 +0200] [110380] [DEBUG] GET /projects/2/static/img/landmark.png
+[2025-03-07 13:49:53 +0200] [110378] [DEBUG] GET /projects/2/static/js/map_scripts/main-map.js
+[2025-03-07 13:49:53 +0200] [110380] [DEBUG] GET /projects/2/static/img/ventilation1.png
+[2025-03-07 13:49:54 +0200] [110380] [DEBUG] GET /projects/2/static/img/forest1.png
+[2025-03-07 13:49:54 +0200] [110380] [DEBUG] GET /projects/2/static/img/museum.png
+[2025-03-07 13:49:54 +0200] [110378] [DEBUG] GET /projects/2/static/img/cafe.png
+[2025-03-07 13:49:54 +0200] [110380] [DEBUG] GET /projects/2/static/img/cold1.png
+[2025-03-07 13:49:54 +0200] [110379] [DEBUG] GET /projects/2/static/img/restaurant.png
+[2025-03-07 13:49:54 +0200] [110379] [DEBUG] GET /projects/2/static/img/entertainment.png
+[2025-03-07 13:49:54 +0200] [110379] [DEBUG] GET /projects/2/static/img/safe-zone1.png
+[2025-03-07 13:49:54 +0200] [110380] [DEBUG] GET /projects/2/static/img/elderly1.png
+[2025-03-07 13:49:54 +0200] [110380] [DEBUG] GET /projects/2/static/img/complain1.png
+[2025-03-07 13:49:54 +0200] [110378] [DEBUG] GET /projects/2/static/img/tour-guide1.png
+[2025-03-07 13:49:54 +0200] [110380] [DEBUG] GET /projects/2/static/img/cloud.png
+[2025-03-07 13:49:54 +0200] [110380] [DEBUG] GET /projects/2/static/img/high-score.png
+[2025-03-07 13:49:54 +0200] [110380] [DEBUG] GET /projects/2/static/img/target2.png
+[2025-03-07 13:49:54 +0200] [110378] [DEBUG] GET /projects/2/static/img/filter.png
+[2025-03-07 13:49:54 +0200] [110379] [DEBUG] GET /projects/2/static/img/geographical.png
+[2025-03-07 13:49:54 +0200] [110380] [DEBUG] GET /projects/2/static/img/user.png
+[2025-03-07 13:49:54 +0200] [110380] [DEBUG] GET /projects/2/static/js/map_scripts/overlays.js
+[2025-03-07 13:49:54 +0200] [110379] [DEBUG] GET /projects/2/static/js/map_scripts/map.js
+[2025-03-07 13:49:54 +0200] [110378] [DEBUG] GET /projects/2/static/js/map_scripts/menu.js
+[2025-03-07 13:49:54 +0200] [110380] [DEBUG] GET /projects/2/static/js/login_scripts/login-script.js
+[2025-03-07 13:49:54 +0200] [110379] [DEBUG] GET /projects/2/static/js/map_scripts/reports.js
+[2025-03-07 13:49:54 +0200] [110378] [DEBUG] GET /projects/2/static/js/map_scripts/tourist.js
+[2025-03-07 13:49:54 +0200] [110378] [DEBUG] GET /projects/2/static/js/map_scripts/weather.js
+[2025-03-07 13:49:54 +0200] [110379] [DEBUG] GET /projects/2/static/js/map_scripts/directions.js
+[2025-03-07 13:50:22 +0200] [110379] [DEBUG] GET /projects/2/login
+[2025-03-07 13:50:22 +0200] [110379] [DEBUG] GET /projects/2/static/js/login_scripts/login-script.js
+[2025-03-07 13:50:23 +0200] [110379] [DEBUG] GET /projects/2/static/img/search.png
+[2025-03-07 13:50:23 +0200] [110379] [DEBUG] GET /projects/2/static/img/figma3.png
+[2025-03-07 13:50:23 +0200] [110380] [DEBUG] GET /projects/2/static/img/M100.png
+[2025-03-07 13:50:23 +0200] [110378] [DEBUG] GET /projects/2/static/img/UBB.png
+[2025-03-07 13:50:31 +0200] [110380] [DEBUG] POST /projects/2/login
+[2025-03-07 13:54:05 +0200] [110377] [INFO] Handling signal: int
+[2025-03-07 13:54:05 +0200] [110378] [INFO] Worker exiting (pid: 110378)
+[2025-03-07 13:54:05 +0200] [110380] [INFO] Worker exiting (pid: 110380)
+[2025-03-07 13:54:05 +0200] [110379] [INFO] Worker exiting (pid: 110379)
+[2025-03-07 13:54:05 +0200] [110377] [INFO] Shutting down: Master
+[2025-03-07 14:02:34 +0200] [110565] [DEBUG] Current configuration:
+  config: ./gunicorn.conf.py
+  wsgi_app: None
+  bind: ['127.0.0.1:5001']
+  backlog: 2048
+  workers: 3
+  worker_class: sync
+  threads: 1
+  worker_connections: 1000
+  max_requests: 0
+  max_requests_jitter: 0
+  timeout: 30
+  graceful_timeout: 30
+  keepalive: 2
+  limit_request_line: 4094
+  limit_request_fields: 100
+  limit_request_field_size: 8190
+  reload: False
+  reload_engine: auto
+  reload_extra_files: []
+  spew: False
+  check_config: False
+  print_config: False
+  preload_app: False
+  sendfile: None
+  reuse_port: False
+  chdir: /home/paul.berindeie/Stride_Smart/backend
+  daemon: False
+  raw_env: []
+  pidfile: None
+  worker_tmp_dir: None
+  user: 1000
+  group: 1000
+  umask: 0
+  initgroups: False
+  tmp_upload_dir: None
+  secure_scheme_headers: {'X-FORWARDED-PROTOCOL': 'ssl', 'X-FORWARDED-PROTO': 'https', 'X-FORWARDED-SSL': 'on'}
+  forwarded_allow_ips: ['127.0.0.1']
+  accesslog: gunicorn-access.log
+  disable_redirect_access_to_syslog: False
+  access_log_format: %(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"
+  errorlog: gunicorn-error.log
+  loglevel: debug
+  capture_output: False
+  logger_class: gunicorn.glogging.Logger
+  logconfig: None
+  logconfig_dict: {}
+  logconfig_json: None
+  syslog_addr: udp://localhost:514
+  syslog: False
+  syslog_prefix: None
+  syslog_facility: user
+  enable_stdio_inheritance: False
+  statsd_host: None
+  dogstatsd_tags: 
+  statsd_prefix: 
+  proc_name: None
+  default_proc_name: app.factory:create_app()
+  pythonpath: None
+  paste: None
+  on_starting: <function OnStarting.on_starting at 0x7f65c7904540>
+  on_reload: <function OnReload.on_reload at 0x7f65c7904680>
+  when_ready: <function WhenReady.when_ready at 0x7f65c79047c0>
+  pre_fork: <function Prefork.pre_fork at 0x7f65c7904900>
+  post_fork: <function Postfork.post_fork at 0x7f65c7904a40>
+  post_worker_init: <function PostWorkerInit.post_worker_init at 0x7f65c7904b80>
+  worker_int: <function WorkerInt.worker_int at 0x7f65c7904cc0>
+  worker_abort: <function WorkerAbort.worker_abort at 0x7f65c7904e00>
+  pre_exec: <function PreExec.pre_exec at 0x7f65c7904f40>
+  pre_request: <function PreRequest.pre_request at 0x7f65c7905080>
+  post_request: <function PostRequest.post_request at 0x7f65c7905120>
+  child_exit: <function ChildExit.child_exit at 0x7f65c7905260>
+  worker_exit: <function WorkerExit.worker_exit at 0x7f65c79053a0>
+  nworkers_changed: <function NumWorkersChanged.nworkers_changed at 0x7f65c79054e0>
+  on_exit: <function OnExit.on_exit at 0x7f65c7905620>
+  ssl_context: <function NewSSLContext.ssl_context at 0x7f65c7905800>
+  proxy_protocol: False
+  proxy_allow_ips: ['127.0.0.1']
+  keyfile: None
+  certfile: None
+  ssl_version: 2
+  cert_reqs: 0
+  ca_certs: None
+  suppress_ragged_eofs: True
+  do_handshake_on_connect: False
+  ciphers: None
+  raw_paste_global_conf: []
+  strip_header_spaces: False
+[2025-03-07 14:02:34 +0200] [110565] [INFO] Starting gunicorn 21.2.0
+[2025-03-07 14:02:34 +0200] [110565] [DEBUG] Arbiter booted
+[2025-03-07 14:02:34 +0200] [110565] [INFO] Listening at: http://127.0.0.1:5001 (110565)
+[2025-03-07 14:02:34 +0200] [110565] [INFO] Using worker: sync
+[2025-03-07 14:02:34 +0200] [110566] [INFO] Booting worker with pid: 110566
+[2025-03-07 14:02:34 +0200] [110567] [INFO] Booting worker with pid: 110567
+[2025-03-07 14:02:34 +0200] [110568] [INFO] Booting worker with pid: 110568
+[2025-03-07 14:02:34 +0200] [110565] [DEBUG] 3 workers
+[2025-03-07 14:03:14 +0200] [110568] [DEBUG] GET /projects/2/login
+[2025-03-07 14:03:14 +0200] [110567] [DEBUG] GET /projects/2/static/js/login_scripts/login-script.js
+[2025-03-07 14:03:15 +0200] [110567] [DEBUG] GET /projects/2/static/img/search.png
+[2025-03-07 14:03:15 +0200] [110568] [DEBUG] GET /projects/2/static/img/figma3.png
+[2025-03-07 14:03:15 +0200] [110566] [DEBUG] GET /projects/2/static/img/UBB.png
+[2025-03-07 14:03:15 +0200] [110568] [DEBUG] GET /projects/2/static/img/M100.png
+[2025-03-07 14:03:21 +0200] [110568] [DEBUG] POST /projects/2/login
+[2025-03-07 14:03:33 +0200] [110568] [DEBUG] GET /projects/2/register
+[2025-03-07 14:03:33 +0200] [110568] [DEBUG] GET /projects/2/static/js/login_scripts/register-script.js
+[2025-03-07 14:03:33 +0200] [110568] [DEBUG] GET /projects/2/static/img/figma3.png
+[2025-03-07 14:03:33 +0200] [110568] [DEBUG] GET /projects/2/static/img/M100.png
+[2025-03-07 14:03:33 +0200] [110567] [DEBUG] GET /projects/2/static/img/UBB.png
+[2025-03-07 14:04:20 +0200] [110565] [INFO] Handling signal: int
+[2025-03-07 14:04:20 +0200] [110567] [INFO] Worker exiting (pid: 110567)
+[2025-03-07 14:04:20 +0200] [110566] [INFO] Worker exiting (pid: 110566)
+[2025-03-07 14:04:20 +0200] [110568] [INFO] Worker exiting (pid: 110568)
+[2025-03-07 14:04:21 +0200] [110565] [INFO] Shutting down: Master
+[2025-03-07 14:23:33 +0200] [110894] [DEBUG] Current configuration:
+  config: ./gunicorn.conf.py
+  wsgi_app: None
+  bind: ['127.0.0.1:8000']
+  backlog: 2048
+  workers: 1
+  worker_class: sync
+  threads: 1
+  worker_connections: 1000
+  max_requests: 0
+  max_requests_jitter: 0
+  timeout: 30
+  graceful_timeout: 30
+  keepalive: 2
+  limit_request_line: 4094
+  limit_request_fields: 100
+  limit_request_field_size: 8190
+  reload: False
+  reload_engine: auto
+  reload_extra_files: []
+  spew: False
+  check_config: False
+  print_config: False
+  preload_app: False
+  sendfile: None
+  reuse_port: False
+  chdir: /home/paul.berindeie/Stride_Smart/backend
+  daemon: False
+  raw_env: []
+  pidfile: None
+  worker_tmp_dir: None
+  user: 1000
+  group: 1000
+  umask: 0
+  initgroups: False
+  tmp_upload_dir: None
+  secure_scheme_headers: {'X-FORWARDED-PROTOCOL': 'ssl', 'X-FORWARDED-PROTO': 'https', 'X-FORWARDED-SSL': 'on'}
+  forwarded_allow_ips: ['127.0.0.1']
+  accesslog: gunicorn-access.log
+  disable_redirect_access_to_syslog: False
+  access_log_format: %(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"
+  errorlog: gunicorn-error.log
+  loglevel: debug
+  capture_output: False
+  logger_class: gunicorn.glogging.Logger
+  logconfig: None
+  logconfig_dict: {}
+  logconfig_json: None
+  syslog_addr: udp://localhost:514
+  syslog: False
+  syslog_prefix: None
+  syslog_facility: user
+  enable_stdio_inheritance: False
+  statsd_host: None
+  dogstatsd_tags: 
+  statsd_prefix: 
+  proc_name: None
+  default_proc_name: app.factory:create_app()
+  pythonpath: None
+  paste: None
+  on_starting: <function OnStarting.on_starting at 0x7f9834500540>
+  on_reload: <function OnReload.on_reload at 0x7f9834500680>
+  when_ready: <function WhenReady.when_ready at 0x7f98345007c0>
+  pre_fork: <function Prefork.pre_fork at 0x7f9834500900>
+  post_fork: <function Postfork.post_fork at 0x7f9834500a40>
+  post_worker_init: <function PostWorkerInit.post_worker_init at 0x7f9834500b80>
+  worker_int: <function WorkerInt.worker_int at 0x7f9834500cc0>
+  worker_abort: <function WorkerAbort.worker_abort at 0x7f9834500e00>
+  pre_exec: <function PreExec.pre_exec at 0x7f9834500f40>
+  pre_request: <function PreRequest.pre_request at 0x7f9834501080>
+  post_request: <function PostRequest.post_request at 0x7f9834501120>
+  child_exit: <function ChildExit.child_exit at 0x7f9834501260>
+  worker_exit: <function WorkerExit.worker_exit at 0x7f98345013a0>
+  nworkers_changed: <function NumWorkersChanged.nworkers_changed at 0x7f98345014e0>
+  on_exit: <function OnExit.on_exit at 0x7f9834501620>
+  ssl_context: <function NewSSLContext.ssl_context at 0x7f9834501800>
+  proxy_protocol: False
+  proxy_allow_ips: ['127.0.0.1']
+  keyfile: None
+  certfile: None
+  ssl_version: 2
+  cert_reqs: 0
+  ca_certs: None
+  suppress_ragged_eofs: True
+  do_handshake_on_connect: False
+  ciphers: None
+  raw_paste_global_conf: []
+  strip_header_spaces: False
+[2025-03-07 14:23:33 +0200] [110894] [INFO] Starting gunicorn 21.2.0
+[2025-03-07 14:23:33 +0200] [110894] [DEBUG] Arbiter booted
+[2025-03-07 14:23:33 +0200] [110894] [INFO] Listening at: http://127.0.0.1:8000 (110894)
+[2025-03-07 14:23:33 +0200] [110894] [INFO] Using worker: sync
+[2025-03-07 14:23:33 +0200] [110895] [INFO] Booting worker with pid: 110895
+[2025-03-07 14:23:33 +0200] [110894] [DEBUG] 1 workers
+[2025-03-07 14:24:47 +0200] [110894] [INFO] Handling signal: int
+[2025-03-07 14:24:47 +0200] [110895] [INFO] Worker exiting (pid: 110895)
+[2025-03-07 14:24:48 +0200] [110894] [INFO] Shutting down: Master
+[2025-03-07 14:28:07 +0200] [110979] [DEBUG] Current configuration:
+  config: ./gunicorn.conf.py
+  wsgi_app: None
+  bind: ['127.0.0.1:5001']
+  backlog: 2048
+  workers: 3
+  worker_class: sync
+  threads: 1
+  worker_connections: 1000
+  max_requests: 0
+  max_requests_jitter: 0
+  timeout: 30
+  graceful_timeout: 30
+  keepalive: 2
+  limit_request_line: 4094
+  limit_request_fields: 100
+  limit_request_field_size: 8190
+  reload: False
+  reload_engine: auto
+  reload_extra_files: []
+  spew: False
+  check_config: False
+  print_config: False
+  preload_app: False
+  sendfile: None
+  reuse_port: False
+  chdir: /home/paul.berindeie/Stride_Smart/backend
+  daemon: False
+  raw_env: []
+  pidfile: None
+  worker_tmp_dir: None
+  user: 1000
+  group: 1000
+  umask: 0
+  initgroups: False
+  tmp_upload_dir: None
+  secure_scheme_headers: {'X-FORWARDED-PROTOCOL': 'ssl', 'X-FORWARDED-PROTO': 'https', 'X-FORWARDED-SSL': 'on'}
+  forwarded_allow_ips: ['127.0.0.1']
+  accesslog: gunicorn-access.log
+  disable_redirect_access_to_syslog: False
+  access_log_format: %(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"
+  errorlog: gunicorn-error.log
+  loglevel: debug
+  capture_output: False
+  logger_class: gunicorn.glogging.Logger
+  logconfig: None
+  logconfig_dict: {}
+  logconfig_json: None
+  syslog_addr: udp://localhost:514
+  syslog: False
+  syslog_prefix: None
+  syslog_facility: user
+  enable_stdio_inheritance: False
+  statsd_host: None
+  dogstatsd_tags: 
+  statsd_prefix: 
+  proc_name: None
+  default_proc_name: app.factory:create_app()
+  pythonpath: None
+  paste: None
+  on_starting: <function OnStarting.on_starting at 0x7f4e02108540>
+  on_reload: <function OnReload.on_reload at 0x7f4e02108680>
+  when_ready: <function WhenReady.when_ready at 0x7f4e021087c0>
+  pre_fork: <function Prefork.pre_fork at 0x7f4e02108900>
+  post_fork: <function Postfork.post_fork at 0x7f4e02108a40>
+  post_worker_init: <function PostWorkerInit.post_worker_init at 0x7f4e02108b80>
+  worker_int: <function WorkerInt.worker_int at 0x7f4e02108cc0>
+  worker_abort: <function WorkerAbort.worker_abort at 0x7f4e02108e00>
+  pre_exec: <function PreExec.pre_exec at 0x7f4e02108f40>
+  pre_request: <function PreRequest.pre_request at 0x7f4e02109080>
+  post_request: <function PostRequest.post_request at 0x7f4e02109120>
+  child_exit: <function ChildExit.child_exit at 0x7f4e02109260>
+  worker_exit: <function WorkerExit.worker_exit at 0x7f4e021093a0>
+  nworkers_changed: <function NumWorkersChanged.nworkers_changed at 0x7f4e021094e0>
+  on_exit: <function OnExit.on_exit at 0x7f4e02109620>
+  ssl_context: <function NewSSLContext.ssl_context at 0x7f4e02109800>
+  proxy_protocol: False
+  proxy_allow_ips: ['127.0.0.1']
+  keyfile: None
+  certfile: None
+  ssl_version: 2
+  cert_reqs: 0
+  ca_certs: None
+  suppress_ragged_eofs: True
+  do_handshake_on_connect: False
+  ciphers: None
+  raw_paste_global_conf: []
+  strip_header_spaces: False
+[2025-03-07 14:28:07 +0200] [110979] [INFO] Starting gunicorn 21.2.0
+[2025-03-07 14:28:07 +0200] [110979] [DEBUG] Arbiter booted
+[2025-03-07 14:28:07 +0200] [110979] [INFO] Listening at: http://127.0.0.1:5001 (110979)
+[2025-03-07 14:28:07 +0200] [110979] [INFO] Using worker: sync
+[2025-03-07 14:28:07 +0200] [110980] [INFO] Booting worker with pid: 110980
+[2025-03-07 14:28:07 +0200] [110981] [INFO] Booting worker with pid: 110981
+[2025-03-07 14:28:07 +0200] [110982] [INFO] Booting worker with pid: 110982
+[2025-03-07 14:28:07 +0200] [110979] [DEBUG] 3 workers
+[2025-03-07 14:33:50 +0200] [110979] [INFO] Handling signal: int
+[2025-03-07 14:33:50 +0200] [110980] [INFO] Worker exiting (pid: 110980)
+[2025-03-07 14:33:50 +0200] [110981] [INFO] Worker exiting (pid: 110981)
+[2025-03-07 14:33:50 +0200] [110982] [INFO] Worker exiting (pid: 110982)
+[2025-03-07 14:33:50 +0200] [110979] [INFO] Shutting down: Master

@@ -54,7 +54,7 @@ export function setupMap() {
         map: googleMap,
         title: "Selected Location",
         icon: {
-            url: "../icons/point.png",
+            url: "/projects/2/static/img/point.png",
             scaledSize: new google.maps.Size(40, 40),
         }
     });
@@ -97,7 +97,7 @@ export function setupGeolocation() {
                     map: map.innerMap,
                     title: "You are here",
                     icon: {
-                        url: "../icons/map_dot.svg",
+                        url: "projects/2/static/img/map_dot.svg",
                         scaledSize: new google.maps.Size(20, 20),
                     }
                 });
@@ -107,7 +107,7 @@ export function setupGeolocation() {
                     map: googleMap,
                     title: "You are here",
                     icon: {
-                        url: "../icons/map_dot.svg",
+                        url: "projects/2/static/img/map_dot.svg",
                         scaledSize: new google.maps.Size(20, 20),
                     }
                 });

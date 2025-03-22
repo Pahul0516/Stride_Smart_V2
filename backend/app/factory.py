@@ -14,8 +14,8 @@ def create_app():
     Aplication = Flask(
         __name__,
         template_folder=os.path.join(BASE_DIR, "../../frontend/templates"),
-        static_folder=os.path.join(BASE_DIR, "../../frontend/static")
-	#static_url_path='/projects/2/static'  # This changes Flask's URL for static files
+        static_folder=os.path.join(BASE_DIR, "../../frontend/static"),
+	    static_url_path='/projects/2/static'  # This changes Flask's URL for static files
     )
     CORS(Aplication)
     

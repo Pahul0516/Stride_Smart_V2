@@ -19,7 +19,7 @@ def register_routes(app: Flask):
     app.register_blueprint(thermal_comfort_route_bp)
     app.register_blueprint(combined_route_bp)
     app.register_blueprint(tourist_route_bp)
-    app.register_blueprint(frontend_bp)
+    app.register_blueprint(frontend_bp, url_prefix='/projects/2')
     app.register_blueprint(login_bp)
     app.register_blueprint(create_account_bp)
     app.register_blueprint(report_bp)

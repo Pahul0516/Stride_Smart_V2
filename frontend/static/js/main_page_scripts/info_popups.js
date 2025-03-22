@@ -19,13 +19,13 @@ const popupContents = {
 };
 
 const popupIcons = {
-    thermalComfort: "http://127.0.0.1:5001/static/img/global-warming.png",
-    cleanAir: "http://127.0.0.1:5001/static/img/ventilation.png",
-    naturePath: "http://127.0.0.1:5001/static/img/forest.png",
-    safetyTrail: "http://127.0.0.1:5001/static/img/safe-zone.png",
-    accessibleAdventure: "http://127.0.0.1:5001/static/img/elderly.png",
-    discoverExplore: "http://127.0.0.1:5001/static/img/tour-guide.png",
-    reports: "http://127.0.0.1:5001/static/img/complain.png"
+    thermalComfort: "/projects/2/static/img/global-warming.png",
+    cleanAir: "/projects/2/static/img/ventilation.png",
+    naturePath: "/projects/2/static/img/forest.png",
+    safetyTrail: "/projects/2/static/img/safe-zone.png",
+    accessibleAdventure: "/projects/2/static/img/elderly.png",
+    discoverExplore: "/projects/2/static/img/tour-guide.png",
+    reports: "/projects/2/static/img/complain.png"
 };
 
 export function openPopup(type) {
