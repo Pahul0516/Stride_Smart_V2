@@ -9,6 +9,7 @@ import random
 from shapely import wkb
 import psycopg2
 from psycopg2 import OperationalError
+from app.repositories.AirQualityRepo import AirQualityRepo
 
 class CustomGraph:
     
@@ -404,37 +405,41 @@ class CustomGraph:
             print("Failed to fetch accessibility raster from the database.")
 
     def set_air_marks(self, cursor):
-            query = "SELECT osm_id, centroid_x, centroid_y, air_mark FROM air_marks;"  # Adjust table and column names as needed
-            cursor.execute(query)
-            results = cursor.fetchall()
-            
-            i = 1
-            for row in results:
-                print(i)
-                i += 1
-                centroid_x = row[1]
-                centroid_y = row[2]
-                air_quality = row[3]
-                print('coordinates:',centroid_x,centroid_y)
-                print('air quality',air_quality)
-                # Find the nearest edge to the centroid coordinates
-                point = Point(centroid_x, centroid_y)
-                edge = self.closest_edge_to_point(point)
-                #atribuim valoarea tuturor edge urilor dintr o arie -> 50m
-                if edge:
-                    u, v, data = edge  # Unpack edge tuple
-                    data['air_mark'] = air_quality  # Assign air quality mark to the edge data
-                    print('air mark:')
-                    print(air_quality)
+        query = "SELECT osm_id, centroid_x, centroid_y, air_mark FROM air_marks;"  # Adjust table and column names as needed
+        cursor.execute(query)
+        results = cursor.fetchall()
+        
+        i = 1
+        for row in results:
+            print(i)
+            i += 1
+            centroid_x = row[1]
+            centroid_y = row[2]
+            air_quality = row[3]
+            print('coordinates:',centroid_x,centroid_y)
+            print('air quality',air_quality)
+            # Find the nearest edge to the centroid coordinates
+            point = Point(centroid_x, centroid_y)
+            edge = self.closest_edge_to_point(point)
+            #atribuim valoarea tuturor edge urilor dintr o arie -> 50m
+            if edge:
+                u, v, data = edge  # Unpack edge tuple
+                data['air_mark'] = air_quality  # Assign air quality mark to the edge data
+                print('air mark:')
+                print(air_quality)
 
-            # If needed, apply the air quality mark to all edges (in case of missing data)
-            i = 1
-            for u, v, data in self.G.edges(data=True):
-                print(i)
-                i += 1
-                # You can assign a default air quality value or something random if no specific data is available
-                if 'air_mark' not in data:
-                    data['air_mark'] = 0  # Example of assigning a random air quality mark
+        # If needed, apply the air quality mark to all edges (in case of missing data)
+        i = 1
+        for u, v, data in self.G.edges(data=True):
+            print(i)
+            i += 1
+            # You can assign a default air quality value or something random if no specific data is available
+            if 'air_mark' not in data:
+                data['air_mark'] = 0  # Example of assigning a random air quality mark
+    
+    def set_air_quality(self,cursor):
+        return None
+
 
     def get_tourist_points(self, cursor):
         query = "select category, geom from tourists"
@@ -469,7 +474,13 @@ class CustomGraph:
                 #self.accessibility_raster(cursor)
                 #self.accident_frequency(cursor)
                 #self.get_tourist_points(cursor)
-                self.thermal_comfort_raster(cursor)
+                #self.thermal_comfort_raster(cursor)
+                airRepo=AirQualityRepo(self.G)
+                airRepo.set_air_marks()
+                for edge in self.G.edges(data=True):
+                    u,v,data=edge
+                    print('DATA: ',data['air_mark'])
+
                 break
 
             except OperationalError as e:

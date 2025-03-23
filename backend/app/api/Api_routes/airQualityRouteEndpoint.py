@@ -11,8 +11,8 @@ def get_air_quality_route():
     airQualityPath = AirQualityPath(G) ## NU AVEM CUSTOM GRAF (DATELE TREBUIE SALVATE IN BD)
 
     data = request.json
-    start_coords = data.get('userLocation')
-    goal_coords = data.get('destination')
+    start_coords = data.get('startCoords')
+    goal_coords = data.get('endCoords')
     if goal_coords==0:
         return jsonify({'error': 'No destination provided'}), 400
     else:

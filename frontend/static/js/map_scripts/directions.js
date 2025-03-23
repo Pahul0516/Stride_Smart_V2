@@ -278,11 +278,9 @@ export function getDirections(startCoords,endCoords)
         else if(activeFilters.has('safety-trail-f'))
             getSafePath(startCoords,endCoords);
         else if(activeFilters.has('thermal-comfort-f'))
-        {
-            console.log('start coords: ',startCoords );
-            console.log('end coords: ',endCoords);
             getThermalComfortPath(startCoords,endCoords);
-        }
+        else if(activeFilters.has('air-quality-f'))
+            getAirQualityPath(startCoords,endCoords)
             
     }
     else console.log('n avem ruta inca :(')
@@ -393,6 +391,34 @@ async function getThermalComfortPath(startCoords,endCoords)
         routeLayer.setStyle(function(feature) {
             return {
                 strokeColor:"#4f941d", 
+                strokeWeight: 4
+            };
+        });
+        routeLayer.setMap(map.innerMap);
+        showInfo(data);
+    })  
+}
+
+async function getAirQualityPath(startCoords,endCoords)
+{
+    fetch("http://127.0.0.1:5501/get_air_quality_path", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ startCoords, endCoords })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Air quality path:", data);
+        if (routeLayer) {
+            routeLayer.setMap(null);
+        }
+        routeLayer = new google.maps.Data();
+        routeLayer.addGeoJson(data);
+        routeLayer.setStyle(function(feature) {
+            return {
+                strokeColor:"#ed5076", 
                 strokeWeight: 4
             };
         });
