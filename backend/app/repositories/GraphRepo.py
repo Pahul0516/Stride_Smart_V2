@@ -1,3 +1,4 @@
+import datetime
 import osmnx as ox
 from shapely.geometry import LineString, Point
 from rasterio.mask import mask
@@ -29,6 +30,7 @@ class CustomGraph:
             data['green_index'] = 0
             data['air mark']=0
             data['accessibility']=0
+            data['thermal_comfort']=0
         
     def get_graph(self):
         return self.G
@@ -286,7 +288,120 @@ class CustomGraph:
         except Exception as e:
             print(f"An error occurred while extracting pixel values: {e}")
             return []
+    
+    def get_fitting_raster(self):
+        current_time = datetime.datetime.now()
+        if current_time.month>=3 and current_time.month<=5:
+            if current_time.hour>=8 and current_time.hour<12:
+                return 1
+            elif current_time.hour>=12 and current_time.hour<16:
+                return 2
+            else:
+                return 3
+        elif current_time.month>=6 and current_time.month<=8:
+            if current_time.hour>=7 and current_time.hour<13:
+                return 4
+            elif current_time.hour>=13 and current_time.hour<17:
+                return 5
+            else:
+                return 6
+        elif current_time.month>=9 and current_time.month<=11:
+            if current_time.hour>=8 and current_time.hour<12:
+                return 7
+            elif current_time.hour>=12 and current_time.hour<16:
+                return 8
+            else:
+                return 9
+        else:
+            if current_time.hour>=7 and current_time.hour<12:
+                return 10
+            elif current_time.hour>=12 and current_time.hour<15:
+                return 11
+            else:
+                return 12
+            
+    def get_thermal_value_for_pixel(self,pixel_value):
+        if pixel_value==146:
+            return 1
+        elif pixel_value==188:
+            return 2
+        elif pixel_value==255:
+            return 3
+        elif pixel_value==165:
+            return 4
+        return 5
 
+    def calculate_thermal_index(self, edge, src):
+        """
+        Computes the average thermal comfort value along an edge by sampling raster pixel values.
+        :param edge: A tuple (u, v, data) where data contains geometry.
+        :param src: Rasterio dataset opened from the raster map.
+        :return: Average thermal comfort index.
+        """
+        """
+        Calculate the green index for an edge in the graph using raster data,
+        considering the exact geometry of the edge.
+        """
+
+        buffer_distance = 0.000010
+        u, v, edge_data = edge
+        if 'geometry' in edge_data:
+            edge_geometry = edge_data['geometry']
+        else:
+            u_coords = self.G.nodes[u]['x'], self.G.nodes[u]['y']
+            v_coords = self.G.nodes[v]['x'], self.G.nodes[v]['y']
+            edge_geometry = LineString([u_coords, v_coords])
+        try:
+            edge_buffer = edge_geometry.buffer(buffer_distance)
+        except Exception as e:
+            print(e)
+        if not edge_buffer.is_valid or edge_buffer.is_empty:
+            return None
+        pixel_values = []
+        for i in range(11):
+            point = edge_geometry.interpolate(i / 10, normalized=True)
+            x, y = point.x, point.y
+            row, col = src.index(x, y)  # Convert coordinates to raster indices
+            try:
+                pixel_value = src.read(1)[row, col]  # Read pixel value
+                pixel_values.append(self.get_thermal_value_for_pixel(pixel_value))
+            except IndexError:
+                continue  # Ignore points outside the raster
+        
+        return sum(pixel_values) / len(pixel_values) if pixel_values else 0
+            
+        
+    def thermal_comfort_raster(self, cursor):
+        """Fetches an accessibility raster and updates the graph edges with accessibility values."""
+        table_name = "thermal_comfort_rasters"  # Change to the correct table name
+        raster_column = "raster_map"
+        raster_id = self.get_fitting_raster()
+        
+        # Query to fetch raster
+        sql = f"SELECT ST_AsTIFF({raster_column}) FROM {table_name} WHERE id_harta = %s"
+        cursor.execute(sql, (raster_id,))
+        raster_data = cursor.fetchone()
+
+        # Convert raster to bytes
+        if raster_data and raster_data[0]:
+            raster_bytes = io.BytesIO(raster_data[0])
+        else:
+            raster_bytes = None
+
+        if raster_bytes:
+            # Open the raster with rasterio
+            with rasterio.open(raster_bytes) as src:
+                i = 0
+                for edge in self.G.edges(data=True):
+                    i += 1
+                    index = self.calculate_thermal_index(edge, src)
+                    u, v, data = edge
+                    print('index: ',index)
+
+                    data['thermal_comfort'] = index
+                    print(f"edge {i} {index}")
+        else:
+            print("Failed to fetch accessibility raster from the database.")
 
     def set_air_marks(self, cursor):
             query = "SELECT osm_id, centroid_x, centroid_y, air_mark FROM air_marks;"  # Adjust table and column names as needed
@@ -354,6 +469,7 @@ class CustomGraph:
                 #self.accessibility_raster(cursor)
                 #self.accident_frequency(cursor)
                 #self.get_tourist_points(cursor)
+                self.thermal_comfort_raster(cursor)
                 break
 
             except OperationalError as e:

@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, current_app
-from app.services.ThermalComfortService import ThermalComfort
+from app.services.ThermalComfortService import ThermalComfortPath
 from itertools import pairwise
 
 thermal_comfort_route_bp = Blueprint('thermal_comfort_route', __name__)
@@ -8,15 +8,15 @@ thermal_comfort_route_bp = Blueprint('thermal_comfort_route', __name__)
 def get_thermal_comfort_route():
 
     G = current_app.config["CustomGraph"]
-    thermalComfort = ThermalComfort(G)
+    thermalComfort = ThermalComfortPath(G)
 
     data = request.json
-    start_coords = data.get('userLocation')
-    goal_coords = data.get('destination')
+    start_coords = data.get('startCoords')
+    goal_coords = data.get('endCoords')
     if goal_coords==0:
         return jsonify({'error': 'No destination provided'}), 400
     else:
-        path = thermalComfort.get_path(start_coords,goal_coords,alpha = 0.5, beta = 0.5)
+        path = thermalComfort.get_path(start_coords,goal_coords,alpha = 0.4, beta = 0.6)
         coordinates = []
         total_length=0
         for u, v in pairwise(path):
