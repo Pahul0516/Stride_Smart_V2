@@ -279,9 +279,8 @@ export function getDirections(startCoords,endCoords)
             getSafePath(startCoords,endCoords);
         else if(activeFilters.has('thermal-comfort-f'))
             getThermalComfortPath(startCoords,endCoords);
-        else if(activeFilters.has('air-quality-f'))
-            getAirQualityPath(startCoords,endCoords)
-            
+        else if(activeFilters.has('clean-air-f'))
+            getAirQualityPath(startCoords,endCoords);
     }
     else console.log('n avem ruta inca :(')
     
@@ -401,6 +400,7 @@ async function getThermalComfortPath(startCoords,endCoords)
 
 async function getAirQualityPath(startCoords,endCoords)
 {
+    console.log('fetching...');
     fetch("http://127.0.0.1:5501/get_air_quality_path", {
         method: "POST",
         headers: {

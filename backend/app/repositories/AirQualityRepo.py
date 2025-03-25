@@ -105,7 +105,7 @@ class AirQualityRepo:
         db=self.DB_CONFIG
         conn = psycopg2.connect(**db)
         cursor = conn.cursor()
-        query = "SELECT latitude, longitude, pm25, pm10 FROM air_marks;" 
+        query = "SELECT latitude, longitude, pm25, pm10 FROM air_quality;" 
         cursor.execute(query)
         results = cursor.fetchall()
         
@@ -153,7 +153,7 @@ class AirQualityRepo:
     def get_index(self,pm2,pm10):
         return max(self.get_pm2_index(pm2),self.get_pm10_index(pm10))
     
-    def get_edges_in_radius(self,point, G, radius=500):
+    def get_edges_in_radius(self,point, G, radius=1000):
         """
         Returns all edges in the graph that are within a given radius (1km default) from a point.
         
@@ -169,7 +169,7 @@ class AirQualityRepo:
         nearby_edges = []
         count = 0
 
-        for u, v, data in G.edges(data=True):
+        for u, v, data in self.G.edges(data=True):
             # Convert edge geometry to metric projection
             if 'geometry' in data:
                 edge_geometry = data['geometry']

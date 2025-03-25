@@ -475,8 +475,6 @@ class CustomGraph:
                 #self.accident_frequency(cursor)
                 #self.get_tourist_points(cursor)
                 #self.thermal_comfort_raster(cursor)
-                airRepo=AirQualityRepo(self.G)
-                airRepo.set_air_marks()
                 for edge in self.G.edges(data=True):
                     u,v,data=edge
                     print('DATA: ',data['air_mark'])
