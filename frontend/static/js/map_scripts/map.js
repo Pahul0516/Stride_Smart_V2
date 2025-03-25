@@ -4,7 +4,8 @@ import {getLatLng, showDirections, showInitialDirections} from "./directions.js"
 import {activeMenu, closeMenu} from "./menu.js";
 import {gmpxActive} from "./overlays.js";
 
-export let map, googleMap, googleAutocomplete, destination, overview, directionsService, directionsRenderer, geocoder, userLocation, marker;
+export let map, googleMap, googleAutocomplete, overview, directionsService, directionsRenderer, geocoder, userLocation, marker;
+let destination;
 
 export async function init() {
     await customElements.whenDefined('gmp-map');
@@ -129,6 +130,7 @@ export function setupGeolocation() {
 
 export function setupEventListeners() {
     function handleMapClick(event, isGoogleMap) {
+        directionsRenderer.setDirections({ routes: [] });
         destination = {
             lat: event.latLng.lat(),
             lng: event.latLng.lng(),
@@ -314,7 +316,7 @@ export function showOverview() {
     const placeOverviewContainer = document.getElementById("place-overview-container");
 
     placeOverviewContainer.classList.add("opacity-0");
-    placeOverviewContainer.classList.add("translate-y-0", "opacity-100");
+    placeOverviewContainer.classList.add("translate-y-10", "opacity-100");
 
     setTimeout(() => {
         placeOverviewContainer.classList.remove("translate-y-[94%]");
@@ -325,7 +327,7 @@ export function showOverview() {
 export function hideOverview() {
     const placeOverviewContainer = document.getElementById("place-overview-container");
     placeOverviewContainer.classList.add("translate-y-full", "opacity-0");
-    placeOverviewContainer.classList.remove("translate-y-0", "opacity-100");
+    placeOverviewContainer.classList.remove("translate-y-10", "opacity-100");
 }
 
 export function minimizeOverview() {
@@ -434,5 +436,10 @@ export function updateTravelTime() {
     });
 }
 
+export function setDestination(newDest) {
+    destination = newDest;
+}
 
-
+export function getDestination() {
+    return destination;
+}

@@ -1,30 +1,32 @@
 import {
     map,
-    destination,
     overview,
     directionsService,
     directionsRenderer,
     userLocation,
     marker,
     googleMap,
-    resetPlacePicker, showOverview, updateTravelTime
+    resetPlacePicker, showOverview, updateTravelTime, getDestination, setDestination
 } from "./map.js";
 
 import {gmpxActive} from "./overlays.js";
 import {activeFilters} from "./menu.js";
 
+let hasAttachedSwapListener = false;
+
 export function showInitialDirections() {
-    if (userLocation && destination) {
+    if (userLocation && getDestination()) {
         directionsService.route(
             {
                 origin: userLocation,
-                destination: destination,
+                destination: getDestination(),
                 travelMode: google.maps.TravelMode.WALKING,
             },
             (response, status) => {
                 if (status === "OK") {
                     directionsRenderer.setMap(gmpxActive ? map.innerMap : googleMap);
-                    if(activeFilters.size === 0) {
+                    marker.gmpx.setPosition(getDestination());
+                    if (activeFilters.size === 0) {
                         directionsRenderer.setDirections(response);
                         directionsRenderer.setOptions({
                             polylineOptions: {
@@ -48,7 +50,7 @@ export function showInitialDirections() {
 }
 
 export function showDirections() {
-    if (!userLocation || !destination) {
+    if (!userLocation || !getDestination()) {
         console.error("User location or destination is not set.");
         return;
     }
@@ -66,44 +68,36 @@ export function showDirections() {
         });
     }
 
-    getPlaceName(destination, (destination) => {
+    getPlaceName(getDestination(), (destination) => {
         toInput.value = destination || "";
     });
 
     addAutocomplete("from-location");
     addAutocomplete("to-location");
 
-    document.getElementById("calculate-route").addEventListener("click", () => {
-        const fromValue = fromInput.value.trim();
-        const toValue = toInput.value.trim();
+    const swapButton = document.getElementById("swap-locations");
 
-        if (!fromValue) {
-            alert("Please enter a valid starting location.");
-            return;
-        }
+    if (!hasAttachedSwapListener) {
+        swapButton.addEventListener("click", () => {
+            console.log("Clicked!");
+            const tempValue = fromInput.value;
+            fromInput.value = toInput.value;
+            toInput.value = tempValue;
 
-        getLatLng(fromValue, (fromCoords) => {
-            getLatLng(toValue, (toCoords) => {
-                if (fromCoords && toCoords) {
-                    calculateNewRoute(fromCoords, toCoords);
-                } else {
-                    alert("Invalid locations. Please enter a valid address.");
-                }
+            if (!fromInput.value.trim()) {
+                fromInput.placeholder = "Choose starting point";
+            } else {
+                fromInput.placeholder = "";
+            }
+
+            getLatLng(toInput.value, (toCoords) => {
+                marker.gmpx.setPosition(toCoords);
+                setDestination(toCoords);
             });
         });
-    });
 
-    document.getElementById("swap-locations").addEventListener("click", () => {
-        const tempValue = fromInput.value;
-        fromInput.value = toInput.value;
-        toInput.value = tempValue;
-
-        if (!fromInput.value.trim()) {
-            fromInput.placeholder = "Choose starting point";
-        } else {
-            fromInput.placeholder = "";
-        }
-    });
+        hasAttachedSwapListener = true;
+    }
 
     fromInput.addEventListener("focus", (event) => {
         event.target.select();
@@ -113,16 +107,21 @@ export function showDirections() {
         event.target.select();
     });
 
-    document.getElementById("cancel-directions").addEventListener("click", () => {
+    document.getElementById("exit-button").addEventListener("click", () => {
         resetPlacePicker();
     });
 
     fromInput.addEventListener("change", (event) => {
-        updatePlaceOverview(event.target.value.trim(), "from");
+        const from = event.target.value.trim();
+        updatePlaceOverview(from, "from");
+        calculateNewRoute(from, toInput.value.trim());
     });
 
     toInput.addEventListener("change", (event) => {
-        updatePlaceOverview(event.target.value.trim(), "to");
+        const to = event.target.value.trim();
+        getLatLng(to, (toCoords)=> {setDestination(toCoords);}) ;
+        updatePlaceOverview(to, "to");
+        calculateNewRoute(fromInput.value.trim(), to);
     });
 
     yourLocationButton.addEventListener("click", () => {
@@ -130,6 +129,7 @@ export function showDirections() {
             getPlaceName(userLocation, (placeName) => {
                 fromInput.value = placeName || "Current Location";
                 updatePlaceOverview(fromInput.value.trim(), "from");
+                calculateNewRoute(userLocation, toInput.value.trim());
             });
         } else {
             alert("Your location is not available.");
@@ -139,7 +139,7 @@ export function showDirections() {
 
 function getPlaceName(latLng, callback) {
     const geocoder = new google.maps.Geocoder();
-    geocoder.geocode({ location: latLng }, (results, status) => {
+    geocoder.geocode({location: latLng}, (results, status) => {
         if (status === "OK" && results[0]) {
             callback(results[0].formatted_address);
         } else {
@@ -153,7 +153,7 @@ function addAutocomplete(inputId) {
     if (!input) return;
 
     const autocomplete = new google.maps.places.Autocomplete(input, {
-        componentRestrictions: { country: "ro" },
+        componentRestrictions: {country: "ro"},
         fields: ["geometry", "name", "formatted_address"],
     });
 
@@ -170,7 +170,7 @@ function addAutocomplete(inputId) {
 
 export function getLatLng(placeName, callback) {
     const geocoder = new google.maps.Geocoder();
-    geocoder.geocode({ address: placeName }, (results, status) => {
+    geocoder.geocode({address: placeName}, (results, status) => {
         if (status === "OK" && results.length > 0) {
             callback(results[0].geometry.location);
         } else {
@@ -185,7 +185,7 @@ function calculateNewRoute(fromCoords, toCoords) {
         return;
     }
 
-    if(activeFilters.size === 0) {
+    if (activeFilters.size === 0) {
         directionsService.route(
             {
                 origin: fromCoords,
@@ -195,6 +195,11 @@ function calculateNewRoute(fromCoords, toCoords) {
             (response, status) => {
                 if (status === "OK") {
                     directionsRenderer.setDirections(response);
+                    const bounds = new google.maps.LatLngBounds();
+                    const leg = response.routes[0].legs[0];
+                    bounds.extend(leg.start_location);
+                    bounds.extend(leg.end_location);
+                    map.innerMap.fitBounds(bounds);
                 } else {
                     alert("Directions request failed: " + status);
                 }
@@ -221,7 +226,10 @@ function updatePlaceOverview(placeName, type) {
                         showOverview();
                         map.innerMap.setCenter(coords);
                         map.innerMap.setZoom(15);
-                        marker.setPosition(coords);
+                        if (type === "to") {
+                            marker.gmpx.setPosition(coords);
+                        }
+
                     } else {
                         console.warn(`Invalid ${type} location:`, placeName);
                     }

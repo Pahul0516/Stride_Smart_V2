@@ -1,4 +1,4 @@
-import {hideOverview, showOverview} from "./map.js";
+import {getDestination, hideOverview, showOverview} from "./map.js";
 
 const hazardState = {
     currentLocation: null,
@@ -9,18 +9,17 @@ const hazardState = {
 
 export function showHazardReportForm() {
     initializeHazardModal();
-    const placeOverview = document.getElementById('place-overview');
-    const currentPlace = placeOverview?.place;
     hideOverview();
 
-    if (!currentPlace || !currentPlace.geometry || !currentPlace.geometry.location) {
+    if (!getDestination()) {
         showCustomAlert("No place selected to report a hazard.");
         return;
     }
 
+    console.log(getDestination());
     hazardState.currentLocation = {
-        lat: currentPlace.geometry.location.lat(),
-        lng: currentPlace.geometry.location.lng(),
+        lat: getDestination().lat,
+        lng: getDestination().lng,
     };
 
     document.getElementById('hazard-modal').classList.remove('hidden');
