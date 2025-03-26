@@ -118,6 +118,22 @@ export function setupGeolocation() {
                 };
 
                 fetchWeatherData(userLocation.lat, userLocation.lng);
+
+                navigator.geolocation.watchPosition((position) => {
+                        userLocation = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude,
+                        };
+
+                        map.innerMap.setCenter(userLocation);
+                        googleMap.setCenter(userLocation);
+
+                        marker.user.gmpx.setPosition(userLocation);
+                        marker.user.google.setPosition(userLocation);
+                    },
+                    (error) => {
+                        console.error("Error watching position:", error);
+                    });
             },
             () => {
                 console.error("Geolocation permission denied or unavailable.");
