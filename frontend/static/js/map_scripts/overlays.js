@@ -1,12 +1,14 @@
-import {activeTouristCategories, markers, removeMarkers, setupTouristPopup} from "./tourist.js";
-import {map, googleMap, initGooglePlacePicker} from "./map.js";
+import {activeTouristCategories, markers, removeMarkers, setupTouristPopup} from "http://127.0.0.1:5501/static/js/map_scripts/tourist.js";
+import {map, googleMap, initGooglePlacePicker} from "http://127.0.0.1:5501/static/js/map_scripts/map.js";
 import {
     deactivateTouristButton,
     resetButtonStyle
-} from "./menu.js";
+} from "http://127.0.0.1:5501/static/js/map_scripts/menu.js";
+import {fetchReports} from "http://127.0.0.1:5501/static/js/map_scripts/reports.js";
 
 export let activeLayer = [null, null];
 export let circleLayers = [];
+export let reportMarkers = []
 export let gmpxActive = true;
 
 export function setupOverlays() {
@@ -43,7 +45,7 @@ export function setupOverlays() {
                     toggleOverlay(button, "../data/tourist_data.json", "tourist");
                     break;
                 case 'reports-o':
-                    toggleOverlay(button, "../data/reports.geojson", "reports");
+                    toggleOverlay(button, "", "reports");
                     break;
                 default:
                     console.warn("Unknown category: " + category);
@@ -119,7 +121,11 @@ async function addOverlayLayer(button, filepath, layerName) {
 
         if (layerName === "air_quality") {
             await loadAirQualityData();
-        } else {
+        }
+        else if(layerName === "reports"){
+            await fetchReports();
+        }
+        else {
             await loadGeoJsonLayer(dataLayer, filepath, layerName);
         }
 
@@ -303,6 +309,8 @@ export function clearAllOverlays() {
 
     circleLayers.forEach(circle => circle.setMap(null));
     circleLayers = [];
+    reportMarkers.forEach(marker => marker.setMap(null));
+    reportMarkers = [];
 
     const googleMapsContainer = document.getElementById("google-maps-container");
 
