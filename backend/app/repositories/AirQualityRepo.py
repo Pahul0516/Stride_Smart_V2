@@ -99,7 +99,7 @@ class AirQualityRepo:
             i += 1
             # You can assign a default air quality value or something random if no specific data is available
             if 'air_mark' not in data:
-                data['air_mark'] = 0  # Example of assigning a random air quality mark
+                data['air_mark'] = 1  # Example of assigning a random air quality mark
     
     def set_air_quality(self):
         db=self.DB_CONFIG

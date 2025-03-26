@@ -17,8 +17,8 @@ def get_combined_route():
     combinedCriteriaPath.is_green=data.get('is_green')
     combinedCriteriaPath.is_safe=data.get('is_safe')
     combinedCriteriaPath.is_accessible=data.get('is_accessible')
-    start_coords = data.get('userLocation')
-    goal_coords = data.get('destination')
+    start_coords = data.get('startCoords')
+    goal_coords = data.get('endCoords')
     if goal_coords==None:
         return jsonify({'error': 'No destination provided'}), 400
     else:

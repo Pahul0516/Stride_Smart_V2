@@ -10,6 +10,7 @@ from shapely import wkb
 import psycopg2
 from psycopg2 import OperationalError
 from app.repositories.AirQualityRepo import AirQualityRepo
+from collections import Counter
 
 class CustomGraph:
     
@@ -79,7 +80,7 @@ class CustomGraph:
             raster_bytes = io.BytesIO(raster_data[0])
         else:
             raster_bytes = None
-
+        green_list=[]
         if raster_bytes:
             # Open the raster with rasterio
             with rasterio.open(raster_bytes) as src:
@@ -88,8 +89,12 @@ class CustomGraph:
                     print(i)
                     i+=1
                     green_index = self.calculate_green_index(edge, src)
+                    green_list.append(green_index)
                     u, v, data = edge
                     data['green_index'] = green_index
+            freq=Counter(green_list)
+            print('min: ',min(freq))
+            print('max: ',max(freq))
         else:
             print("Failed to fetch raster data from the database.")
 
@@ -470,9 +475,9 @@ class CustomGraph:
                     password=self.password
                 )
                 cursor = conn.cursor()
-                #self.green_raster(cursor)
-                #self.accessibility_raster(cursor)
-                #self.accident_frequency(cursor)
+                self.green_raster(cursor)
+                self.accessibility_raster(cursor)
+                self.accident_frequency(cursor)
                 #self.get_tourist_points(cursor)
                 #self.thermal_comfort_raster(cursor)
                 for edge in self.G.edges(data=True):

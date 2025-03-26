@@ -282,8 +282,61 @@ export function getDirections(startCoords,endCoords)
         else if(activeFilters.has('clean-air-f'))
             getAirQualityPath(startCoords,endCoords);
     }
-    else console.log('n avem ruta inca :(')
+    else 
+    {
+        let is_thermal_comfort=0, is_air_quality=0,is_green=0,is_safe=0,is_accessible=0;
+        if(activeFilters.has('nature-path-f'))
+            is_green=1;
+        if(activeFilters.has('accessible-f'))
+            is_accessible=1;
+        else if(activeFilters.has('safety-trail-f'))
+            is_safe=1;
+        else if(activeFilters.has('thermal-comfort-f'))
+            is_thermal_comfort=1;
+        else if(activeFilters.has('clean-air-f'))
+            is_air_quality=1;
+        let payload={
+            is_thermal_comfort:is_thermal_comfort,
+            is_air_quality: is_air_quality,
+            is_green: is_green,
+            is_safe: is_safe,
+            is_accessible: is_accessible,
+            startCoords: startCoords,
+            endCoords: endCoords,
+        }
+        getCombinedPath(payload);
+    }
     
+}
+
+async function getCombinedPath(payload)
+{
+    fetch("http://127.0.0.1:5501/get_combined_path", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Combined path:", data);
+        if (routeLayer) {
+            routeLayer.setMap(null);
+        }
+        routeLayer = new google.maps.Data();
+        routeLayer.addGeoJson(data);
+        routeLayer.setStyle(function(feature) {
+            return {
+                strokeColor:"#26acf4", 
+                strokeWeight: 4
+            };
+        });
+        routeLayer.setMap(map.innerMap);
+        if(payload.is_accessible==1)
+            showInfo(data,true);
+        else showInfo(data);
+    })  
 }
 
 async function getNaturePath(startCoords,endCoords)
@@ -434,7 +487,7 @@ function showInfo(data,accessible=false) {
     let routeLength = Math.round(data.features[0]?.properties?.length || 0);
     let estimated_time; //estimated time in minutes, knowing avg walking speed = 5km/h
     if(accessible==true)
-        estimated_time=Math.round(routeLength/83/5);
+        estimated_time=Math.round(routeLength/83*5);
     else estimated_time=Math.round(routeLength/83);
     let info="Distance: "+routeLength+" meters \nTime: "+estimated_time+" min";
     alert(info);
