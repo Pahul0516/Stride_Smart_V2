@@ -165,6 +165,7 @@ function handleFormSubmit(event) {
 function loadReport(hazardData)
 {
     fetch('/projects/2/load_new_report', {
+    fetch('/projects/2/load_new_report', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -223,6 +224,7 @@ export function showCustomAlert(message, type = "error") {
     } else {
         document.getElementById("alert-heading").textContent = "Error";
         alertIcon.src = "/projects/2/static/img/error.png";
+        alertIcon.src = "/projects/2/static/img/error.png";
     }
 
     alertIcon.classList.remove("hidden");
@@ -244,6 +246,7 @@ function hideCustomAlert() {
 export async function fetchReports()
 {
     try {
+        const response = await fetch('/projects/2/view_reports');
         const response = await fetch('/projects/2/view_reports');
         const reports = await response.json();
         await displayReportsOnMap(reports);

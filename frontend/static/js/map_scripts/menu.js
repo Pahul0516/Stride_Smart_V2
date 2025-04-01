@@ -57,6 +57,7 @@ function toggleMenu(menu, button, closeButton, badgeId) {
 }
 
 export function openMenu(menu) {
+export function openMenu(menu) {
     menu.classList.remove("translate-y-full");
     activeMenu = menu;
 }
