@@ -18,7 +18,7 @@
 
 <!--google map elements-->
 <div class="map-container relative w-full h-screen">
-    <gmpx-api-loader key="AIzaSyCb3sc8wMxkO3AtrwFlfHuCJLCJqLccHU8" libraries="places,visualization" solution-channel="GMP_GE_mapsandplacesautocomplete_v1">
+    <gmpx-api-loader key="AIzaSyBeh6-ra0pqDlQz95-SLI9agxdtIet_KRw" libraries="places,visualization" solution-channel="GMP_GE_mapsandplacesautocomplete_v1">
     </gmpx-api-loader>
 
     <div slot="control-block-start-inline-start" class="flex fixed border-transparent top-6 justify-center w-full z-10">
@@ -143,19 +143,65 @@
     </div>
     <div class="flex flex-wrap gap-3 justify-center mt-6 mb-24">
         <button class="chip flex items-center gap-2 px-6 py-2 rounded-full bg-white text-gray-700 shadow-md transition-all duration-300" data-category="landmark">
-            <img src="http://127.0.0.1:5501/static/img/landmark.png" class="w-5 h-5" alt="Landmark"> Landmark
+            <img src="{{ url_for('static', filename='img/landmark.png') }}" class="w-5 h-5" alt="Landmark"> Landmark
         </button>
         <button class="chip flex items-center gap-2 px-6 py-2 rounded-full bg-white text-gray-700 shadow-md transition-all duration-300" data-category="museum">
-            <img src="http://127.0.0.1:5501/static/img/museum.png" class="w-5 h-5" alt="Museum"> Museum
+            <img src="{{ url_for('static', filename='img/museum.png') }}" class="w-5 h-5" alt="Museum"> Museum
         </button>
         <button class="chip flex items-center gap-2 px-6 py-2 rounded-full bg-white text-gray-700 shadow-md transition-all duration-300" data-category="cafe">
-            <img src="http://127.0.0.1:5501/static/img/cafe.png" class="w-5 h-5" alt="Cafe"> Cafe
+            <img src="{{ url_for('static', filename='img/cafe.png') }}" class="w-5 h-5" alt="Cafe"> Cafe
         </button>
         <button class="chip flex items-center gap-2 px-6 py-2 rounded-full bg-white text-gray-700 shadow-md transition-all duration-300" data-category="restaurant">
-            <img src="http://127.0.0.1:5501/static/img/restaurant.png" class="w-5 h-5" alt="Restaurant"> Restaurant
+            <img src="{{ url_for('static', filename='img/restaurant.png') }}" class="w-5 h-5" alt="Restaurant"> Restaurant
         </button>
         <button class="chip flex items-center gap-2 px-6 py-2 rounded-full bg-white text-gray-700 shadow-md transition-all duration-300" data-category="entertainment">
-            <img src="http://127.0.0.1:5501/static/img/entertainment.png" class="w-5 h-5" alt="Entertainment"> Entertainment
+            <img src="{{ url_for('static', filename='img/entertainment.png') }}" class="w-5 h-5" alt="Entertainment"> Entertainment
+        </button>
+    </div>
+</div>
+
+<!--popup to ask the user if they want to add the tourist location to the bucket list-->
+<div id="add-to-bucket-list" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 hidden backdrop-blur-md z-50">
+    <div class="bg-[#f7f3f0] shadow-2xl rounded-2xl w-11/12 max-w-md sm:max-w-lg px-8 py-6 relative flex flex-col gap-6 items-center">
+
+        <button id="close-add-to-bucket-list"
+                class="absolute top-3 right-3 p-3 text-[#3A4D39] hover:text-[#DA8359] hover:scale-105 text-2xl transition-all duration-200 focus:outline-none">
+            &times;
+        </button>
+
+        <h3 id="popup-location-name" class="text-base font-semibold text-[#3A4D39] text-center"></h3>
+
+        <p id="popup-question" class="-mt-4 text-xl font-medium text-[#DA8359] text-center"></p>
+
+        <div class="mt-4 w-full flex flex-row gap-4 justify-center">
+            <button id="yes-bucket-list-button"
+                    class="w-1/2 bg-[#3A4D39] text-white font-bold py-3 rounded-full transition-all duration-300 hover:bg-[#A5B68D] active:translate-y-1"></button>
+            <button id="no-bucket-list-button"
+                    class="w-1/2 bg-[#3A4D39] text-white font-bold py-3 rounded-full transition-all duration-300 hover:bg-[#DA8359] active:translate-y-1"></button>
+        </div>
+
+    </div>
+</div>
+
+<button id="bucket-list-btn" class="fixed top-4 right-2 bg-[#3A4D39] text-white p-3 rounded-full shadow-lg hidden hover:scale-110 transition z-50">
+    <img src="{{ url_for('static', filename='img/bucketlist.png') }}" alt="Bucket List" class="w-6 h-6 filter invert">
+</button>
+
+<!-- bucket list popup -->
+<div id="bucket-list-popup" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-md z-50 hidden">
+    <div class="bg-[#f7f3f0] shadow-2xl rounded-2xl w-11/12 max-w-md sm:max-w-lg p-8 relative flex flex-col gap-6 items-center">
+
+        <div class="w-full relative mb-10">
+            <h2 class="text-2xl font-semibold text-[#3A4D39] absolute left-1/2 transform -translate-x-1/2">My Bucket List</h2>
+            <button id="close-buckets-list" class="absolute -top-0.5 right-0 text-[#3A4D39] hover:text-[#DA8359] hover:scale-105 text-3xl transition-all duration-200 focus:outline-none">
+                &times;
+            </button>
+        </div>
+
+        <ul id="bucket-list" class="w-full max-h-80 overflow-y-auto space-y-3 text-base text-[#3A4D39] text-left leading-relaxed scrollbar-thin scrollbar-thumb-[#DA8359] scrollbar-track-[#f7f3f0]"></ul>
+
+        <button id="clear-bucket-list" class="w-full max-w-[180px] bg-[#DA8359] text-white font-semibold text-lg py-3 rounded-full transition-all duration-300 hover:bg-red-600 hover:shadow-lg active:translate-y-1">
+            Clear List
         </button>
     </div>
 </div>
