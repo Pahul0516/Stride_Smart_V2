@@ -478,12 +478,10 @@ class CustomGraph:
                 #self.green_raster(cursor)
                 #self.accessibility_raster(cursor)
                 #self.accident_frequency(cursor)
-                #self.get_tourist_points(cursor)
                 #self.thermal_comfort_raster(cursor)
                 for edge in self.G.edges(data=True):
                     u,v,data=edge
                     print('DATA: ',data['air_mark'])
-
                 break
 
             except OperationalError as e:

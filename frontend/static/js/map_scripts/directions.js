@@ -9,6 +9,7 @@ import {
     resetPlacePicker, showOverview, hideOverview, updateTravelTime,
 } from "http://127.0.0.1:5501/static/js/map_scripts/map.js";
 import {activeFilters} from "http://127.0.0.1:5501/static/js/map_scripts/menu.js";
+import { bucketList } from "http://127.0.0.1:5501/static/js/map_scripts/tourist.js";
 
 export function showInitialDirections() {
     if (userLocation && destination) {
@@ -271,6 +272,8 @@ export function getDirections(startCoords,endCoords)
     }
     if(activeFilters.size === 1)
     {
+        if(activeFilters.has('discover-explore-f'))
+            getTouristPath(startCoords,bucketList);
         if(activeFilters.has('nature-path-f'))
             getNaturePath(startCoords, endCoords);
         else if(activeFilters.has('accessible-f'))
@@ -391,7 +394,7 @@ async function getAccessiblePath(startCoords,endCoords)
             };
         });
         routeLayer.setMap(map.innerMap);
-        showInfo(data);
+        showInfo(data,true);
     })  
 }
 
@@ -526,4 +529,37 @@ function getStartLocation()
     };
     console.log('selected location: ',fromLatLng);
     console.log('destination: ',destination);
+}
+
+async function getTouristPath(startCoords,bucketList)
+{
+    console.log('gettint tourist route with bucketlist: \n',bucketList);
+    let payload={
+        startCoords: startCoords,
+        bucketList: bucketList,
+    }
+    fetch("http://127.0.0.1:5501/get_tourist_path", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Tourist path:", data);
+        if (routeLayer) {
+            routeLayer.setMap(null);
+        }
+        routeLayer = new google.maps.Data();
+        routeLayer.addGeoJson(data);
+        routeLayer.setStyle(function(feature) {
+            return {
+                strokeColor:"#a371f4", 
+                strokeWeight: 4
+            };
+        });
+        routeLayer.setMap(map.innerMap);
+        showInfo(data);
+    })  
 }
