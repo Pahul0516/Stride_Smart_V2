@@ -1,11 +1,13 @@
-import {setupTouristPopup, removeMarkers, markers, activeTouristCategories} from "http://127.0.0.1:5501/static/js/map_scripts/tourist.js";
+import {setupTouristPopup, removeMarkers, markers, activeTouristCategories, bucketList} from "http://127.0.0.1:5501/static/js/map_scripts/tourist.js";
 import {map,googleMap} from "http://127.0.0.1:5501/static/js/map_scripts/map.js";
 import {fetchReports,clearReportsFromMap} from "http://127.0.0.1:5501/static/js/map_scripts/reports.js"
+import { activeFilters } from "http://127.0.0.1:5501/static/js/map_scripts/menu.js";
 
 export let overlayLayers = {};
 export let circleLayers = {};
 export let activeLayer = [null, null];
 export let gmpxActive = true;
+let bucketList_markers=[];
 
 export function setupOverlays(){
     document.querySelectorAll('.overlay-option').forEach(button => {
@@ -40,6 +42,16 @@ export function setupOverlays(){
                     console.warn("Unknown category: " + category);
             }
         });
+    });
+    const discoverExploreButton = document.querySelector('[data-category="discover-explore-f"]');
+    discoverExploreButton.addEventListener('click', () => {
+        if(activeFilters.has("discover-explore-f")){
+            displayBucketList(bucketList);
+        }
+        else
+        {
+            removeBucketListMarkers();
+        }
     });
 }
 
@@ -353,4 +365,31 @@ export function clearAllOverlays() {
             chip.classList.add("bg-white", "text-gray-700");
         });
     }
+}
+
+async function displayBucketList(bucketList)
+{
+        console.log('adding markers...');
+         bucketList.forEach(location => {
+             const category=location.category;
+             const iconUrl = `http://127.0.0.1:5501/static/img/${category}.png`;
+     
+             const marker = new google.maps.Marker({
+                 position: { lat: location.latitude, lng: location.longitude },
+                 map: map.innerMap,
+                 title: location.name,
+                 category: location.category,
+                 icon: { url: iconUrl, scaledSize: new google.maps.Size(30, 30) }
+             });
+     
+             bucketList_markers.push(marker);
+         });
+}
+
+async function removeBucketListMarkers()
+{
+    bucketList_markers.forEach(marker => {
+        marker.setMap(null);
+    });
+    bucketList_markers=[];
 }

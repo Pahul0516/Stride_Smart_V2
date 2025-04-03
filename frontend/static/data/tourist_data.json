@@ -3,151 +3,176 @@
     "name": "Olivo Coffee Culture",
     "latitude": 46.77172224776852,
     "longitude": 23.58674031480066,
-    "category": "cafe"
+    "category": "cafe",
+    "hasInfo": false
   },
   {
     "name": "Eggcetera",
     "latitude": 46.767992289613076,
     "longitude": 23.58834021731583,
-    "category": "cafe"
+    "category": "cafe",
+    "hasInfo": false
   },
   {
     "name": "Roots Urban Tastery",
     "latitude": 46.77402898578696,
     "longitude": 23.62063295299663,
-    "category": "cafe"
+    "category": "cafe",
+    "hasInfo": false
   },
   {
     "name": "Captain Bean The Office",
     "latitude": 46.77565398692632,
     "longitude": 23.604602394192398,
-    "category": "cafe"
+    "category": "cafe",
+    "hasInfo": false
   },
   {
     "name": "Meron Central",
     "latitude": 46.772739236817905,
     "longitude": 23.589210153995143,
-    "category": "cafe"
+    "category": "cafe",
+    "hasInfo": false
   },
   {
     "name": "Demmers Teehaus",
     "latitude": 46.76871259940885,
     "longitude": 23.589505806747386,
-    "category": "cafe"
+    "category": "cafe",
+    "hasInfo": false
   },
   {
     "name": "Victor. Fresh To Go",
     "latitude": 46.764300871480486,
     "longitude": 23.58511216742084,
-    "category": "cafe"
+    "category": "cafe",
+    "hasInfo": false
   },
   {
     "name": "Tucano Coffee Puerto Rico",
     "latitude": 46.76995529565072,
     "longitude": 23.593001432675617,
-    "category": "cafe"
+    "category": "cafe",
+    "hasInfo": false
   },
   {
     "name": "Tamper Coffee",
     "latitude": 46.76860805272722,
     "longitude": 23.5994587809956,
-    "category": "cafe"
+    "category": "cafe",
+    "hasInfo": false
   },
   {
     "name": "Refo Cafe",
     "latitude": 46.77279559723196,
     "longitude": 23.59560611444544,
-    "category": "cafe"
+    "category": "cafe",
+    "hasInfo": false
   },
   {
     "name": "Koffer",
     "latitude": 46.772021319803386,
     "longitude": 23.59418543001539,
-    "category": "cafe"
+    "category": "cafe",
+    "hasInfo": false
   },
   {
     "name": "Brewtiful Cafe",
     "latitude": 46.77107606613526,
     "longitude": 23.595786679585533,
-    "category": "cafe"
+    "category": "cafe",
+    "hasInfo": false
   },
   {
     "name": "Let's Coffee",
     "latitude": 46.771159607785854,
     "longitude": 23.585074586768588,
-    "category": "cafe"
+    "category": "cafe",
+    "hasInfo": false
   },
   {
     "name": "Urania Social Hub",
     "latitude": 46.775020084,
     "longitude": 23.58762085735748,
-    "category": "cafe"
+    "category": "cafe",
+    "hasInfo": false
   },
   {
     "name": "Ibric Coffee Shop",
     "latitude": 46.768845070774525,
     "longitude": 23.585730110118647,
-    "category": "cafe"
+    "category": "cafe",
+    "hasInfo": false
   },
   {
     "name": "Doua Boabe Baciu",
     "latitude": 46.78657952364319,
     "longitude": 23.53979501625301,
-    "category": "cafe"
+    "category": "cafe",
+    "hasInfo": false
   },
   {
     "name": "Wake Cup Coffee & Bar",
     "latitude": 46.77097981126571,
     "longitude": 23.55182745735748,
-    "category": "cafe"
+    "category": "cafe",
+    "hasInfo": false
   },
   {
     "name": "Coffee Cup",
     "latitude": 46.757497323481054,
     "longitude": 23.56281971136265,
-    "category": "cafe"
+    "category": "cafe",
+    "hasInfo": false
   },
   {
     "name": "Phil's Coffee Shop",
     "latitude": 46.77383934288962,
     "longitude": 23.607017310454275,
-    "category": "cafe"
+    "category": "cafe",
+    "hasInfo": false
   },
   {
     "name": "SB Coffee Trailer",
     "latitude": 46.789129305920284,
     "longitude": 23.593100420048334,
-    "category": "cafe"
+    "category": "cafe",
+    "hasInfo": false
   },
   {
     "name": "STROPP Coffee",
     "latitude": 46.7794979859108,
     "longitude": 23.629243912378623,
-    "category": "cafe"
+    "category": "cafe",
+    "hasInfo": false
   },
   {
     "name": "Meron CBC",
     "latitude": 46.78477577042529,
     "longitude": 23.61440729473926,
-    "category": "cafe"
+    "category": "cafe",
+    "hasInfo": false
   },
   {
     "name": "Embu Coffee",
     "latitude": 46.779046680060254,
     "longitude": 23.605531897501173,
-    "category": "cafe"
+    "category": "cafe",
+    "hasInfo": false
   },
   {
     "name": "ARTA Café",
     "latitude": 46.768111990883746,
     "longitude": 23.59023832399931,
-    "category": "cafe"
+    "category": "cafe",
+    "hasInfo": false
   },
   {
     "name": "Old School Coffee House",
     "latitude": 46.77403379861505,
     "longitude": 23.59321966579869,
-    "category": "cafe"
+    "category": "cafe",
+    "hasInfo": false
   },
 
 
@@ -158,61 +183,71 @@
     "name": "VIVO! Cluj-Napoca",
     "latitude": 46.750208010323625,
     "longitude": 23.53373693790165,
-    "category": "entertainment"
+    "category": "entertainment",
+    "hasInfo": false
   },
   {
     "name": "Iulius Mall Cluj",
     "latitude": 46.771679874503135,
     "longitude": 23.625575069731852,
-    "category": "entertainment"
+    "category": "entertainment",
+    "hasInfo": false
   },
   {
     "name": "Winners Sports Club",
     "latitude": 46.76370409914996,
     "longitude": 23.55424949674545,
-    "category": "entertainment"
+    "category": "entertainment",
+    "hasInfo": false
   },
   {
     "name": "Casa de Padel",
     "latitude": 46.77920227570604,
     "longitude": 23.656480101494438,
-    "category": "entertainment"
+    "category": "entertainment",
+    "hasInfo": false
   },
   {
     "name": "FreeWall Climbing Gym",
     "latitude": 46.76398441030679,
     "longitude": 23.570167109923055,
-    "category": "entertainment"
+    "category": "entertainment",
+    "hasInfo": false
   },
   {
     "name": "Gravity Climbing Gym",
     "latitude": 46.74882938596867,
     "longitude": 23.54190219148234,
-    "category": "entertainment"
+    "category": "entertainment",
+    "hasInfo": false
   },
   {
     "name": "Club Transilvania",
     "latitude": 46.76224947783453,
     "longitude": 23.54723526186436,
-    "category": "entertainment"
+    "category": "entertainment",
+    "hasInfo": false
   },
   {
     "name": "Tenis Club Cluj 'Ciprian Porumb'",
     "latitude": 46.77552440788698,
     "longitude": 23.577614630555896,
-    "category": "entertainment"
+    "category": "entertainment",
+    "hasInfo": false
   },
   {
     "name": "Parcul Sportiv 'Iuliu Hațieganu'",
     "latitude": 46.76568295472936,
     "longitude": 23.559519197530882,
-    "category": "entertainment"
+    "category": "entertainment",
+    "hasInfo": false
   },
   {
     "name": "Carturesti",
     "latitude": 46.771172564928484,
     "longitude": 23.58980510616975,
-    "category": "entertainment"
+    "category": "entertainment",
+    "hasInfo": false
   },
 
 
@@ -224,91 +259,116 @@
     "name": "Biserica Sfântul Mihail",
     "latitude": 46.769898510263026,
     "longitude": 23.58960857817345,
-    "category": "landmark"
+    "category": "landmark",
+    "hasInfo": true,
+    "infoText": "Edificiul este o biserică gotică de tip hală, cu un cor boltit în cruce pe ogive și flancat de altare laterale. Este a doua cea mai mare biserică gotică din România după Biserica Neagră din Brasov. \n\nConstrucția bisericii a început în anul 1316 și a fost finalizată în anul 1444. \n\nTurnul, având 80 de metri înălțime, deoarece nu este ridicat deasupra bisericii, ci pornește de la nivelul solului este considerat și astăzi ca și cel mai înalt turn al unei biserici din țară \n\nOrga din biserică este cea originală și a fost realizată în anul 1753"
   },
   {
     "name": "Statuia lui Matia Corvin",
     "latitude": 46.76950887165435,
     "longitude": 23.58985643529636,
-    "category": "landmark"
+    "category": "landmark",
+    "hasInfo": false
   },
   {
     "name": "Grădina Botanică Alexandru Borza",
     "latitude": 46.76248386477724,
     "longitude": 23.588467326240814,
-    "category": "landmark"
+    "category": "landmark",
+    "hasInfo": false
   },
   {
     "name": "Parcul Central",
     "latitude": 46.769144623322966,
     "longitude": 23.57739915118144,
-    "category": "landmark"
+    "category": "landmark",
+    "hasInfo": true,
+    "infoText": "A fost deschis în 1830 \n\nCasinoul și Pavilionul de patinaj (Chios) au fost construite în stil eclectic, stil la modă la sfârșitul secolului XIX, începutul secolului XX \n\nla Casino veneau baronii și moșierii din zonă și se spune că se juca pe mize foarte mari, uneori pierzându-se sau câștigându-se moșii întregi cu tot cu conace și terenuri aferente \n\nLacul funcționează și în zilele noastre, în perioada rece a anului, ca și loc de patinaj"
   },
   {
     "name": "Catedrala Mitropolitană „Adormirea Maicii Domnului”",
     "latitude": 46.77171088368402,
     "longitude": 23.59646538254749,
-    "category": "landmark"
+    "category": "landmark",
+    "hasInfo": true,
+    "infoText": "Descrierea ei, făcută de reprezentanții mitropoliei sună cam asa: “Aşezată în centrul capitalei culturale a Transilvaniei, pe principala arteră care leagă România de Europa Centrală şi Occidentală, Catedrala Mitropolitană din Cluj-Napoca, cu hramul „Adormirea Maicii Domnului”, este unul dintre cele mai importante monumente de artă românească” \n\nConstruită în stil neobizantin, cu elemente româneşti, între anii 1923-1933 "
   },
   {
     "name": "Biserica Piariștilor",
     "latitude": 46.76778511140777,
     "longitude": 23.590561829183564,
-    "category": "landmark"
+    "category": "landmark",
+    "hasInfo": false
   },
   {
     "name": "Parcul Etnografic Național „Romulus Vuia”",
     "latitude": 46.77798634342092,
     "longitude": 23.558363649242015,
-    "category": "landmark"
+    "category": "landmark",
+    "hasInfo": false
   },
   {
     "name": "Biserica Reformată 1 Matia",
     "latitude": 46.76808112227387,
     "longitude": 23.59548905744684,
-    "category": "landmark"
+    "category": "landmark",
+    "hasInfo": true,
+    "infoText": "Biserica Reformată de pe Ulița Lupilor (franciscană) este unul din cele mai valoroase edificii gotice din Transilvania, fiind ridicat între 1486-1516 "
   },
   {
     "name": "Casa lui Matei Corvin",
     "latitude": 46.77108259118063,
     "longitude": 23.587574049860965,
-    "category": "landmark"
+    "category": "landmark",
+    "hasInfo": true,
+    "infoText": "Este unul dintre cele mai vechi monumente de arhitectură din Cluj, unicul palat din epoca de tranziție de la stilul gotic la cel renascentist \n\nAici, la 27 martie 1443 s-a nascut regele Ungariei Matia sau Mattiaș Corvin, fiul voievodului Transilvaniei, Iancu de Hunedoara \n\nA fost regele Ungariei între 1458 și 1490, fiind considerat unul dintre cei mai mari monarhi ai Ungariei. \n\nRegele a decis scutirea clădirii de taxe și impozite, scutire pe care au respectat-o și domnitorii ce i-au urmat \n\nSe poate observa la hornuri că această clădire este formată prin unirea mai multor clădiri învecinate, acest lucru datorându-se scutirii de plată a impozitelor pentru această clădire "
   },
   {
     "name": "Cluj Arena",
     "latitude": 46.76863329179259,
     "longitude": 23.571701630404636,
-    "category": "landmark"
+    "category": "landmark",
+    "hasInfo": false
   },
   {
     "name": "Opera Națională",
     "latitude": 46.77034958446786,
     "longitude": 23.59712814048199,
-    "category": "landmark"
+    "category": "landmark",
+    "hasInfo": true,
+    "infoText": "este unul dintre cele mai valoroase monumente arhitecturale ale orașului și în același timp unul dintre cele mai reprezentative ale arhitecturii 1900 \n\nA fost ridicat în anii 1904-1906 pe locul fostei piețe de lemne a orașului, în actuala Piața Avram Iancu. Lucrarea a fost executată de renumita firmă a arhitecţilor austrieci Helmer şi Fellner, arhitecți care au construit în toată Europa teatre și opere (ex: Zurich, Berlin, Salzbourg, Timișoara, Viena, Budapesta, Zagreb, Cernăuți, Sofia, Graz, Torun, etc) \n\nDeasupra sunt înfățișate 2 care trase de lei, în fiecare dintre ele fiind reprezentată câte o muză care are în mână o ramură de palmier. Prima este muza Terpsihora, muza muzicii și a dansului, iar cea de-a doua este Thalia, muza comediei și a teatrului "
   },
   {
     "name": "Casino - Centrul de Cultură Urbană",
     "latitude": 46.76893747549464,
     "longitude": 23.577869211781415,
-    "category": "landmark"
+    "category": "landmark",
+    "hasInfo": true,
+    "infoText": "Casinoul și Pavilionul de patinaj (Chios) au fost construite în stil eclectic, stil la modă la sfârșitul secolului XIX, începutul secolului XX \n\nla Casino veneau baronii și moșierii din zonă și se spune că se juca pe mize foarte mari, uneori pierzându-se sau câștigându-se moșii întregi cu tot cu conace și terenuri aferente \n\nLacul funcționează și în zilele noastre, în perioada rece a anului, ca și loc de patinaj "
   },
   {
     "name": "Piața Muzeului",
     "latitude":46.77164816811081,
     "longitude": 23.587249777087415,
-    "category": "landmark"
+    "category": "landmark",
+    "hasInfo": true,
+    "infoText": "Iși trage numele de la Muzeul de Istorie al Transilvaniei \n\nBiserica Franciscană- în 1260 a început construcția actualei biserici și a fost finalizată 30 de ani mai târziu \n\nÎn 1556 călugării franciscani au fost alungați, iar biserica a servit ca locuință a reginei Ungariei, Izabella, timp de un an \n\nDupă a fost din nou luată de călugării franciscani, astăzi aparținând acestui cult \n\nBiserica este realizată în 2 stiluri diferite: baroc și rococco \n\nObeliscul Carolina- este un monument ridicat in anul 1831, sub forma unei coloane, in amintirea vizitei Imparatesei Carolina si a sotului sau Francisc I \n\nObeliscul are 10m inaltime si pe cele 4 fatete sunt reprezentate scene ale vizitei imperiale \n\nObeliscul a fost realizat cu finanțare din donații publice "
   },
   {
     "name": "Parcul Cetățuia",
     "latitude": 46.77533057142029,
     "longitude": 23.581654040479037,
-    "category": "landmark"
+    "category": "landmark",
+    "hasInfo": true,
+    "infoText": "Cetățuia a fost clădită între anii 1715 și 1735 cu ziduri sub formă de stea, o redută, un turn și era înconjurată de bastioane \n\nEra o cetate tipic austrică construită în stil Vauban (formă de stea), ca și cetățile Alba Iulia, Oradea, Arad, Timișoara \n\nAstăzi este punctul de belvedere al orașului Cluj-Napoca"
   },
   {
     "name": "Turnul Croitorilor",
     "latitude": 46.7680214703146,
     "longitude": 23.59742105333033,
-    "category": "landmark"
+    "category": "landmark",
+    "hasInfo": true,
+    "infoText": "A fost cel mai mare turn al orașului medieval și este cel mai bine pastrat turn, după cum vă spuneam și mai devreme, doar acesta și turnul pompierilor mai fiind încă în picioare \n\nPrima atestare documentară a turnului este din anul 1475 \n\nA fost ridicat pe colțul Sud-Estic, fiind considerat colțul cel mai expus atacurilor \n\nA fost încredințat breslei croitorilor, care în acea perioadă era considerată cea mai importantă breaslă din localitate \n\nÎntre 2007 și 2009 turnul a fost restaurat, astăzi în interiorul lui fiind găzduite diverse expoziții și evenimente "
   },
 
 
@@ -319,49 +379,58 @@
     "name": "Muzeul Etnografic al Transilvaniei",
     "latitude": 46.76924153018431,
     "longitude": 23.5866754500931,
-    "category": "museum"
+    "category": "museum",
+    "hasInfo": false
   },
   {
     "name": "Muzeul de Artă",
     "latitude": 46.77057379683835,
     "longitude": 23.590485781304363,
-    "category": "museum"
+    "category": "museum",
+    "hasInfo": true,
+    "infoText": "Este găzduit în Palatul Bánffy, cea mai reprezentativă clădire barocă din Transilvania, construită între 1774–1785.\n\nPe fațada principală a palatului se remarcă blazonul familiei Bánffy, susținut de grifoni înaripați, și șase statui mitologice: Hercule, Apollo, Marte, Minerva, Diana și Perseu.\n\nMuzeul găzduiește colecții valoroase de artă românească și europeană, fiind un important centru cultural al orașului."
   },
   {
     "name": "Muzeul Zoologic - UBB",
     "latitude": 46.763963061796645,
     "longitude": 23.580146078628875,
-    "category": "museum"
+    "category": "museum",
+    "hasInfo": false
   },
   {
     "name": "Steampunk Transylvania",
     "latitude": 46.77210273207993,
     "longitude": 23.59020685042953,
-    "category": "museum"
+    "category": "museum",
+    "hasInfo": false
   },
   {
     "name": "Muzeon - Jewish History Museum",
     "latitude": 46.770763987314204,
     "longitude": 23.587284718330082,
-    "category": "museum"
+    "category": "museum",
+    "hasInfo": false
   },
   {
     "name": "Muzeul Farmaciei",
     "latitude": 46.771022090713195,
     "longitude": 23.589836097790286,
-    "category": "museum"
+    "category": "museum",
+    "hasInfo": false
   },
   {
     "name": "Muzeul Militar 'Mareșal Constantin Prezan'",
     "latitude": 46.769416947673726,
     "longitude": 23.59898066099775,
-    "category": "museum"
+    "category": "museum",
+    "hasInfo": false
   },
   {
     "name": "Muzeul Grădinii Botanice",
     "latitude": 46.762146823519274,
     "longitude": 23.587681632782736,
-    "category": "museum"
+    "category": "museum",
+    "hasInfo": false
   },
 
 
@@ -372,198 +441,231 @@
     "name": "Restaurant Roata",
     "latitude": 46.77026890407616,
     "longitude": 23.58405326617222,
-    "category": "restaurant"
+    "category": "restaurant",
+    "hasInfo": false
   },
   {
     "name": "Restaurant Little Hanoi",
     "latitude": 46.76940490178002,
     "longitude": 23.617354491136048,
-    "category": "restaurant"
+    "category": "restaurant",
+    "hasInfo": false
   },
   {
     "name": "Via",
     "latitude": 46.76758884636068,
     "longitude": 23.589241588447184,
-    "category": "restaurant"
+    "category": "restaurant",
+    "hasInfo": false
   },
   {
     "name": "Tokyo Japanese Restaurant",
     "latitude": 46.763030361757316,
     "longitude": 23.58387050552013,
-    "category": "restaurant"
+    "category": "restaurant",
+    "hasInfo": false
   },
   {
     "name": "Tortelli",
     "latitude": 46.77082503202549,
     "longitude": 23.5872233555131,
-    "category": "restaurant"
+    "category": "restaurant",
+    "hasInfo": false
   },
   {
     "name": "Miko",
     "latitude": 46.76468250934961,
     "longitude": 23.577384630810183,
-    "category": "restaurant"
+    "category": "restaurant",
+    "hasInfo": false
   },
   {
     "name": "Adi’s Steakhouse",
     "latitude": 46.76686495648891,
     "longitude": 23.600794641229445,
-    "category": "restaurant"
+    "category": "restaurant",
+    "hasInfo": false
   },
   {
     "name": "Pasta Nostra",
     "latitude": 46.77388337426116,
     "longitude": 23.60613923158199,
-    "category": "restaurant"
+    "category": "restaurant",
+    "hasInfo": false
   },
   {
     "name": "Jaxx",
     "latitude": 46.77130754844512,
     "longitude": 23.584600015611894,
-    "category": "restaurant"
+    "category": "restaurant",
+    "hasInfo": false
   },
   {
     "name": "Restaurant Valahia",
     "latitude": 46.757451217859995,
     "longitude": 23.566854154093647,
-    "category": "restaurant"
+    "category": "restaurant",
+    "hasInfo": false
   },
   {
     "name": "Türk Kebabçi",
     "latitude": 46.76904447911184,
     "longitude": 23.59319338384296,
-    "category": "restaurant"
+    "category": "restaurant",
+    "hasInfo": false
   },
   {
     "name": "Casa Maramureșeană",
     "latitude": 46.773870429525765,
     "longitude": 23.59947526052409,
-    "category": "restaurant"
+    "category": "restaurant",
+    "hasInfo": false
   },
   {
     "name": "Zama",
     "latitude": 46.76768805825599,
     "longitude": 23.587225218218617,
-    "category": "restaurant"
+    "category": "restaurant",
+    "hasInfo": false
   },
   {
     "name": "Visuin",
     "latitude": 46.767748030273225,
     "longitude": 23.589897213054467,
-    "category": "restaurant"
+    "category": "restaurant",
+    "hasInfo": false
   },
   {
     "name": "Cimbru Restaurant",
     "latitude": 46.77901367761085,
     "longitude": 23.589088159805566,
-    "category": "restaurant"
+    "category": "restaurant",
+    "hasInfo": false
   },
   {
     "name": "Indigo",
     "latitude": 46.77555908153386,
     "longitude": 23.586506635268115,
-    "category": "restaurant"
+    "category": "restaurant",
+    "hasInfo": false
   },
   {
     "name": "Twelve by Brava",
     "latitude": 46.77540278535928,
     "longitude": 23.5947138886413,
-    "category": "restaurant"
+    "category": "restaurant",
+    "hasInfo": false
   },
   {
     "name": "Form Café",
     "latitude": 46.77235814077082,
     "longitude": 23.587301076984605,
-    "category": "restaurant"
+    "category": "restaurant",
+    "hasInfo": false
   },
   {
     "name": "California Burger",
     "latitude": 46.772825759256406,
     "longitude": 23.58642473526811,
-    "category": "restaurant"
+    "category": "restaurant",
+    "hasInfo": false
   },
   {
     "name": "Marty",
     "latitude": 46.771645659266454,
     "longitude": 23.58738023526811,
-    "category": "restaurant"
+    "category": "restaurant",
+    "hasInfo": false
   },
   {
     "name": "Sandwich Shop",
     "latitude": 46.77195324073619,
     "longitude": 23.58741839416365,
-    "category": "restaurant"
+    "category": "restaurant",
+    "hasInfo": false
   },
   {
     "name": "Olivo Coffee Culture",
     "latitude": 46.771725855594624,
     "longitude": 23.586744888029287,
-    "category": "restaurant"
+    "category": "restaurant",
+    "hasInfo": false
   },
   {
     "name": "NATIV",
     "latitude": 46.77092945927255,
     "longitude": 23.586649105820346,
-    "category": "restaurant"
+    "category": "restaurant",
+    "hasInfo": false
   },
   {
     "name": "Il forno - vera pizza napoletana",
     "latitude": 46.77046054072349,
     "longitude": 23.588108094163648,
-    "category": "restaurant"
+    "category": "restaurant",
+    "hasInfo": false
   },
   {
     "name": "Sage Bistro",
     "latitude": 46.77097444072786,
     "longitude": 23.58709600582035,
-    "category": "restaurant"
+    "category": "restaurant",
+    "hasInfo": false
   },
   {
     "name": "Sushi Master",
     "latitude": 46.77028414072196,
     "longitude": 23.58496099416365,
-    "category": "restaurant"
+    "category": "restaurant",
+    "hasInfo": false
   },
   {
     "name": "Toulouse",
     "latitude": 46.76913125928787,
     "longitude": 23.589109694163646,
-    "category": "restaurant"
+    "category": "restaurant",
+    "hasInfo": false
   },
   {
     "name": "Bujole",
     "latitude": 46.76958576644412,
     "longitude": 23.58878444753684,
-    "category": "restaurant"
+    "category": "restaurant",
+    "hasInfo": false
   },
   {
     "name": "Marhaba Steak & Breakfast",
     "latitude": 46.76640044068884,
     "longitude": 23.590752264715885,
-    "category": "restaurant"
+    "category": "restaurant",
+    "hasInfo": false
   },
   {
     "name": "C'est La Vie - Rooftop Restaurant",
     "latitude": 46.765244240679,
     "longitude": 23.60509653526812,
-    "category": "restaurant"
+    "category": "restaurant",
+    "hasInfo": false
   },
   {
     "name": "Marhaba Lebanese Restaurant",
     "latitude": 46.75919702188226,
     "longitude": 23.59817949416364,
-    "category": "restaurant"
+    "category": "restaurant",
+    "hasInfo": false
   },
   {
     "name": "Restaurant Rod",
     "latitude": 46.751138718882565,
     "longitude": 23.594160164715877,
-    "category": "restaurant"
+    "category": "restaurant",
+    "hasInfo": false
   },
   {
     "name": "London Brothers Cluj",
     "latitude": 46.75528422178218,
     "longitude": 23.585230423611414,
-    "category": "restaurant"
+    "category": "restaurant",
+    "hasInfo": false
   }
 ]

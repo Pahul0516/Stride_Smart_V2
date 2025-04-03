@@ -19,7 +19,7 @@ export function setupMenus() {
         document.querySelector("#clearFiltersContainer"),
         document.querySelector("#clearFiltersButton")
     );
-
+    
     setupToggleButtons(
         ".overlay-option",
         menus[1].activeSet,

@@ -133,6 +133,7 @@ export function setupEventListeners() {
         showInitialTravelTime();
         fetchWeatherData(destination.lat, destination.lng);
         showOverview();
+        
     });
 
     const placePicker = document.querySelector('gmpx-place-picker');

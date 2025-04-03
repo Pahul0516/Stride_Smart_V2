@@ -11,10 +11,11 @@ def get_tourist_route():
 
     data = request.json
     start_coords = data.get('startCoords')
+    end_coords=data.get('endCoords')
     bucket_list=data.get('bucketList')
     touristPath.set_bucketList(bucket_list)
 
-    path = touristPath.get_path(start_coords)
+    path = touristPath.get_path(start_coords,end_coords)
     coordinates = []
     for u, v in pairwise(path):
         # Get the coordinates for nodes u and v

@@ -273,7 +273,7 @@ export function getDirections(startCoords,endCoords)
     if(activeFilters.size === 1)
     {
         if(activeFilters.has('discover-explore-f'))
-            getTouristPath(startCoords,bucketList);
+            getTouristPath(startCoords,endCoords,bucketList); 
         if(activeFilters.has('nature-path-f'))
             getNaturePath(startCoords, endCoords);
         else if(activeFilters.has('accessible-f'))
@@ -531,11 +531,12 @@ function getStartLocation()
     console.log('destination: ',destination);
 }
 
-async function getTouristPath(startCoords,bucketList)
+async function getTouristPath(startCoords,endCoords,bucketList)
 {
-    console.log('gettint tourist route with bucketlist: \n',bucketList);
+    console.log('bucket list: ',bucketList);
     let payload={
         startCoords: startCoords,
+        endCoords:endCoords,
         bucketList: bucketList,
     }
     fetch("http://127.0.0.1:5501/get_tourist_path", {
@@ -560,6 +561,5 @@ async function getTouristPath(startCoords,bucketList)
             };
         });
         routeLayer.setMap(map.innerMap);
-        showInfo(data);
     })  
 }
