@@ -6,18 +6,17 @@
     <title>Walk Safe Map</title>
     <script type="module" src="https://unpkg.com/@googlemaps/extended-component-library"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Turf.js/6.5.0/turf.min.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/heatmap.js@2.0.5/build/heatmap.min.js"></script>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/png" href="http://127.0.0.1:5501/static/img/logo.png">
+    <link rel="icon" type="image/png" href="/projects/2/static/img/logo.png">
 </head>
 <body class="text-xs">
 
 <!--google map elements-->
 <div class="map-container relative w-full h-screen">
-    <gmpx-api-loader key="AIzaSyCb3sc8wMxkO3AtrwFlfHuCJLCJqLccHU8" libraries="places,visualization" solution-channel="GMP_GE_mapsandplacesautocomplete_v1">
+    <gmpx-api-loader key="AIzaSyBeh6-ra0pqDlQz95-SLI9agxdtIet_KRw" libraries="places,visualization" solution-channel="GMP_GE_mapsandplacesautocomplete_v1">
     </gmpx-api-loader>
 
     <div slot="control-block-start-inline-start" class="flex fixed border-transparent top-6 justify-center w-full z-10">
@@ -145,8 +144,8 @@
         <button class="chip flex items-center gap-2 px-6 py-2 rounded-full bg-white text-gray-700 shadow-md transition-all duration-300" data-category="museum">
             <img src="{{ url_for('static', filename='img/museum.png') }}" class="w-5 h-5" alt="Museum"> Museum
         </button>
-        <button class="chip flex items-center gap-2 px-6 py-2 rounded-full bg-white text-gray-700 shadow-md transition-all duration-300" data-category="cafe">
-            <img src="{{ url_for('static', filename='img/cafe.png') }}" class="w-5 h-5" alt="Cafe"> Cafe
+        <button class="chip flex items-center gap-2 px-6 py-2 rounded-full bg-white text-gray-700 shadow-md transition-all duration-300" data-category="caffe">
+            <img src="{{ url_for('static', filename='img/caffe.png') }}" class="w-5 h-5" alt="Cafe"> Caffe
         </button>
         <button class="chip flex items-center gap-2 px-6 py-2 rounded-full bg-white text-gray-700 shadow-md transition-all duration-300" data-category="restaurant">
             <img src="{{ url_for('static', filename='img/restaurant.png') }}" class="w-5 h-5" alt="Restaurant"> Restaurant
@@ -288,7 +287,7 @@
     </div>
 
     <div class="flex items-center mt-4 space-x-4">
-        <img id="weather-icon" class="w-16 h-16" src="/icons/cloud.png" alt="Weather Icon" />
+        <img id="weather-icon" class="w-16 h-16" src="{{ url_for('static', filename='img/cloud.png') }}" alt="Weather Icon" />
         <div>
             <h3 id="weather-condition" class="text-lg font-medium text-gray-700">Loading...</h3>
             <p id="temperature" class="text-lg font-bold text-gray-900">--°C</p>

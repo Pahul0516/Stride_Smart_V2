@@ -1,5 +1,5 @@
-import {getDestination, hideOverview, showOverview} from "/projects/2/static/static/js/map_scripts/map.js";
-import {reportMarkers} from "/projects/2/static/static/js/overlays/map.js";
+import {getDestination, hideOverview, showOverview} from "/projects/2/static/js/map_scripts/map.js";
+import {reportMarkers} from "/projects/2/static/js/map_scripts/overlays.js";
 
 const hazardState = {
     currentLocation: null,
@@ -162,9 +162,7 @@ function handleFormSubmit(event) {
     showCustomAlert("Not all heroes wear capes. Some just report hazards!", "success");
 }
 
-function loadReport(hazardData)
-{
-    fetch('/projects/2/load_new_report', {
+function loadReport(hazardData) {
     fetch('/projects/2/load_new_report', {
         method: 'POST',
         headers: {
@@ -220,7 +218,7 @@ export function showCustomAlert(message, type = "error") {
 
     if (type === "success") {
         document.getElementById("alert-heading").textContent = "Report submitted successfully!";
-        alertIcon.src = "/projects/2/static/static/img/check.png";
+        alertIcon.src = "/projects/2/static/img/check.png";
     } else {
         document.getElementById("alert-heading").textContent = "Error";
         alertIcon.src = "/projects/2/static/img/error.png";
@@ -246,7 +244,6 @@ function hideCustomAlert() {
 export async function fetchReports()
 {
     try {
-        const response = await fetch('/projects/2/view_reports');
         const response = await fetch('/projects/2/view_reports');
         const reports = await response.json();
         await displayReportsOnMap(reports);

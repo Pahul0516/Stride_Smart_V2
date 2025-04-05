@@ -30,19 +30,19 @@ export function setupOverlays() {
                     toggleRasterOverlay(button, "thermal_comfort", getCurrentSeasonAndTime());
                     break;
                 case 'clean-air-o':
-                    toggleOverlay(button, "../data/air_quality.geojson", "air_quality");
+                    toggleOverlay(button, "/projects/2/static/data/static-data/air_quality.geojson", "air_quality");
                     break;
                 case 'nature-path-o':
-                    toggleOverlay(button, "../data/filtered_cluj_polygons.geojson", "green");
+                    toggleOverlay(button, "/projects/2/static/data/static-data/filtered_cluj_polygons.geojson", "green");
                     break;
                 case 'accessible-o':
                     toggleRasterOverlay(button, "accessibility");
                     break;
                 case 'safety-trail-o':
-                    toggleOverlay(button, "../data/road_crash_density.geojson", "safety");
+                    toggleOverlay(button, "/projects/2/static/data/static-data/road_crash_density.geojson", "safety");
                     break;
                 case 'discover-explore-o':
-                    toggleOverlay(button, "../data/tourist_data.json", "tourist");
+                    toggleOverlay(button, "/projects/2/static/data/static-data/tourist_data.json", "tourist");
                     break;
                 case 'reports-o':
                     toggleOverlay(button, "", "reports");
@@ -52,76 +52,6 @@ export function setupOverlays() {
             }
         });
     });
-}
-
-function toggleRasterOverlay(button, type, season = "none") {
-    const googleMapsContainer = document.getElementById("google-maps-container");
-
-    if (gmpxActive) {
-        map.style.display = "none";
-        googleMapsContainer.style.display = "block";
-        gmpxActive = false;
-    }
-
-    // if (!googleMap) {
-    //     googleMap = new google.maps.Map(googleMapsContainer, {
-    //         center: { lat: 46.770439, lng: 23.591423 },
-    //         zoom: 15,
-    //         disableDefaultUI: true,
-    //         mapId: "563dd7b6a140b929",
-    //         gestureHandling: "greedy",
-    //         styles: []
-    //     });
-
-        initGooglePlacePicker();
-        //}
-
-    const tileLayer = new google.maps.ImageMapType({
-        getTileUrl: function (coord, zoom) {
-            let y_flipped = (1 << zoom) - coord.y - 1;
-            return `http://127.0.0.1:5001/tiles/${type}/${season}/${zoom}/${coord.x}/${y_flipped}.png`;
-        },
-        tileSize: new google.maps.Size(256, 256),
-        opacity: 0.6
-    });
-
-    googleMap.overlayMapTypes.push(tileLayer);
-    activeLayer = [button, tileLayer];
-}
-
-function toggleRasterOverlay(button, type, season = "none") {
-    const googleMapsContainer = document.getElementById("google-maps-container");
-
-    if (gmpxActive) {
-        map.style.display = "none";
-        googleMapsContainer.style.display = "block";
-        gmpxActive = false;
-    }
-
-    // if (!googleMap) {
-    //     googleMap = new google.maps.Map(googleMapsContainer, {
-    //         center: { lat: 46.770439, lng: 23.591423 },
-    //         zoom: 15,
-    //         disableDefaultUI: true,
-    //         mapId: "563dd7b6a140b929",
-    //         gestureHandling: "greedy",
-    //         styles: []
-    //     });
-
-        initGooglePlacePicker();
-        //}
-
-    const tileLayer = new google.maps.ImageMapType({
-        getTileUrl: function (coord, zoom) {
-            let y_flipped = (1 << zoom) - coord.y - 1;
-            return `http://127.0.0.1:5001/tiles/${type}/${season}/${zoom}/${coord.x}/${y_flipped}.png`;
-        },
-        tileSize: new google.maps.Size(256, 256),
-        opacity: 0.6
-    });
-
-    googleMap.overlayMapTypes.push(tileLayer);
-    activeLayer = [button, tileLayer];
 }
 
 export async function toggleOverlay(button, filepath, layerName) {
@@ -152,7 +82,7 @@ function toggleRasterOverlay(button, type, season = "none") {
     const tileLayer = new google.maps.ImageMapType({
         getTileUrl: function (coord, zoom) {
             let y_flipped = (1 << zoom) - coord.y - 1;
-            return `http://127.0.0.1:5000/tiles/${type}/${season}/${zoom}/${coord.x}/${y_flipped}.png`;
+            return `/projects/2/static/tiles/${type}/${season}/${zoom}/${coord.x}/${y_flipped}.png`;
         },
         tileSize: new google.maps.Size(256, 256),
         opacity: 0.6

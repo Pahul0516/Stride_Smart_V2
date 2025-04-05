@@ -20,12 +20,13 @@ def create_app():
     )
     CORS(Aplication)
     
-    print('instantinating custom graph...')
-    customGraph = CustomGraph()
-    scheduler=Scheduler(customGraph)
-    scheduler.start_thermal_comfort_thread()
+    # print('instantinating custom graph...')
+    # customGraph = CustomGraph()
+    # scheduler=Scheduler(customGraph)
+    # scheduler.start_thermal_comfort_thread()
+    #
+    # Aplication.config["CustomGraph"] = customGraph.get_graph()
 
-    Aplication.config["CustomGraph"] = customGraph.get_graph()
     register_routes(Aplication)
     
     return Aplication

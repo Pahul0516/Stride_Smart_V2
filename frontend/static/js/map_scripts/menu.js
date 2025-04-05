@@ -1,4 +1,4 @@
-import {clearAllOverlays, activeLayer} from "./overlays.js";
+import {clearAllOverlays, activeLayer} from "/projects/2/static/js/map_scripts/overlays.js";
 
 const menus = [
     { buttonId: "filtersButton", menuId: "filterMenu", closeId: "closeFilterMenu", badgeId: "filterBadge" },

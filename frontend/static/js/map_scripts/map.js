@@ -1,8 +1,8 @@
-import { showHazardReportForm } from "./reports.js";
-import { fetchWeatherData } from "./weather.js";
-import {getLatLng, showDirections, showInitialDirections} from "./directions.js";
-import {activeMenu, closeMenu} from "./menu.js";
-import {gmpxActive} from "./overlays.js";
+import { showHazardReportForm } from "/projects/2/static/js/map_scripts/reports.js";
+import { fetchWeatherData } from "/projects/2/static/js/map_scripts/weather.js";
+import {getLatLng, showDirections, showInitialDirections} from "/projects/2/static/js/map_scripts/directions.js";
+import {activeMenu, closeMenu} from "/projects/2/static/js/map_scripts/menu.js";
+import {gmpxActive} from "/projects/2/static/js/map_scripts/overlays.js";
 
 export let map, googleMap, googleAutocomplete, overview, directionsService, directionsRenderer, geocoder, userLocation, marker;
 let destination;
@@ -45,7 +45,7 @@ export function setupMap() {
         map: map.innerMap,
         title: "Selected Location",
         icon: {
-            url: "../icons/point.png",
+            url: "/projects/2/static/img/point.png",
             scaledSize: new google.maps.Size(40, 40),
         }
     });
@@ -97,7 +97,7 @@ export function setupGeolocation() {
                     map: map.innerMap,
                     title: "You are here",
                     icon: {
-                        url: "projects/2/static/img/map_dot.svg",
+                        url: "/projects/2/static/img/map_dot.svg",
                         scaledSize: new google.maps.Size(20, 20),
                     }
                 });
@@ -107,7 +107,7 @@ export function setupGeolocation() {
                     map: googleMap,
                     title: "You are here",
                     icon: {
-                        url: "projects/2/static/img/map_dot.svg",
+                        url: "/projects/2/static/img/map_dot.svg",
                         scaledSize: new google.maps.Size(20, 20),
                     }
                 });
@@ -285,7 +285,7 @@ export function initGooglePlacePicker() {
                 map: googleMap,
                 title: place.name,
                 icon: {
-                    url: "../icons/point.png",
+                    url: "/projects/2/static/img/point.png",
                     scaledSize: new google.maps.Size(40, 40),
                 }
             });

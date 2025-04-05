@@ -1,9 +1,9 @@
-import {init as initMap} from "./map.js";
-import {setupMenus} from "./menu.js";
-import { setupEventListeners } from "./map.js";
-import { setupPlaceOverviewButtons } from "./map.js";
-import { setupGeolocation } from "./map.js";
-import { setupOverlays} from "./overlays.js";
+import {init as initMap} from "/projects/2/static/js/map_scripts/map.js";
+import {setupMenus} from "/projects/2/static/js/map_scripts/menu.js";
+import { setupEventListeners } from "/projects/2/static/js/map_scripts/map.js";
+import { setupPlaceOverviewButtons } from "/projects/2/static/js/map_scripts/map.js";
+import { setupGeolocation } from "/projects/2/static/js/map_scripts/map.js";
+import { setupOverlays} from "/projects/2/static/js/map_scripts/overlays.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
     await initMap();

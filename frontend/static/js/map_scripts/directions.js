@@ -7,10 +7,10 @@ import {
     marker,
     googleMap,
     resetPlacePicker, showOverview, updateTravelTime, getDestination, setDestination
-} from "./map.js";
+} from "/projects/2/static/js/map_scripts/map.js";
 
-import {gmpxActive} from "./overlays.js";
-import {activeFilters} from "./menu.js";
+import {gmpxActive} from "/projects/2/static/js/map_scripts/overlays.js";
+import {activeFilters} from "/projects/2/static/js/map_scripts/menu.js";
 
 let hasAttachedSwapListener = false;
 
@@ -320,13 +320,13 @@ async function getAccessiblePath(startCoords,endCoords)
         routeLayer.addGeoJson(data);
         routeLayer.setStyle(function(feature) {
             return {
-                strokeColor:"#6ca3f2", 
+                strokeColor:"#6ca3f2",
                 strokeWeight: 4
             };
         });
         routeLayer.setMap(map.innerMap);
         showInfo(data);
-    })  
+    })
 }
 
 async function getSafePath(startCoords,endCoords)
@@ -357,6 +357,18 @@ async function getSafePath(startCoords,endCoords)
         showInfo(data);
     })  
 }
+
+function getStartLocation()
+{
+    let place = fromAutocomplete.getPlace();
+    fromLatLng = {
+        lat: place.geometry.location.lat(),
+        lng: place.geometry.location.lng()
+    };
+    console.log('selected location: ',fromLatLng);
+    console.log('destination: ',destination);
+}
+
 
 //display estimated distance and time taken for a route
 //different formula if accessibility is selected
@@ -396,174 +408,4 @@ export function initFromAutocomplete() {
         console.log("Selected location:", fromLatLng); // Check in console
         console.log('destionation: ',destination);
     });
-}
-
-function getStartLocation()
-{
-    let place = fromAutocomplete.getPlace();
-    fromLatLng = {
-        lat: place.geometry.location.lat(),
-        lng: place.geometry.location.lng()
-    };
-    console.log('selected location: ',fromLatLng);
-    console.log('destination: ',destination);
-}
-export function getDirections(startCoords,endCoords)
-{
-    console.log('in GETdIRECTIONS endcOOOORDS: ',endCoords);
-    console.log('activeFilters: ',activeFilters);
-    activeFilters.forEach((value) => {
-        console.log('value: ',value);
-    });
-    if(activeFilters.has('nature-path-f'))
-    {
-        console.log('in nature path');
-    }
-    if(activeFilters.size === 1)
-    {
-        if(activeFilters.has('nature-path-f'))
-            getNaturePath(startCoords, endCoords);
-        else if(activeFilters.has('accessible-f'))
-            getAccessiblePath(startCoords,endCoords)
-        else if(activeFilters.has('safety-trail-f'))
-            getSafePath(startCoords,endCoords)
-    }
-    else console.log('n avem ruta inca :(')
-    
-}
-
-async function getNaturePath(startCoords,endCoords)
-{
-    fetch("/projects/2/get_greenest_path", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ startCoords, endCoords })
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log("Greenest path:", data);
-        if (routeLayer) {
-            routeLayer.setMap(null);
-        }
-        routeLayer = new google.maps.Data();
-        routeLayer.addGeoJson(data);
-        routeLayer.setStyle(function(feature) {
-            return {
-                strokeColor:"#2eb65d", 
-                strokeWeight: 4
-            };
-        });
-        routeLayer.setMap(map.innerMap);
-        showInfo(data);
-    })  
-}
-
-async function getAccessiblePath(startCoords,endCoords)
-{
-    fetch("/projects/2/get_accessible_path", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ startCoords, endCoords })
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log("Accessible path:", data);
-        if (routeLayer) {
-            routeLayer.setMap(null);
-        }
-        routeLayer = new google.maps.Data();
-        routeLayer.addGeoJson(data);
-        routeLayer.setStyle(function(feature) {
-            return {
-                strokeColor:"#6ca3f2", 
-                strokeWeight: 4
-            };
-        });
-        routeLayer.setMap(map.innerMap);
-        showInfo(data);
-    })  
-}
-
-async function getSafePath(startCoords,endCoords)
-{
-
-    fetch("/projects/2/get_safest_path", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ startCoords, endCoords })
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log("Safest path:", data);
-        if (routeLayer) {
-            routeLayer.setMap(null);
-        }
-        routeLayer = new google.maps.Data();
-        routeLayer.addGeoJson(data);
-        routeLayer.setStyle(function(feature) {
-            return {
-                strokeColor:"#c94f67", 
-                strokeWeight: 4
-            };
-        });
-        routeLayer.setMap(map.innerMap);
-        showInfo(data);
-    })  
-}
-
-//display estimated distance and time taken for a route
-//different formula if accessibility is selected
-function showInfo(data,accessible=false) {
-    console.log('data: ',data);
-    console.log('data.features: ',data.features)
-    console.log('data.features[0]: ',data.features[0])
-    console.log('data.features[0]?.properties?.length: ',data.features[0]?.properties?.length)
-    let routeLength = Math.round(data.features[0]?.properties?.length || 0);
-    let estimated_time; //estimated time in minutes, knowing avg walking speed = 5km/h
-    if(accessible==true)
-        estimated_time=Math.round(routeLength/83/5);
-    else estimated_time=Math.round(routeLength/83);
-    let info="Distance: "+routeLength+" meters \nTime: "+estimated_time+" min";
-    alert(info);
-}
-
-export function initFromAutocomplete() {
-    fromAutocomplete = new google.maps.places.Autocomplete(
-        document.getElementById('from-location'),
-        { types: ['geocode'] } // Restrict to addresses
-    );
-
-    fromAutocomplete.addListener('place_changed', () => {
-        let place = fromAutocomplete.getPlace();
-
-        if (!place.geometry) {
-            console.error("No details available for input:", place);
-            return;
-        }
-
-        fromLatLng = {
-            lat: place.geometry.location.lat(),
-            lng: place.geometry.location.lng()
-        };
-
-        console.log("Selected location:", fromLatLng); // Check in console
-        console.log('destionation: ',destination);
-    });
-}
-
-function getStartLocation()
-{
-    let place = fromAutocomplete.getPlace();
-    fromLatLng = {
-        lat: place.geometry.location.lat(),
-        lng: place.geometry.location.lng()
-    };
-    console.log('selected location: ',fromLatLng);
-    console.log('destination: ',destination);
 }
