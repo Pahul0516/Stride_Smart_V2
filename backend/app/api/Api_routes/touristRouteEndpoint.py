@@ -6,31 +6,16 @@ tourist_route_bp = Blueprint('tourist_route', __name__)
 
 @tourist_route_bp.route('/projects/2/get_tourist_path',methods=['POST'])
 def get_tourist_route():
-
     G = current_app.config["CustomGraph"]
-    touristPath=TouristPath(G,features)
+    touristPath=TouristPath(G)
 
     data = request.json
-    is_landmark=data.get('is_landmark')
-    is_museum=data.get('is_museum')
-    is_caffe=data.get('is_caffe')
-    is_restaurant=data.get('is_restaurant')
-    is_entertainment=data.get('is_entertainment')
-    start_coords = data.get('userLocation')
+    start_coords = data.get('startCoords')
+    end_coords=data.get('endCoords')
+    bucket_list=data.get('bucketList')
+    touristPath.set_bucketList(bucket_list)
 
-    features=[]
-    if is_landmark==1: 
-        features.append('landmark')
-    if is_museum==1: 
-        features.append('museum')
-    if is_caffe==1: 
-        features.append('caffe')
-    if is_restaurant==1: 
-        features.append('restaurant')
-    if is_entertainment==1:
-        features.append('entertainment')
-    
-    path = touristPath.get_path(start_coords)
+    path = touristPath.get_path(start_coords,end_coords)
     coordinates = []
     for u, v in pairwise(path):
         # Get the coordinates for nodes u and v

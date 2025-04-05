@@ -10,22 +10,26 @@ class TouristPath:
     filter = []
     path = None
     map = {}
+    bucketList=[]
 
-    def __init__(self, G, filter):
+    def __init__(self, G):
         self.G = G
-        self.filter = filter
+    
+    def set_bucketList(self,bucketList):
+        self.bucketList=bucketList
 
     def set_filter(self,filter):
         self.filter=filter
 
-    def mapping(self, start_node):
+    def mapping(self, start_node, end_node):
         self.map[0] = start_node
-        i = 1
-        criteria = ''
-        for criteria in self.filter:
-            for point in self.G.graph['tourists_points'][criteria]:
-                self.map[i] = point
-                i += 1
+        i = 1        
+        for objective in self.bucketList:
+            lat, lon = objective['latitude'], objective['longitude']
+            point= ox.distance.nearest_nodes(self.G, X=lon, Y=lat)
+            self.map[i] = point
+            i += 1
+        self.map[i]=end_node
             
     def create_matirx(self):
         distance_matrix = np.zeros((len(self.map), len(self.map)))
@@ -49,9 +53,10 @@ class TouristPath:
             points_list.append(point[0])
         return points_list
 
-    def get_path(self,start_coords):
-        self.start_node = ox.distance.nearest_nodes(self.G, X=start_coords['lng'], Y=start_coords['lat']) 
-        self.mapping(self.start_node)
+    def get_path(self,start_coords,end_coords):
+        self.start_node = ox.distance.nearest_nodes(self.G, X=start_coords['lng'], Y=start_coords['lat'])
+        self.end_node= ox.distance.nearest_nodes(self.G, X=end_coords['lng'], Y=end_coords['lat'])
+        self.mapping(self.start_node,self.end_node)
         list_of_points = self.get_points(self.create_matirx())
         concatenated_path = []
     

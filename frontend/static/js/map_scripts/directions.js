@@ -24,9 +24,7 @@ export function showInitialDirections() {
             },
             (response, status) => {
                 if (status === "OK") {
-                    directionsRenderer.setMap(gmpxActive ? map.innerMap : googleMap);
-                    marker.gmpx.setPosition(getDestination());
-                    if (activeFilters.size === 0) {
+                    if(activeFilters.size === 0) {
                         directionsRenderer.setDirections(response);
                         directionsRenderer.setOptions({
                             polylineOptions: {
@@ -38,6 +36,10 @@ export function showInitialDirections() {
                             suppressMarkers: true,
                             preserveViewport: true
                         });
+                    }
+                    else{
+                        console.log('in SHOW INITIAL endcOOOORDS: ',destination);
+                        getDirections(userLocation, destination);
                     }
                 } else {
                     alert("Directions request failed due to " + status);
@@ -79,24 +81,42 @@ export function showDirections() {
     addAutocomplete("from-location");
     addAutocomplete("to-location");
 
-    const swapButton = document.getElementById("swap-locations");
+    document.getElementById("calculate-route").addEventListener("click", () => {
+        console.log('calculating route')
+        
+        const fromValue = fromInput.value.trim();
+        const toValue = toInput.value.trim();
+        
+        if (!fromValue) {
+            alert("Please enter a valid starting location.");
+            return;
+        }
 
-    if (!hasAttachedSwapListener) {
-        swapButton.addEventListener("click", () => {
-            console.log("Clicked!");
-            const tempValue = fromInput.value;
-            fromInput.value = toInput.value;
-            toInput.value = tempValue;
+        if (!toValue) {
+            alert("Please enter a valid starting location.");
+            return;
+        }
 
-            if (!fromInput.value.trim()) {
-                fromInput.placeholder = "Choose starting point";
-            } else {
-                fromInput.placeholder = "";
-            }
-
-            getLatLng(toInput.value, (toCoords) => {
-                marker.gmpx.setPosition(toCoords);
-                setDestination(toCoords);
+        getLatLng(fromValue, (fromCoords) => {
+            getLatLng(toValue, (toCoords) => {
+                if (fromCoords && toCoords) {
+                    console.log("From:", fromCoords, "To:", toCoords);
+                    let startCoords={
+                        lat: fromCoords.lat(),
+                        lng: fromCoords.lng()
+                    }
+                    let endCoords={
+                        lat:toCoords.lat(),
+                        lng:toCoords.lng()
+                    }
+                    console.log('in DIRECTIONS endcOOOORDS: ',endCoords);
+                    console.log('startCoords: ',startCoords);
+                    console.log('endCoords: ',endCoords);
+                    getDirections(startCoords, endCoords);
+                    //calculateNewRoute(fromCoords, toCoords);
+                } else {
+                    alert("Invalid locations. Please enter a valid address.");
+                }
             });
         });
 
@@ -113,9 +133,6 @@ export function showDirections() {
 
     document.getElementById("exit-button").addEventListener("click", () => {
         resetPlacePicker();
-        if (routeLayer) {
-            routeLayer.setMap(null);
-        }
         if (routeLayer) {
             routeLayer.setMap(null);
         }
@@ -194,29 +211,24 @@ function calculateNewRoute(fromCoords, toCoords) {
         alert("Please enter a valid destination.");
         return;
     }
+    // console.log('fromCoords: ',fromCoords.lat(), fromCoords.lng());
+    // console.log('toCoords: ',toCoords.lat(), toCoords.lng());
+    directionsService.route(
+        {
+            origin: fromCoords,
+            destination: toCoords,
+            travelMode: google.maps.TravelMode.WALKING,
+        },
+        (response, status) => {
+            if (status === "OK") {
+                directionsRenderer.setDirections(response);
 
-    if (activeFilters.size === 0) {
-        directionsService.route(
-            {
-                origin: fromCoords,
-                destination: toCoords,
-                travelMode: google.maps.TravelMode.WALKING,
-            },
-            (response, status) => {
-                if (status === "OK") {
-                    directionsRenderer.setDirections(response);
-                    const bounds = new google.maps.LatLngBounds();
-                    const leg = response.routes[0].legs[0];
-                    bounds.extend(leg.start_location);
-                    bounds.extend(leg.end_location);
-                    map.innerMap.fitBounds(bounds);
-                } else {
-                    alert("Directions request failed: " + status);
-                }
+            } else {
+                alert("Directions request failed: " + status);
             }
+        }
         );
     }
-}
 
 function updatePlaceOverview(placeName, type) {
     if (!placeName) return;
@@ -262,20 +274,79 @@ export function getDirections(startCoords,endCoords)
     }
     if(activeFilters.size === 1)
     {
+        if(activeFilters.has('discover-explore-f'))
+            getTouristPath(startCoords,endCoords,bucketList); 
         if(activeFilters.has('nature-path-f'))
             getNaturePath(startCoords, endCoords);
         else if(activeFilters.has('accessible-f'))
-            getAccessiblePath(startCoords,endCoords)
+            getAccessiblePath(startCoords,endCoords);
         else if(activeFilters.has('safety-trail-f'))
-            getSafePath(startCoords,endCoords)
+            getSafePath(startCoords,endCoords);
+        else if(activeFilters.has('thermal-comfort-f'))
+            getThermalComfortPath(startCoords,endCoords);
+        else if(activeFilters.has('clean-air-f'))
+            getAirQualityPath(startCoords,endCoords);
     }
-    else console.log('n avem ruta inca :(')
+    else 
+    {
+        let is_thermal_comfort=0, is_air_quality=0,is_green=0,is_safe=0,is_accessible=0;
+        if(activeFilters.has('nature-path-f'))
+            is_green=1;
+        if(activeFilters.has('accessible-f'))
+            is_accessible=1;
+        else if(activeFilters.has('safety-trail-f'))
+            is_safe=1;
+        else if(activeFilters.has('thermal-comfort-f'))
+            is_thermal_comfort=1;
+        else if(activeFilters.has('clean-air-f'))
+            is_air_quality=1;
+        let payload={
+            is_thermal_comfort:is_thermal_comfort,
+            is_air_quality: is_air_quality,
+            is_green: is_green,
+            is_safe: is_safe,
+            is_accessible: is_accessible,
+            startCoords: startCoords,
+            endCoords: endCoords,
+        }
+        getCombinedPath(payload);
+    }
     
+}
+
+async function getCombinedPath(payload)
+{
+    fetch("http://127.0.0.1:5501/get_combined_path", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Combined path:", data);
+        if (routeLayer) {
+            routeLayer.setMap(null);
+        }
+        routeLayer = new google.maps.Data();
+        routeLayer.addGeoJson(data);
+        routeLayer.setStyle(function(feature) {
+            return {
+                strokeColor:"#26acf4", 
+                strokeWeight: 4
+            };
+        });
+        routeLayer.setMap(map.innerMap);
+        if(payload.is_accessible==1)
+            showInfo(data,true);
+        else showInfo(data);
+    })  
 }
 
 async function getNaturePath(startCoords,endCoords)
 {
-    fetch("/projects/2/get_greenest_path", {
+    fetch("http://127.0.0.1:5501/get_greenest_path", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -320,13 +391,13 @@ async function getAccessiblePath(startCoords,endCoords)
         routeLayer.addGeoJson(data);
         routeLayer.setStyle(function(feature) {
             return {
-                strokeColor:"#6ca3f2",
+                strokeColor:"#6ca3f2", 
                 strokeWeight: 4
             };
         });
         routeLayer.setMap(map.innerMap);
-        showInfo(data);
-    })
+        showInfo(data,true);
+    })  
 }
 
 async function getSafePath(startCoords,endCoords)
@@ -358,29 +429,71 @@ async function getSafePath(startCoords,endCoords)
     })  
 }
 
-function getStartLocation()
+async function getThermalComfortPath(startCoords,endCoords)
 {
-    let place = fromAutocomplete.getPlace();
-    fromLatLng = {
-        lat: place.geometry.location.lat(),
-        lng: place.geometry.location.lng()
-    };
-    console.log('selected location: ',fromLatLng);
-    console.log('destination: ',destination);
+    fetch("http://127.0.0.1:5501/get_thermal_comfort_path", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ startCoords, endCoords })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Thermal comfort path:", data);
+        if (routeLayer) {
+            routeLayer.setMap(null);
+        }
+        routeLayer = new google.maps.Data();
+        routeLayer.addGeoJson(data);
+        routeLayer.setStyle(function(feature) {
+            return {
+                strokeColor:"#4f941d", 
+                strokeWeight: 4
+            };
+        });
+        routeLayer.setMap(map.innerMap);
+        showInfo(data);
+    })  
 }
 
+async function getAirQualityPath(startCoords,endCoords)
+{
+    console.log('fetching...');
+    fetch("http://127.0.0.1:5501/get_air_quality_path", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ startCoords, endCoords })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Air quality path:", data);
+        if (routeLayer) {
+            routeLayer.setMap(null);
+        }
+        routeLayer = new google.maps.Data();
+        routeLayer.addGeoJson(data);
+        routeLayer.setStyle(function(feature) {
+            return {
+                strokeColor:"#ed5076", 
+                strokeWeight: 4
+            };
+        });
+        routeLayer.setMap(map.innerMap);
+        showInfo(data);
+    })  
+}
 
 //display estimated distance and time taken for a route
 //different formula if accessibility is selected
 function showInfo(data,accessible=false) {
-    console.log('data: ',data);
-    console.log('data.features: ',data.features)
-    console.log('data.features[0]: ',data.features[0])
     console.log('data.features[0]?.properties?.length: ',data.features[0]?.properties?.length)
     let routeLength = Math.round(data.features[0]?.properties?.length || 0);
     let estimated_time; //estimated time in minutes, knowing avg walking speed = 5km/h
     if(accessible==true)
-        estimated_time=Math.round(routeLength/83/5);
+        estimated_time=Math.round(routeLength/83*5);
     else estimated_time=Math.round(routeLength/83);
     let info="Distance: "+routeLength+" meters \nTime: "+estimated_time+" min";
     alert(info);
@@ -408,4 +521,48 @@ export function initFromAutocomplete() {
         console.log("Selected location:", fromLatLng); // Check in console
         console.log('destionation: ',destination);
     });
+}
+
+function getStartLocation()
+{
+    let place = fromAutocomplete.getPlace();
+    fromLatLng = {
+        lat: place.geometry.location.lat(),
+        lng: place.geometry.location.lng()
+    };
+    console.log('selected location: ',fromLatLng);
+    console.log('destination: ',destination);
+}
+
+async function getTouristPath(startCoords,endCoords,bucketList)
+{
+    console.log('bucket list: ',bucketList);
+    let payload={
+        startCoords: startCoords,
+        endCoords:endCoords,
+        bucketList: bucketList,
+    }
+    fetch("http://127.0.0.1:5501/get_tourist_path", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Tourist path:", data);
+        if (routeLayer) {
+            routeLayer.setMap(null);
+        }
+        routeLayer = new google.maps.Data();
+        routeLayer.addGeoJson(data);
+        routeLayer.setStyle(function(feature) {
+            return {
+                strokeColor:"#a371f4", 
+                strokeWeight: 4
+            };
+        });
+        routeLayer.setMap(map.innerMap);
+    })  
 }

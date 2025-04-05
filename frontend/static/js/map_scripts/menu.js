@@ -8,7 +8,7 @@ const menus = [
 ];
 
 export let activeMenu = null;
-export const activeFilters = new Set();
+export const activeFilters = menus[0].activeSet;
 
 export function setupMenus() {
 
@@ -19,6 +19,14 @@ export function setupMenus() {
         menus[0].badgeId,
         document.querySelector("#clearFiltersContainer"),
         document.querySelector("#clearFiltersButton")
+    );
+    
+    setupToggleButtons(
+        ".overlay-option",
+        menus[1].activeSet,
+        menus[1].badgeId,
+        document.querySelector("#clearOverlaysContainer"),
+        document.querySelector("#clearOverlaysButton")
     );
 }
 

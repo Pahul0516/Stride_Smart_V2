@@ -1,30 +1,26 @@
-import { showHazardReportForm } from "/projects/2/static/js/map_scripts/reports.js";
-import { fetchWeatherData } from "/projects/2/static/js/map_scripts/weather.js";
-import {getLatLng, showDirections, showInitialDirections} from "/projects/2/static/js/map_scripts/directions.js";
-import {activeMenu, closeMenu} from "/projects/2/static/js/map_scripts/menu.js";
-import {gmpxActive} from "/projects/2/static/js/map_scripts/overlays.js";
-
-export let map, googleMap, googleAutocomplete, overview, directionsService, directionsRenderer, geocoder, userLocation, marker;
-let destination;
+import { showHazardReportForm, showCustomAlert } from "http://127.0.0.1:5501/static/js/map_scripts/reports.js";
+import { fetchWeatherData } from "http://127.0.0.1:5501/static/js/map_scripts/weather.js";
+import {getLatLng, showDirections, showInitialDirections} from "http://127.0.0.1:5501/static/js/map_scripts/directions.js";
+import {activeMenu, closeMenu} from "http://127.0.0.1:5501/static/js/map_scripts/menu.js";
+import { logOut } from "http://127.0.0.1:5501/static/js/login_scripts/login-script.js";
+import { routeLayer } from "http://127.0.0.1:5501/static/js/map_scripts/directions.js";
+import { initFromAutocomplete} from "http://127.0.0.1:5501/static/js/map_scripts/directions.js";
+export let map, googleMap, destination, overview, directionsService, directionsRenderer, geocoder, userLocation, marker;
+import {gmpxActive} from "http://127.0.0.1:5501/static/js/map_scripts/overlays.js";
 
 export async function init() {
+    const username=sessionStorage.getItem('username');
+    const welcomeMessage='Welcome, '+username+'!'; 
+    alert(welcomeMessage);
+    // console.log(sessionStorage.getItem('account_id'));
+    // console.log(sessionStorage.getItem('username'));
+    // console.log(sessionStorage.getItem('email'));
+    // console.log(sessionStorage.getItem('points'));
+
     await customElements.whenDefined('gmp-map');
     map = document.querySelector('gmp-map');
-
     if (!map.innerMap) {
-        console.error("GMPX Map is not fully initialized.");
-        return;
-    }
-
-    googleMap = new google.maps.Map(document.getElementById("google-maps-container"), {
-        center: { lat: 46.770439, lng: 23.591423 },
-        zoom: 15,
-        mapTypeControl: false,
-        mapId: "563dd7b6a140b929"
-    });
-
-    if (!googleMap) {
-        console.error("Google Maps API Map is not fully initialized.");
+        console.error("Map is not fully initialized.");
         return;
     }
 
@@ -38,26 +34,28 @@ export async function init() {
     setupEventListeners();
     setupPlaceOverviewButtons();
     setupPlaceOverview();
+    setupUserScore();
+    initFromAutocomplete();
+}
+
+async function setupUserScore(){
+    const userScoreElement = document.getElementById("userScore");
+    if (sessionStorage.getItem('points') !== undefined) {
+                userScoreElement.textContent = `${sessionStorage.getItem('points')} XP`;
+    }
+    else userScoreElement.textContent = `no XP`;
 }
 
 export function setupMap() {
-    const gmpxMarker = new google.maps.Marker({
+    marker = new google.maps.Marker({
         map: map.innerMap,
-        title: "Selected Location",
+        title: location.name,
+        category: location.category,
         icon: {
-            url: "/projects/2/static/img/point.png",
+            url: "http://127.0.0.1:5501/static/img/point.png",
             scaledSize: new google.maps.Size(40, 40),
         }
-    });
-
-    const googleMarker = new google.maps.Marker({
-        map: googleMap,
-        title: "Selected Location",
-        icon: {
-            url: "/projects/2/static/img/point.png",
-            scaledSize: new google.maps.Size(40, 40),
-        }
-    });
+        });
 
     map.innerMap.setOptions({
         mapTypeControl: false,
@@ -66,18 +64,7 @@ export function setupMap() {
         mapId: "563dd7b6a140b929"
     });
 
-    googleMap.setOptions({
-        mapTypeControl: false,
-        center: { lat: 46.770439, lng: 23.591423 },
-        zoom: 15,
-    });
-
-    marker = {
-        gmpx: gmpxMarker,
-        google: googleMarker
-    };
-
-    directionsRenderer.setMap(gmpxActive ? map.innerMap : googleMap);
+    directionsRenderer.setMap(map.innerMap);
 }
 
 export function setupGeolocation() {
@@ -90,50 +77,18 @@ export function setupGeolocation() {
                 };
 
                 map.innerMap.setCenter(userLocation);
-                googleMap.setCenter(userLocation);
 
-                const gmpxUserMarker = new google.maps.Marker({
+                new google.maps.Marker({
                     position: userLocation,
                     map: map.innerMap,
                     title: "You are here",
                     icon: {
-                        url: "/projects/2/static/img/map_dot.svg",
+                        url: "http://127.0.0.1:5501/static/img/map_dot.svg",
                         scaledSize: new google.maps.Size(20, 20),
                     }
                 });
-
-                const googleUserMarker = new google.maps.Marker({
-                    position: userLocation,
-                    map: googleMap,
-                    title: "You are here",
-                    icon: {
-                        url: "/projects/2/static/img/map_dot.svg",
-                        scaledSize: new google.maps.Size(20, 20),
-                    }
-                });
-
-                marker.user = {
-                    gmpx: gmpxUserMarker,
-                    google: googleUserMarker
-                };
 
                 fetchWeatherData(userLocation.lat, userLocation.lng);
-
-                navigator.geolocation.watchPosition((position) => {
-                        userLocation = {
-                            lat: position.coords.latitude,
-                            lng: position.coords.longitude,
-                        };
-
-                        map.innerMap.setCenter(userLocation);
-                        googleMap.setCenter(userLocation);
-
-                        marker.user.gmpx.setPosition(userLocation);
-                        marker.user.google.setPosition(userLocation);
-                    },
-                    (error) => {
-                        console.error("Error watching position:", error);
-                    });
             },
             () => {
                 console.error("Geolocation permission denied or unavailable.");
@@ -145,14 +100,19 @@ export function setupGeolocation() {
 }
 
 export function setupEventListeners() {
-    function handleMapClick(event, isGoogleMap) {
-        directionsRenderer.setDirections({ routes: [] });
+    map.innerMap.addListener("click", (event) => {
+        if(routeLayer)
+            {
+                routeLayer.setMap(null);
+            }
+        resetPlacePicker();
+
         destination = {
             lat: event.latLng.lat(),
             lng: event.latLng.lng(),
         };
 
-        geocoder.geocode({ location: destination }, (results, status) => {
+        geocoder.geocode({location: destination}, (results, status) => {
             if (status === google.maps.GeocoderStatus.OK && results[0]) {
                 overview.place = results[0];
 
@@ -165,23 +125,16 @@ export function setupEventListeners() {
                 console.error("Geocoder failed:", status);
             }
 
-            marker[isGoogleMap ? "google" : "gmpx"].setPosition(destination);
-            if (isGoogleMap) {
-                googleMap.setCenter(destination);
-                googleMap.setZoom(15);
-            } else {
-                map.innerMap.setCenter(destination);
-                map.innerMap.setZoom(15);
-            }
+            marker.setPosition(destination);
+            map.innerMap.setCenter(destination);
+            map.innerMap.setZoom(15);
         });
 
         showInitialTravelTime();
         fetchWeatherData(destination.lat, destination.lng);
         showOverview();
-    }
-
-    map.innerMap.addListener("click", (event) => handleMapClick(event, false));
-    googleMap.addListener("click", (event) => handleMapClick(event, true));
+        
+    });
 
     const placePicker = document.querySelector('gmpx-place-picker');
     placePicker.addEventListener('gmpx-placechange', () => {
@@ -189,7 +142,7 @@ export function setupEventListeners() {
             const placeId = placePicker.value.id;
             if (placeId) {
                 const service = new google.maps.places.PlacesService(map.innerMap);
-                service.getDetails({ placeId: placeId }, (place, status) => {
+                service.getDetails({placeId: placeId}, (place, status) => {
                     if (status === google.maps.places.PlacesServiceStatus.OK && place.geometry) {
                         overview.place = place;
                         destination = {
@@ -197,12 +150,9 @@ export function setupEventListeners() {
                             lng: place.geometry.location.lng(),
                         };
 
-                        marker.gmpx.setPosition(destination);
-                        marker.google.setPosition(destination);
+                        marker.setPosition(destination);
                         map.innerMap.setCenter(destination);
-                        googleMap.setCenter(destination);
                         map.innerMap.setZoom(15);
-                        googleMap.setZoom(15);
 
                         fetchWeatherData(destination.lat, destination.lng);
                         showInitialTravelTime();
@@ -220,107 +170,62 @@ export function setupEventListeners() {
     });
 
     document.getElementById("centralizeButton").addEventListener("click", resetPlacePicker);
+
+    document.getElementById("logOutButton").addEventListener("click", logOut);
 }
 
 export function resetPlacePicker() {
     document.getElementById("directions-container").classList.add("hidden");
 
     overview.place = null;
-
-    marker.gmpx.setPosition(null);
-    marker.google.setPosition(null);
-
+    marker.setPosition(null);
     map.innerMap.setCenter({ lat: userLocation.lat, lng: userLocation.lng });
-    googleMap.setCenter({ lat: userLocation.lat, lng: userLocation.lng });
-
     map.innerMap.setZoom(15);
-    googleMap.setZoom(15);
-
     directionsRenderer.setDirections({ routes: [] });
 
     hideOverview();
-
     fetchWeatherData(userLocation.lat, userLocation.lng);
-
-    const placePicker = document.querySelector('gmpx-place-picker');
-    if (placePicker) {
-        const placePickerInput = placePicker.shadowRoot?.querySelector('.pac-target-input');
-        if (placePickerInput) {
-            placePickerInput.value = '';
-        }
-        placePicker.removeAttribute("value");
+    const placePickerInput = document.querySelector('gmpx-place-picker').shadowRoot.querySelector('.pac-target-input');
+    if (placePickerInput && placePickerInput.value) {
+        placePickerInput.value = '';
     }
 
-    document.getElementById('from-location').value = '';
-    document.getElementById('from-location').placeholder = 'Your location';
+    const fromLocationInput = document.getElementById('from-location')
+    fromLocationInput.value = '';
+    fromLocationInput.placeholder = 'Your location';
     document.getElementById('to-location').value = '';
-}
-
-
-export function initGooglePlacePicker() {
-    const googlePlacePicker = document.getElementById("google-place-picker");
-
-    if (!googlePlacePicker) {
-        console.error("Google Place Picker input not found in DOM.");
-        return;
-    }
-
-    googleAutocomplete = new google.maps.places.Autocomplete(googlePlacePicker);
-
-    googleAutocomplete.addListener("place_changed", () => {
-        const place = googleAutocomplete.getPlace();
-        if (!place.geometry) {
-            console.error("No geometry found for the selected place.");
-            return;
-        }
-
-        destination = {
-            lat: place.geometry.location.lat(),
-            lng: place.geometry.location.lng(),
-        };
-
-        if (!marker.google) {
-            marker.google = new google.maps.Marker({
-                position: destination,
-                map: googleMap,
-                title: place.name,
-                icon: {
-                    url: "/projects/2/static/img/point.png",
-                    scaledSize: new google.maps.Size(40, 40),
-                }
-            });
-        } else {
-            marker.google.setPosition(destination);
-            marker.google.setMap(googleMap);
-        }
-
-        googleMap.setCenter(destination);
-        googleMap.setZoom(15);
-
-        fetchWeatherData(destination.lat, destination.lng);
-        showInitialTravelTime();
-        showOverview();
-    });
-
-    console.log("Google Place Picker initialized.");
 }
 
 export function setupPlaceOverview() {
     const exitButton = document.getElementById("exit-button");
+    const map = document.getElementById("map");
     const reportButton = document.getElementById("report-picker-button");
     const slideHandle = document.getElementById("slide-handle");
 
     slideHandle.addEventListener("click", toggleMinimizedOverview);
-    exitButton.addEventListener("click", hideOverview);
 
-    map.innerMap.addListener("click", () => showOverview());
-    googleMap.addListener("click", () => showOverview());
+    exitButton.addEventListener("click", () => {
+        hideOverview();
+    });
+
+    map.addEventListener("click", () => {
+        showOverview();
+    });
 
     document.getElementById("direction-button")?.addEventListener("click", showDirections);
 
-    if (reportButton) {
-        reportButton.addEventListener("click", showHazardReportForm);
-    }
+    // if (reportButton) {
+    //     reportButton.addEventListener("click", () => {
+    //         if(sessionStorage.getItem('account_id')==null)
+    //         {
+    //             showCustomAlert('Login to add reports :)');
+    //         }
+    //         else
+    //         {
+    //             showHazardReportForm();
+    //         }
+    //     });
+    // }
 }
 
 export function showOverview() {
@@ -332,34 +237,35 @@ export function showOverview() {
     const placeOverviewContainer = document.getElementById("place-overview-container");
 
     placeOverviewContainer.classList.add("opacity-0");
-    placeOverviewContainer.classList.add("translate-y-10", "opacity-100");
+    placeOverviewContainer.classList.add("translate-y-0", "opacity-100");
 
     setTimeout(() => {
-        placeOverviewContainer.classList.remove("translate-y-[94%]");
+        placeOverviewContainer.classList.remove("translate-y-[90%]");
         placeOverviewContainer.classList.remove("translate-y-full");
     }, 300);
 }
 
+
 export function hideOverview() {
     const placeOverviewContainer = document.getElementById("place-overview-container");
     placeOverviewContainer.classList.add("translate-y-full", "opacity-0");
-    placeOverviewContainer.classList.remove("translate-y-10", "opacity-100");
+    placeOverviewContainer.classList.remove("translate-y-0", "opacity-100");
 }
 
 export function minimizeOverview() {
     const placeOverviewContainer = document.getElementById("place-overview-container");
-    placeOverviewContainer.classList.add("translate-y-[94%]");
+    placeOverviewContainer.classList.add("translate-y-[90%]");
 }
 
 export function maximizeOverview(){
     const placeOverviewContainer = document.getElementById("place-overview-container");
-    placeOverviewContainer.classList.remove("translate-y-[94%]");
+    placeOverviewContainer.classList.remove("translate-y-[90%]");
 }
 
 export function toggleMinimizedOverview() {
     const placeOverviewContainer = document.getElementById("place-overview-container");
 
-    if (placeOverviewContainer.classList.contains("translate-y-[94%]")) {
+    if (placeOverviewContainer.classList.contains("translate-y-[90%]")) {
         maximizeOverview();
     } else {
         minimizeOverview();
@@ -380,7 +286,16 @@ export function setupPlaceOverviewButtons() {
     }
 
     if (reportButton) {
-        reportButton.addEventListener('click', showHazardReportForm);
+        reportButton.addEventListener("click", () => {
+            if(sessionStorage.getItem('account_id')==null)
+            {
+                showCustomAlert('Superpowers unlocked after login!');
+            }
+            else
+            {
+                showHazardReportForm();
+            }
+        });
     }
 }
 
@@ -452,10 +367,5 @@ export function updateTravelTime() {
     });
 }
 
-export function setDestination(newDest) {
-    destination = newDest;
-}
 
-export function getDestination() {
-    return destination;
-}
+
