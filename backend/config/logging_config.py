@@ -17,4 +17,3 @@ def setup_logging():
     )
     logger = logging.getLogger('backend')  # This logger is shared across the app
     return logger
-

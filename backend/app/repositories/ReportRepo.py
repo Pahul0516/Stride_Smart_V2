@@ -42,9 +42,9 @@ class ReportRepo:
         try:
             conn = psycopg2.connect(
             host = "localhost",
-            dbname = "Maps_DB",
+            dbname = "maps_db",
             user = "postgres",
-            password = "Qwertyuiop12"
+            password = "Qwertyuiop12!"
             )
             photos_bytes = [bytes(photo) for photo in photos]
             print('photos bytes:',photos_bytes)

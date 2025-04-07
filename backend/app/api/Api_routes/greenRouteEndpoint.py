@@ -11,10 +11,6 @@ def get_greenest_route():
     G = current_app.config["CustomGraph"]
     #greenRepo = GreenRouteRepo(G,'localhost','walk_safe_3','postgres','semiluna123')
     greenPath = GreenPath(G)
-<<<<<<< HEAD
-    print("am ajuns in endpoint green")
-=======
->>>>>>> Larisa
     
     data = request.json
     start_coords = data.get('startCoords')

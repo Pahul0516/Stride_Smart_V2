@@ -57,6 +57,7 @@ async function googleLogin(userName,email)
 //function for setting user data before switching pages
 async function setSessionDetails(result)
 {
+    console.log('setez detalii');
     sessionStorage.setItem("account_id", result[0]);
     sessionStorage.setItem("username", result[1]);
     sessionStorage.setItem("email",result[2]);
@@ -112,6 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 alert("Logged in successfully!");
                 //keep data about logged in user
                 setSessionDetails(result);
+                console.log('set session details!');
                 window.location.href = "/projects/2/map";
             } else {
                 alert("Registration failed: " + (result));

@@ -1,12 +1,24 @@
-import {getDestination, hideOverview, showOverview} from "/projects/2/static/js/map_scripts/map.js";
-import {reportMarkers} from "/projects/2/static/js/map_scripts/overlays.js";
+import {getDestination, hideOverview, showOverview, destination} from "/projects/2/static/js/map_scripts/map.js";
 
+let reportMarkers = [];
 const hazardState = {
     currentLocation: null,
     currentMarker: null,
     selectedPhotos: [],
     maxPhotos: 3
 };
+
+export async function fetchReports()
+{
+    try {
+        const response = await fetch('/projects/2/view_reports');
+        const reports = await response.json();
+        // Pass the reports data to a function that displays them on the map
+        displayReportsOnMap(reports);
+    } catch (error) {
+        console.error('Error fetching reports:', error);
+    }
+}
 
 export function showHazardReportForm() {
     initializeHazardModal();
@@ -25,7 +37,7 @@ export function showHazardReportForm() {
 
     document.getElementById('hazard-modal').classList.remove('hidden');
     setupHazardFormListeners();
-    checkFormValidity();
+    //checkFormValidity();
 }
 
 export function initializeHazardModal() {
@@ -133,12 +145,10 @@ export function checkFormValidity() {
 
 function handleFormSubmit(event) {
     event.preventDefault();
-
     if (!checkFormValidity()) {
         showCustomAlert("Please fill out all fields before submitting the form.");
         return;
     }
-
     const hazardData = {
         latitude: destination.lat,
         longitude: destination.lng,
@@ -162,7 +172,8 @@ function handleFormSubmit(event) {
     showCustomAlert("Not all heroes wear capes. Some just report hazards!", "success");
 }
 
-function loadReport(hazardData) {
+function loadReport(hazardData)
+{
     fetch('/projects/2/load_new_report', {
         method: 'POST',
         headers: {
@@ -222,7 +233,6 @@ export function showCustomAlert(message, type = "error") {
     } else {
         document.getElementById("alert-heading").textContent = "Error";
         alertIcon.src = "/projects/2/static/img/error.png";
-        alertIcon.src = "/projects/2/static/img/error.png";
     }
 
     alertIcon.classList.remove("hidden");
@@ -239,17 +249,6 @@ function hideCustomAlert() {
     alertIcon.classList.add("hidden");
     if(document.getElementById("alert-heading").innerText !== "Error")
         showOverview();
-}
-
-export async function fetchReports()
-{
-    try {
-        const response = await fetch('/projects/2/view_reports');
-        const reports = await response.json();
-        await displayReportsOnMap(reports);
-    } catch (error) {
-        console.error('Error fetching reports:', error);
-    }
 }
 
 async function displayReportsOnMap(reports)
@@ -304,4 +303,9 @@ async function displayReportsOnMap(reports)
             infoWindow.open(map, marker);
         });
     });
+}
+
+export function clearReportsFromMap() {
+    reportMarkers.forEach(marker => marker.setMap(null));
+    reportMarkers = [];
 }
