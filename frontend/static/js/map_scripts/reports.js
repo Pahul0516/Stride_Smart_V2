@@ -307,5 +307,5 @@ async function displayReportsOnMap(reports)
 
 export function clearReportsFromMap() {
     reportMarkers.forEach(marker => marker.setMap(null));
-    reportMarkers = [];
+    reportMarkers = [];
 }

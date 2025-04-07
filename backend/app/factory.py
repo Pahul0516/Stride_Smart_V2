@@ -22,9 +22,9 @@ def create_app():
     
     print('instantinating custom graph...')
     customGraph = CustomGraph()
-    scheduler=Scheduler(customGraph.G)
-    scheduler.start_thermal_comfort_thread()
-    scheduler.start_air_quality_thread()
+    # scheduler=Scheduler(customGraph.G)
+    # scheduler.start_thermal_comfort_thread()
+    # scheduler.start_air_quality_thread()
 
     Aplication.config["CustomGraph"] = customGraph.get_graph()
     register_routes(Aplication)

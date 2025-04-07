@@ -145,7 +145,7 @@ async function addOverlayLayer(button, filepath, layerName) {
 
         console.log(`Overlay added: ${layerName}`);
     } catch (error) {
-        console.error(`Error loading overlay layer (${layerName}):`, error);
+        console.error(`Error loading overlay layer (${layerName}):, error`);
     }
 }
 
@@ -308,37 +308,8 @@ function getSafetyColor(safetyLevel) {
     return 'rgba(128,128,128,0.5)';
 }
 
+
 export function clearAllOverlays() {
-    Object.keys(overlayLayers).forEach(layerName => {
-        if(layerName==="reports")
-        {
-            clearReportsFromMap();
-        }
-        overlayLayers[layerName].setMap(null);
-        delete overlayLayers[layerName];
-
-        if (circleLayers[layerName]) {
-            circleLayers[layerName].forEach(circle => circle.setMap(null));
-            delete circleLayers[layerName];
-        }
-    });
-
-    overlayLayers = {};
-    circleLayers = {};
-
-    const touristPopup = document.getElementById("touristPopup");
-
-    if (touristPopup) {
-        activeTouristCategories.forEach(category => {
-            removeMarkers(category, markers);
-        });
-        activeTouristCategories.clear();
-        document.querySelectorAll(".chip").forEach(chip => {
-            chip.classList.remove("bg-[#A5B68D]", "text-white");
-            chip.classList.add("bg-white", "text-gray-700");
-        });
-    }
-
     if(activeLayer[0] && activeLayer[0] !== document.querySelector('[data-category="discover-explore-o"]')) {
         if (googleMap && googleMap.overlayMapTypes.getArray().includes(activeLayer[1])) {
             googleMap.overlayMapTypes.removeAt(0);
@@ -349,19 +320,20 @@ export function clearAllOverlays() {
         clearTouristOverlay();
     }
 
-    // circleLayers.forEach(circle => circle.setMap(null));
-    // circleLayers = [];
-    // reportMarkers.forEach(marker => marker.setMap(null));
-    // reportMarkers = [];
-    //
-    // const googleMapsContainer = document.getElementById("google-maps-container");
-    //
-    // if (!gmpxActive) {
-    //     googleMapsContainer.style.display = "none";
-    //     map.style.display = "block";
-    //     gmpxActive = true;
-    // }
+    circleLayers.forEach(circle => circle.setMap(null));
+    circleLayers = [];
+    reportMarkers.forEach(marker => marker.setMap(null));
+    reportMarkers = [];
+
+    const googleMapsContainer = document.getElementById("google-maps-container");
+
+    if (!gmpxActive) {
+        googleMapsContainer.style.display = "none";
+        map.style.display = "block";
+        gmpxActive = true;
+    }
 }
+
 
 export function clearTouristOverlay(){
     const touristPopup = document.getElementById("touristPopup");

@@ -475,10 +475,10 @@ class CustomGraph:
                     password=self.password
                 )
                 cursor = conn.cursor()
-                #self.green_raster(cursor)
-                #self.accessibility_raster(cursor)
-                #self.accident_frequency(cursor)
-                #self.thermal_comfort_raster(cursor)
+                # self.green_raster(cursor)
+                # self.accessibility_raster(cursor)
+                # self.accident_frequency(cursor)
+                # self.thermal_comfort_raster(cursor)
                 for edge in self.G.edges(data=True):
                     u,v,data=edge
                     print('DATA: ',data['air_mark'])

@@ -14,9 +14,11 @@ def get_accessible_route():
     start_coords = data.get('startCoords')
     goal_coords = data.get('endCoords')
     if goal_coords==0:
+        print("am ajuns in endpoint accesibil")
         return jsonify({'error': 'No destination provided'}), 400
     else:
         path = accessibilityPath.get_path(start_coords,goal_coords)
+        print("am gasit accesibility path")
         coordinates = []
         total_length=0
         for u, v in pairwise(path):
@@ -61,5 +63,6 @@ def get_accessible_route():
                 }
             ]
         }
+        print("ar trebui sa returnez jsonul")
         # Return GeoJSON as a response
         return jsonify(geojson_data)
