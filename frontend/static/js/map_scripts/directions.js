@@ -18,7 +18,6 @@ import {activeFilters} from "/projects/2/static/js/map_scripts/menu.js";
 let hasAttachedSwapListener = false;
 
 
-
 export function showInitialDirections() {
     if (userLocation && destination) {
         directionsService.route(

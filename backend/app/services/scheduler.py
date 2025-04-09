@@ -36,7 +36,7 @@ class Scheduler:
             if air_quality_data:
                 self.air_quality_repo.update_database(air_quality_data)
                 self.air_quality_repo.set_air_quality()
-            time.sleep(600)
+            time.sleep(3600)
 
     def start_thermal_comfort_thread(self):
         thread = threading.Thread(target=self.run_thermal_periodically, daemon=True)

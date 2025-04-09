@@ -375,14 +375,14 @@ class CustomGraph:
                 continue  # Ignore points outside the raster
         
         return sum(pixel_values) / len(pixel_values) if pixel_values else 0
-            
-        
+
+
     def thermal_comfort_raster(self, cursor):
         """Fetches an accessibility raster and updates the graph edges with accessibility values."""
         table_name = "thermal_comfort_rasters"  # Change to the correct table name
         raster_column = "raster_map"
         raster_id = self.get_fitting_raster()
-        
+
         # Query to fetch raster
         sql = f"SELECT ST_AsTIFF({raster_column}) FROM {table_name} WHERE id_harta = %s"
         cursor.execute(sql, (raster_id,))
@@ -475,10 +475,10 @@ class CustomGraph:
                     password=self.password
                 )
                 cursor = conn.cursor()
-                # self.green_raster(cursor)
-                # self.accessibility_raster(cursor)
-                # self.accident_frequency(cursor)
-                # self.thermal_comfort_raster(cursor)
+                self.green_raster(cursor)
+                self.accessibility_raster(cursor)
+                self.accident_frequency(cursor)
+                self.thermal_comfort_raster(cursor)
                 for edge in self.G.edges(data=True):
                     u,v,data=edge
                     print('DATA: ',data['air_mark'])

@@ -4,12 +4,23 @@ import {getLatLng, showDirections, showInitialDirections} from "/projects/2/stat
 import {activeMenu, closeMenu} from "/projects/2/static/js/map_scripts/menu.js";
 import {gmpxActive} from "/projects/2/static/js/map_scripts/overlays.js";
 import {logOut} from "/projects/2/static/js/login_scripts/login-script.js";
+import {routeLayer} from "/projects/2/static/js/map_scripts/directions.js";
 
 export let destination, map, googleMap, googleAutocomplete, overview, directionsService, directionsRenderer, geocoder, userLocation, marker;
 
 export async function init() {
     const username=sessionStorage.getItem('username');
-    const welcomeMessage='Welcome, '+username+'!';
+
+    let welcomeMessage;
+    const button = document.getElementById("logOutButton");
+    if (username) {
+        welcomeMessage = 'Welcome, ' + username + '!';
+    } else {
+        welcomeMessage = 'Welcome guest';
+         button.style.display = "none";
+    }
+
+    console.log(welcomeMessage);
     alert(welcomeMessage);
     await customElements.whenDefined('gmp-map');
     map = document.querySelector('gmp-map');
@@ -65,7 +76,7 @@ export function setupMap() {
         map: googleMap,
         title: "Selected Location",
         icon: {
-            url: "/projects/2//simg/point.png",
+            url: "/projects/2/static/img/point.png",
             scaledSize: new google.maps.Size(40, 40),
         }
     });
@@ -218,6 +229,11 @@ export function setupEventListeners() {
                         fetchWeatherData(destination.lat, destination.lng);
                         showInitialTravelTime();
                         showOverview();
+
+                        if(routeLayer)
+                        {
+                            routeLayer.setMap(null);
+                        }
                     } else {
                         console.error("Failed to get place details:", status);
                     }
@@ -234,81 +250,6 @@ export function setupEventListeners() {
 
     document.getElementById("logOutButton").addEventListener("click", logOut);
 }
-
-// export function setupEventListeners() {
-//     map.innerMap.addListener("click", (event) => {
-//         if(routeLayer)
-//             {
-//                 routeLayer.setMap(null);
-//             }
-//         resetPlacePicker();
-//
-//         destination = {
-//             lat: event.latLng.lat(),
-//             lng: event.latLng.lng(),
-//         };
-//
-//         geocoder.geocode({location: destination}, (results, status) => {
-//             if (status === google.maps.GeocoderStatus.OK && results[0]) {
-//                 overview.place = results[0];
-//
-//                 const toLocationInput = document.getElementById('to-location');
-//                 if (toLocationInput) {
-//                     toLocationInput.value = results[0].formatted_address;
-//                 }
-//
-//             } else {
-//                 console.error("Geocoder failed:", status);
-//             }
-//
-//             marker.setPosition(destination);
-//             map.innerMap.setCenter(destination);
-//             map.innerMap.setZoom(15);
-//         });
-//
-//         showInitialTravelTime();
-//         fetchWeatherData(destination.lat, destination.lng);
-//         showOverview();
-//
-//     });
-//
-//     const placePicker = document.querySelector('gmpx-place-picker');
-//     placePicker.addEventListener('gmpx-placechange', () => {
-//         if (placePicker.value) {
-//             const placeId = placePicker.value.id;
-//             if (placeId) {
-//                 const service = new google.maps.places.PlacesService(map.innerMap);
-//                 service.getDetails({placeId: placeId}, (place, status) => {
-//                     if (status === google.maps.places.PlacesServiceStatus.OK && place.geometry) {
-//                         overview.place = place;
-//                         destination = {
-//                             lat: place.geometry.location.lat(),
-//                             lng: place.geometry.location.lng(),
-//                         };
-//
-//                         marker.setPosition(destination);
-//                         map.innerMap.setCenter(destination);
-//                         map.innerMap.setZoom(15);
-//
-//                         fetchWeatherData(destination.lat, destination.lng);
-//                         showInitialTravelTime();
-//                         showOverview();
-//                     } else {
-//                         console.error("Failed to get place details:", status);
-//                     }
-//                 });
-//             } else {
-//                 console.error("Could not extract placeId from placePicker.value");
-//             }
-//         } else {
-//             resetPlacePicker();
-//         }
-//     });
-//
-//     document.getElementById("centralizeButton").addEventListener("click", resetPlacePicker);
-//
-//     document.getElementById("logOutButton").addEventListener("click", logOut);
-// }
 
 export function resetPlacePicker() {
     document.getElementById("directions-container").classList.add("hidden");
@@ -342,6 +283,9 @@ export function resetPlacePicker() {
     document.getElementById('from-location').value = '';
     document.getElementById('from-location').placeholder = 'Your location';
     document.getElementById('to-location').value = '';
+
+    if(routeLayer)
+        routeLayer.setMap(null);
 }
 
 
@@ -399,7 +343,13 @@ export function setupPlaceOverview() {
     const slideHandle = document.getElementById("slide-handle");
 
     slideHandle.addEventListener("click", toggleMinimizedOverview);
-    exitButton.addEventListener("click", hideOverview);
+    exitButton.addEventListener("click", () =>{
+        resetPlacePicker();
+        if(routeLayer)
+        {
+            routeLayer.setMap(null);
+        }
+    });
 
     map.innerMap.addListener("click", () => showOverview());
     googleMap.addListener("click", () => showOverview());

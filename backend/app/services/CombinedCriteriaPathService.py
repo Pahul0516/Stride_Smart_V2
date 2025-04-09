@@ -38,7 +38,7 @@ class CombinedCriteriaPath:
             #get wanted attributes
             comfort_index,air_index,green_index,safe_index=0,0,0,0
             if self.is_thermal_comfort==1:
-                if self.custom_graph.has_edge(u, v):
+                if self.G.has_edge(u, v):
                     comfort_index = float(self.G[u][v].get('comfort_index', 0.0))  # Default to 0.0 if missing
                     #prelucrare index
                 else:
@@ -47,7 +47,7 @@ class CombinedCriteriaPath:
                 comfort_index=(comfort_index-1.0)/5.0
                 
             if self.is_air_quality==1:
-                if self.custom_graph.has_edge(u, v):
+                if self.G.has_edge(u, v):
                     air_index = float(self.G[u][v].get('air_mark', 0.0))  # Default to 0.0 if missing
                 else:
                     air_index = 0.0  # Penalize if no edge exists in the custom graph

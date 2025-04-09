@@ -46,23 +46,13 @@ export function setupOverlays() {
                     toggleOverlay(button, "/projects/2/static/data/tourist_data.json", "tourist");
                     break;
                 case 'reports-o':
-                    toggleReportsOverlay();
+                    toggleOverlay(button, "", "reports");
                     break;
                 default:
                     console.warn("Unknown category: " + category);
             }
         });
     });
-}
-
-export async function toggleReportsOverlay() {
-    if (overlayLayers["reports"]) {
-        clearReportsFromMap();
-        overlayLayers["reports"]=null;
-    } else {
-        overlayLayers["reports"]=1;
-        await fetchReports();
-    }
 }
 
 export async function toggleOverlay(button, filepath, layerName) {
@@ -105,6 +95,7 @@ function toggleRasterOverlay(button, type, season = "none") {
 
 export function handleOverlayButton(button) {
     if (activeLayer[0] !== null && activeLayer[0] !== button) {
+        console.log(activeLayer[0]);
         resetButtonStyle(activeLayer[0]);
     }
 
@@ -171,9 +162,7 @@ async function loadAirQualityData() {
                 radius: 250,
                 clickable: false
             });
-            console.log('se baga');
             circleLayers.push(circle);
-            console.log('s-a bagat');
         });
 
         console.log("Air quality data loaded.");
@@ -332,6 +321,7 @@ export function clearAllOverlays() {
         map.style.display = "block";
         gmpxActive = true;
     }
+    clearReportsFromMap();
 }
 
 

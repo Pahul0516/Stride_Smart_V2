@@ -254,14 +254,12 @@ function hideCustomAlert() {
 async function displayReportsOnMap(reports)
 {
     reports.forEach((report) => {
-        console.log(report);
         let icon_id;
         let url;
         if(report.type==='pothole') url='/projects/2/static/img/report-pothole.png';
         else if(report.type==='construction') url='/projects/2/static/img/report-construction.png';
         else if(report.type==='broken-sidewalk'|| report.type==='sidewalk') url='/projects/2/static/img/report-sidewalk.png';
         else url='/projects/2/static/img/report-other.png';
-        console.log(`icon id: ${icon_id}`);
         const icon = {
             url: url,
             scaledSize: new google.maps.Size(40, 60),
@@ -307,5 +305,5 @@ async function displayReportsOnMap(reports)
 
 export function clearReportsFromMap() {
     reportMarkers.forEach(marker => marker.setMap(null));
-    reportMarkers = [];
+    reportMarkers=[];
 }
