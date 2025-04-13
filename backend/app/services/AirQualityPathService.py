@@ -22,7 +22,7 @@ class AirQualityPath:
     def custom_cost(self, u, v, data):
         try:
             length = data[0].get('length', float('inf'))
-            air_quality = data[0].get('air_mark', 0)
+            air_quality = data[0].get('air_mark', 1)
 
             # Normalize the values
             L = (length - 0.24) / (3201.74 - 0.24)

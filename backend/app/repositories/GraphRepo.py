@@ -1,6 +1,6 @@
 import datetime
 import osmnx as ox
-from shapely.geometry import LineString, Point
+from shapely.geometry import LineString, Point, mapping
 from rasterio.mask import mask
 import numpy as np
 import rasterio
@@ -75,7 +75,6 @@ class CustomGraph:
         sql = f"SELECT ST_AsTIFF({raster_column}) FROM {table_name} WHERE id_harta = %s"
         cursor.execute(sql, (raster_id,))
         raster_data = cursor.fetchone()
-
         if raster_data and raster_data[0]:
             raster_bytes = io.BytesIO(raster_data[0])
         else:
@@ -84,6 +83,7 @@ class CustomGraph:
         if raster_bytes:
             # Open the raster with rasterio
             with rasterio.open(raster_bytes) as src:
+                print("am deschis fisierul raster")
                 i = 0
                 for edge in self.G.edges(data=True):
                     print(i)
@@ -140,14 +140,13 @@ class CustomGraph:
             i+=1
             data['accident_frequency'] = 1
 
-    def calculate_accessibility_index(self, edge, raster_src):
+    def calculate_accessible_index(self, edge, src):
         """
-        Calculate the accessibility index for an edge in the graph using raster data.
-        If pixel intensity > 150, the area is marked as unaccessible (1), otherwise accessible (0).
+        Checks all raster pixels intersecting with the edge.
+        Returns 1 if any pixel in band 2 (green channel) is = 128 (unaccessible), else 0.
         """
-        buffer_distance = 0.000020  # Define a buffer zone around the edge
         u, v, edge_data = edge
-        
+
         # Get the geometry of the edge
         if 'geometry' in edge_data:
             edge_geometry = edge_data['geometry']
@@ -155,37 +154,39 @@ class CustomGraph:
             u_coords = self.G.nodes[u]['x'], self.G.nodes[u]['y']
             v_coords = self.G.nodes[v]['x'], self.G.nodes[v]['y']
             edge_geometry = LineString([u_coords, v_coords])
-        
-        # Create a buffer around the edge
+
+        if not edge_geometry.is_valid or edge_geometry.is_empty:
+            return None
+
         try:
-            edge_buffer = edge_geometry.buffer(buffer_distance)
+            # Mask the raster using the line geometry
+            out_image, _ = mask(
+                dataset=src,
+                shapes=[mapping(edge_geometry)],
+                crop=True,
+                all_touched=True  # Include all pixels touched by the line
+            )
         except Exception as e:
-            print(e)
+            print(f"Error masking raster: {e}")
+            return 1
+
+        # Band 2 = index 1
+        green_band = out_image[1]  # shape: (height, width)
+        pixel_values = green_band.flatten()
+
+        # Optional: Filter out nodata if needed
+        valid_values = pixel_values[pixel_values > 0]
+
+        if valid_values.size == 0:
             return None
 
-        if not edge_buffer.is_valid or edge_buffer.is_empty:
-            return None
-
-        # Extract raster data within the buffer
-        shapes = [edge_buffer.__geo_interface__]  
-        out_image, out_transform = mask(raster_src, shapes, crop=True)
-        out_image = out_image.flatten()  # Convert to 1D array of pixel values
-
-        # Define accessibility threshold
-        inaccessible_threshold = 138  # If pixel intensity > 150, it's unaccessible
-        print('out image:',out_image)
-        inaccessible_pixels = np.sum(out_image > inaccessible_threshold)
-        #print('inaccessbile pixels:',inaccessible_pixels)
-        #total_pixels = out_image.size
-        #print('total pixels:',total_pixels)
-
-        if(inaccessible_pixels>0):
-            accessibility=1
+        # If any pixel is considered unaccessible
+        if np.any(valid_values <= 128):
+            return 1
         else:
-            accessibility=0
+            return 0
 
-        return accessibility
-    
+
     def accessibility_raster(self, cursor):
         """Fetches an accessibility raster and updates the graph edges with accessibility values."""
         table_name = "accessible_raster"  # Change to the correct table name
@@ -197,22 +198,19 @@ class CustomGraph:
         cursor.execute(sql, (raster_id,))
         raster_data = cursor.fetchone()
 
-        # Convert raster to bytes
         if raster_data and raster_data[0]:
             raster_bytes = io.BytesIO(raster_data[0])
         else:
             raster_bytes = None
 
         if raster_bytes:
-            # Open the raster with rasterio
             with rasterio.open(raster_bytes) as src:
+
                 i = 0
                 for edge in self.G.edges(data=True):
                     i += 1
-                    accessibility = self.calculate_accessibility_index(edge, src)
+                    accessibility = self.calculate_accessible_index(edge, src)
                     u, v, data = edge
-                    #pixel_values=self.extract_pixel_values_for_line_traversal(LineString(edge),src)
-                    #pixel_intensity=self.extract_pixel_intensities_for_line(LineString(edge),src)
                     data['accessibility'] = accessibility
                     print(f"edge {i} {accessibility}")
         else:
@@ -479,9 +477,6 @@ class CustomGraph:
                 self.accessibility_raster(cursor)
                 self.accident_frequency(cursor)
                 self.thermal_comfort_raster(cursor)
-                for edge in self.G.edges(data=True):
-                    u,v,data=edge
-                    print('DATA: ',data['air_mark'])
                 break
 
             except OperationalError as e:

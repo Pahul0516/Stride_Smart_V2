@@ -6,6 +6,7 @@ import { setupGeolocation } from "/projects/2/static/js/map_scripts/map.js";
 import { setupOverlays} from "/projects/2/static/js/map_scripts/overlays.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
+
     await initMap();
 
     setupMenus();

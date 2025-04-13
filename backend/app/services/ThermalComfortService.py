@@ -6,8 +6,8 @@ class ThermalComfortPath:
     path = None
     start_node = None
     goal_node = None
-    alpha = 0.5
-    beta = 0.5
+    alpha = 0.6
+    beta = 0.4
 
     def __init__(self, G):
         self.G = G
@@ -47,7 +47,7 @@ class ThermalComfortPath:
         (x1, y1) = self.G.nodes[u]['x'], self.G.nodes[u]['y']
         (x2, y2) = self.G.nodes[v]['x'], self.G.nodes[v]['y']
         return ((x2 - x1) * 2 + (y2 - y1) * 2) ** 0.5  # Euclidean distance
-    def get_path(self,start_coords,goal_coords,alpha = 0.5, beta = 0.5):
+    def get_path(self,start_coords,goal_coords,alpha = 0.6, beta = 0.4):
         self.set_alpha(alpha)
         self.set_beta(beta)
         # Find the nearest nodes to the start and goal coordinates

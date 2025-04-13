@@ -1,57 +1,63 @@
 import { showHazardReportForm, showCustomAlert } from "/projects/2/static/js/map_scripts/reports.js";
 import { fetchWeatherData } from "/projects/2/static/js/map_scripts/weather.js";
-import {getLatLng, showDirections, showInitialDirections} from "/projects/2/static/js/map_scripts/directions.js";
+import {getLatLng, showDirections, showInitialDirections,deleteMarker2} from "/projects/2/static/js/map_scripts/directions.js";
 import {activeMenu, closeMenu} from "/projects/2/static/js/map_scripts/menu.js";
-import {gmpxActive} from "/projects/2/static/js/map_scripts/overlays.js";
+import {gmpxActive, removeBucketListMarkers} from "/projects/2/static/js/map_scripts/overlays.js";
 import {logOut} from "/projects/2/static/js/login_scripts/login-script.js";
-import {routeLayer} from "/projects/2/static/js/map_scripts/directions.js";
+import {routeLayer,setRouteLayer} from "/projects/2/static/js/map_scripts/overlays.js";
 
 export let destination, map, googleMap, googleAutocomplete, overview, directionsService, directionsRenderer, geocoder, userLocation, marker;
 
+
 export async function init() {
-    const username=sessionStorage.getItem('username');
+    const username = sessionStorage.getItem('username');
 
     let welcomeMessage;
-    const button = document.getElementById("logOutButton");
+    const logOutButton = document.getElementById("logOutButton");
+    const logInButton = document.getElementById("logInButton");
     if (username) {
         welcomeMessage = 'Welcome, ' + username + '!';
+        logInButton.style.display = "none";
     } else {
-        welcomeMessage = 'Welcome guest';
-         button.style.display = "none";
+        welcomeMessage = 'Welcome, guest!';
+        logOutButton.style.display = "none";
     }
-
     console.log(welcomeMessage);
     alert(welcomeMessage);
-    await customElements.whenDefined('gmp-map');
-    map = document.querySelector('gmp-map');
+    try {
+        await customElements.whenDefined('gmp-map');
+        map = document.querySelector('gmp-map');
 
-    if (!map.innerMap) {
-        console.error("GMPX Map is not fully initialized.");
-        return;
+        if (!map.innerMap) {
+            console.error("GMPX Map is not fully initialized.");
+            return;
+        }
+
+        googleMap = new google.maps.Map(document.getElementById("google-maps-container"), {
+            center: {lat: 46.770439, lng: 23.591423},
+            zoom: 15,
+            mapTypeControl: false,
+            mapId: "563dd7b6a140b929"
+        });
+
+        if (!googleMap) {
+            console.error("Google Maps API Map is not fully initialized.");
+            return;
+        }
+
+        overview = document.getElementById('place-overview');
+        directionsService = new google.maps.DirectionsService();
+        directionsRenderer = new google.maps.DirectionsRenderer();
+        geocoder = new google.maps.Geocoder();
+
+        setupMap();
+        setupGeolocation();
+        setupEventListeners();
+        setupPlaceOverviewButtons();
+        setupPlaceOverview();
+    }catch (error){
+        console.error(error);
     }
-
-    googleMap = new google.maps.Map(document.getElementById("google-maps-container"), {
-        center: { lat: 46.770439, lng: 23.591423 },
-        zoom: 15,
-        mapTypeControl: false,
-        mapId: "563dd7b6a140b929"
-    });
-
-    if (!googleMap) {
-        console.error("Google Maps API Map is not fully initialized.");
-        return;
-    }
-
-    overview = document.getElementById('place-overview');
-    directionsService = new google.maps.DirectionsService();
-    directionsRenderer = new google.maps.DirectionsRenderer();
-    geocoder = new google.maps.Geocoder();
-
-    setupMap();
-    setupGeolocation();
-    setupEventListeners();
-    setupPlaceOverviewButtons();
-    setupPlaceOverview();
 }
 
 async function setupUserScore(){
@@ -159,7 +165,13 @@ export function setupGeolocation() {
             },
             () => {
                 console.error("Geolocation permission denied or unavailable.");
-            }
+            },
+
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
         );
     } else {
         console.error("Geolocation is not supported by this browser.");
@@ -168,6 +180,11 @@ export function setupGeolocation() {
 
 export function setupEventListeners() {
     function handleMapClick(event, isGoogleMap) {
+        if(routeLayer)
+        {
+            setRouteLayer(null);
+        }
+
         directionsRenderer.setDirections({ routes: [] });
         destination = {
             lat: event.latLng.lat(),
@@ -200,6 +217,8 @@ export function setupEventListeners() {
         showInitialTravelTime();
         fetchWeatherData(destination.lat, destination.lng);
         showOverview();
+        deleteMarker2();
+
     }
 
     map.innerMap.addListener("click", (event) => handleMapClick(event, false));
@@ -232,7 +251,8 @@ export function setupEventListeners() {
 
                         if(routeLayer)
                         {
-                            routeLayer.setMap(null);
+                            //routeLayer.setMap(null);
+                            setRouteLayer(null);
                         }
                     } else {
                         console.error("Failed to get place details:", status);
@@ -249,6 +269,7 @@ export function setupEventListeners() {
     document.getElementById("centralizeButton").addEventListener("click", resetPlacePicker);
 
     document.getElementById("logOutButton").addEventListener("click", logOut);
+    document.getElementById("logInButton").addEventListener("click",()=>{window.location.href = "/projects/2/login";});
 }
 
 export function resetPlacePicker() {
@@ -285,7 +306,7 @@ export function resetPlacePicker() {
     document.getElementById('to-location').value = '';
 
     if(routeLayer)
-        routeLayer.setMap(null);
+        setRouteLayer(null);
 }
 
 
@@ -347,8 +368,11 @@ export function setupPlaceOverview() {
         resetPlacePicker();
         if(routeLayer)
         {
-            routeLayer.setMap(null);
+            //routeLayer.setMap(null);
+            setRouteLayer(null);
         }
+        removeBucketListMarkers();
+        deleteMarker2();
     });
 
     map.innerMap.addListener("click", () => showOverview());

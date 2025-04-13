@@ -2,15 +2,39 @@ import {activeTouristCategories, markers, removeMarkers, setupTouristPopup} from
 import {map, googleMap, initGooglePlacePicker} from "/projects/2/static/js/map_scripts/map.js";
 import {
     deactivateTouristButton,
-    resetButtonStyle
+    resetButtonStyle,
+    activeFilters
 } from "/projects/2/static/js/map_scripts/menu.js";
 import {fetchReports, clearReportsFromMap} from "/projects/2/static/js/map_scripts/reports.js";
+import {bucketList} from "/projects/2/static/js/map_scripts/tourist.js";
 
 export let activeLayer = [null, null];
 export let overlayLayers = {};
 export let circleLayers = [];
 export let reportMarkers = []
 export let gmpxActive = true;
+export let routeLayer;
+export let dataLayer1;
+export let isOverlay=false;
+let bucketList_markers=[]
+
+export function setRouteLayer(layer)
+{
+    if(layer==null)
+    {
+        routeLayer.setMap(null);
+    }
+    else
+    {
+        routeLayer=layer;
+        if(isOverlay==false) {
+            routeLayer.setMap(map.innerMap);
+        }
+        else
+            routeLayer.setMap(googleMap);
+    }
+}
+
 
 export function setupOverlays() {
     document.querySelectorAll('.overlay-option').forEach(button => {
@@ -34,7 +58,7 @@ export function setupOverlays() {
                     toggleOverlay(button, "/projects/2/static/data/air_quality.geojson", "air_quality");
                     break;
                 case 'nature-path-o':
-                    toggleOverlay(button, "/projects/2/static/data/filtered_cluj_polygons.geojson", "green");
+                    toggleOverlay(button, "/projects/2/static/data/green_areas_filtered.geojson", "green");
                     break;
                 case 'accessible-o':
                     toggleRasterOverlay(button, "accessibility");
@@ -53,7 +77,17 @@ export function setupOverlays() {
             }
         });
     });
+    const discoverExploreButton = document.querySelector('[data-category="discover-explore-f"]');
+    discoverExploreButton.addEventListener('click', () => {
+        if(activeFilters.has("discover-explore-f")){
+            displayBucketList(bucketList);
+        }
+        else
+            removeBucketListMarkers();
+
+        });
 }
+
 
 export async function toggleOverlay(button, filepath, layerName) {
     await addOverlayLayer(button, filepath, layerName);
@@ -90,6 +124,9 @@ function toggleRasterOverlay(button, type, season = "none") {
     });
 
     googleMap.overlayMapTypes.push(tileLayer);
+    isOverlay=true;
+    console.log('isOverlay: ',isOverlay);
+
     activeLayer = [button, tileLayer];
 }
 
@@ -101,7 +138,11 @@ export function handleOverlayButton(button) {
 
     if (activeLayer[0] === button) {
         resetButtonStyle(button);
+        isOverlay=false;
+        console.log('is overlay: ',isOverlay);
     } else {
+        isOverlay=true;
+        console.log('isOverlay: ',isOverlay);
         button.classList.remove("bg-white");
         button.classList.add("bg-[#A5B68D]");
         button.classList.remove("text-gray-700");
@@ -132,6 +173,15 @@ async function addOverlayLayer(button, filepath, layerName) {
         }
 
         dataLayer.setMap(map.innerMap);
+        // if(routeLayer!=null){
+        //     console.log('am route layer');
+        //     routeLayer.setMap(map.innerMap);
+        // }
+        // else
+        // {
+        //     console.log('route layer este null');
+        // }
+        // console.log('da');
         activeLayer = [button, dataLayer];
 
         console.log(`Overlay added: ${layerName}`);
@@ -322,6 +372,7 @@ export function clearAllOverlays() {
         gmpxActive = true;
     }
     clearReportsFromMap();
+    isOverlay=false;
 }
 
 
@@ -373,4 +424,31 @@ function getCurrentSeasonAndTime() {
     }
 
     return `${season}_${timeSlot}`;
+}
+
+async function displayBucketList(bucketList)
+{
+        console.log('adding markers...');
+         bucketList.forEach(location => {
+             const category=location.category;
+             const iconUrl = `static/img/${category}2.png`;
+
+             const marker = new google.maps.Marker({
+                 position: { lat: location.latitude, lng: location.longitude },
+                 map: map.innerMap,
+                 title: location.name,
+                 category: location.category,
+                 icon: { url: iconUrl, scaledSize: new google.maps.Size(30, 30) }
+             });
+
+             bucketList_markers.push(marker);
+         });
+}
+
+export async function removeBucketListMarkers()
+{
+    bucketList_markers.forEach(marker => {
+        marker.setMap(null);
+    });
+    bucketList_markers=[];
 }
