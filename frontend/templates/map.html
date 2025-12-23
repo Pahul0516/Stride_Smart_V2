@@ -11,62 +11,54 @@
     <script src="https://cdn.jsdelivr.net/npm/heatmap.js@2.0.5/build/heatmap.min.js"></script>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/png" href="/projects/2/static/img/logo.png">
+    <link rel="icon" type="image/png" href="http://127.0.0.1:5501/static/img/logo.png">
 </head>
 <body class="text-xs">
 
 <!--google map elements-->
 <div class="map-container relative w-full h-screen">
-    <gmpx-api-loader key="AIzaSyAsygt2TwIMwBDtgSNOskihrWFL8o7ZmZo" libraries="places,visualization" solution-channel="GMP_GE_mapsandplacesautocomplete_v1">
+    <gmpx-api-loader key="AIzaSyCb3sc8wMxkO3AtrwFlfHuCJLCJqLccHU8" libraries="places,visualization" solution-channel="GMP_GE_mapsandplacesautocomplete_v1">
     </gmpx-api-loader>
 
     <div slot="control-block-start-inline-start" class="flex fixed border-transparent top-6 justify-center w-full z-10">
         <gmpx-place-picker id="place-picker" country="ro" for-map="map" placeholder="Enter a place"></gmpx-place-picker>
     </div>
-    <gmp-map center="46.770439,23.591423" zoom="15" map-id="WALK_SAFE_MAP" class="w-full h-full" id="map"></gmp-map>
+    <gmp-map center="46.770439,23.591423" zoom="15" map-id="WALK_SAFE_MAP" class="w-full h-full" id="map">    </gmp-map>
 
     <div id="google-maps-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none;"></div>
 
-    <div id="directions-container" class="hidden absolute top-14 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-transparent rounded-lg w-9/12 z-40">
-        <label for="from-location" class="text-gray-600 text-xs"></label>
-        <div class="relative">
+    <div id="directions-container" class="hidden absolute top-28 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-3 shadow-lg rounded-lg w-96 z-50">
+        <label for="from-location" class="text-gray-600 text-xs mb-1">From:</label>
+
+        <div class="relative mb-2">
             <input type="text" id="from-location" placeholder="Choose starting point"
                    class="w-full p-3 border rounded-xl focus:outline-gray-400 pr-12">
 
-            <button id="your-location-button"
-                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm bg-gray-100 px-2 py-1 rounded-md hover:bg-gray-200">
+            <button id="your-location-button" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-xs bg-gray-100 px-2 py-1 rounded-md hover:bg-gray-200 items-center">
                 𖦏
             </button>
         </div>
 
-        <label for="to-location" class="text-gray-600 text-xs"></label>
-        <div class="relative">
-            <input type="text" id="to-location" placeholder="Enter a destination"
-                   class="w-full p-3 border rounded-xl focus:outline-gray-400 pr-12">
+        <label for="to-location" class="text-gray-600 text-xs mb-1">To:</label>
+        <input type="text" id="to-location" placeholder="Enter a destination" class="w-full p-3 border rounded-xl focus:outline-gray-400">
 
+        <div class="flex items-center gap-2 mt-3">
+            <button id="calculate-route" class="bg-[#3A4D39] text-white px-4 py-2 rounded-xl w-full">
+                Get Directions
+            </button>
+            <button id="cancel-directions" class="bg-gray-400 text-white px-4 py-2 rounded-xl w-full">
+                Cancel
+            </button>
             <button id="swap-locations"
-                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm bg-gray-100 px-2 py-1 rounded-md hover:bg-gray-200">
-                ↑↓
+                    class="bg-gray-100 px-2 py-0.5 rounded-full hover:bg-gray-200 flex items-center justify-center">
+                <span class="text-sm text-[#3A4D39]">↑↓</span>
             </button>
         </div>
-
-        <!--        <div class="flex items-center gap-2 mt-3">-->
-<!--            <button id="calculate-route" class="bg-[#3A4D39] text-white px-4 py-2 rounded-xl w-full">-->
-<!--                Get Directions-->
-<!--            </button>-->
-<!--            <button id="cancel-directions" class="bg-gray-400 text-white px-4 py-2 rounded-xl w-full">-->
-<!--                Cancel-->
-<!--            </button>-->
-<!--            <button id="swap-locations"-->
-<!--                    class="bg-gray-100 px-2 py-0.5 rounded-full hover:bg-gray-200 flex items-center justify-center">-->
-<!--                <span class="text-sm text-[#3A4D39]">↑↓</span>-->
-<!--            </button>-->
-<!--        </div>-->
     </div>
 
     <div id="place-overview-container" class="fixed bottom-0 left-0 w-full bg-white shadow-2xl rounded-t-2xl transition duration-500 transform translate-y-full opacity-0 z-40 overflow-y-auto">
-        <div id="slide-handle" class="absolute left-1/2 mt-1.5 transform -translate-x-1/2 w-10 h-1 bg-gray-400 rounded-full cursor-pointer"></div>
-        <gmpx-place-overview id="place-overview" size="medium" travel-mode="walking">
+        <div id="slide-handle" class="absolute left-1/2 transform -translate-x-1/2 w-10 h-1 bg-gray-400 rounded-full mt-1 cursor-pointer"></div>
+        <gmpx-place-overview id="place-overview" size="large" travel-mode="walking">
             <div slot="action" class="flex flex-col w-full">
                 <p id="travel-time" class="text-gray-500 text-sm mb-4">Calculating travel time...</p>
                 <div class="flex gap-2">
@@ -80,7 +72,7 @@
 </div>
 
 <!--report element (form submission)-->
-<div id="hazard-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 hidden backdrop-blur-md z-50">
+<div id="hazard-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 hidden backdrop-blur-md">
     <div class="bg-[#f7f3f0] shadow-2xl rounded-2xl w-11/12 max-w-lg sm:max-w-xl md:max-w-2xl p-8 relative">
         <button id="modal-close-button" class="absolute top-4 right-4 text-[#3A4D39] hover:text-[#DA8359] hover:scale-105 text-2xl focus:outline-none" aria-label="Close">&times;</button>
 
@@ -244,14 +236,6 @@
 <div id="add-to-bucket-list" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 hidden backdrop-blur-md z-50">
     <div class="bg-[#f7f3f0] shadow-2xl rounded-2xl w-11/12 max-w-md sm:max-w-lg px-8 py-6 relative flex flex-col gap-6 items-center">
 
-        <button id="info-button"
-                class="absolute top-3 left-3 p-3 text-[#3A4D39] hover:text-[#DA8359] hover:scale-105 text-2xl transition-all duration-200 focus:outline-none hidden"
-                title="More Info">
-                <span class="inline-block w-6 h-6 rounded-full border-2 border-current text-center leading-[1.3rem] text-sm font-bold">
-                    i
-                </span>
-        </button>
-
         <button id="close-add-to-bucket-list"
                 class="absolute top-3 right-3 p-3 text-[#3A4D39] hover:text-[#DA8359] hover:scale-105 text-2xl transition-all duration-200 focus:outline-none">
             &times;
@@ -271,20 +255,8 @@
     </div>
 </div>
 
-<div id="info-popup" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 hidden backdrop-blur-md z-50">
-    <div class="bg-white shadow-2xl rounded-2xl w-11/12 max-w-md px-6 py-4 relative">
-        <button id="close-info-popup"
-                class="absolute top-3 right-3 p-2 text-gray-800 hover:text-[#DA8359] text-xl font-bold transition-all">
-            &times;
-        </button>
-        <h3 id="info-popup-title" class="text-lg font-semibold text-[#3A4D39] mb-5 text-center"></h3>
-        <p id="info-popup-text" class="text-sm text-gray-700 text-left leading-relaxed whitespace-pre-line"></p>
-    </div>
-</div>
-
-
-<button id="bucket-list-btn" class="fixed top-16 right-1.5 bg-[#3A4D39] text-white p-3 rounded-full shadow-lg hidden hover:scale-110 transition z-50">
-    <img src="/projects/2/static/img/bucketlist.png" alt="Bucket List" class="w-6 h-6 filter invert">
+<button id="bucket-list-btn" class="fixed top-4 right-2 bg-[#3A4D39] text-white p-3 rounded-full shadow-lg hidden hover:scale-110 transition z-50">
+    <img src="{{ url_for('static', filename='img/bucketlist.png') }}" alt="Bucket List" class="w-6 h-6 filter invert">
 </button>
 
 <!-- bucket list popup -->
@@ -292,7 +264,7 @@
     <div class="bg-[#f7f3f0] shadow-2xl rounded-2xl w-11/12 max-w-md sm:max-w-lg p-8 relative flex flex-col gap-6 items-center">
 
         <div class="w-full relative mb-10">
-            <h2 class="text-xl font-semibold text-[#3A4D39] absolute left-1/2 transform -translate-x-1/2">My Bucket List</h2>
+            <h2 class="text-2xl font-semibold text-[#3A4D39] absolute left-1/2 transform -translate-x-1/2">My Bucket List</h2>
             <button id="close-buckets-list" class="absolute -top-0.5 right-0 text-[#3A4D39] hover:text-[#DA8359] hover:scale-105 text-3xl transition-all duration-200 focus:outline-none">
                 &times;
             </button>
@@ -300,11 +272,13 @@
 
         <ul id="bucket-list" class="w-full max-h-80 overflow-y-auto space-y-3 text-base text-[#3A4D39] text-left leading-relaxed scrollbar-thin scrollbar-thumb-[#DA8359] scrollbar-track-[#f7f3f0]"></ul>
 
-        <button id="clear-bucket-list" class="w-full max-w-[180px] bg-[#DA8359] text-white font-semibold text-md py-3 rounded-full transition-all duration-300 hover:bg-red-600 hover:shadow-lg active:translate-y-1">
+        <button id="clear-bucket-list" class="w-full max-w-[180px] bg-[#DA8359] text-white font-semibold text-lg py-3 rounded-full transition-all duration-300 hover:bg-red-600 hover:shadow-lg active:translate-y-1">
             Clear List
         </button>
     </div>
 </div>
+
+
 
 <!--manages the weather info menu-->
 <div id="weatherMenu" class="fixed bottom-0 left-0 right-0 w-full bg-[#f7f3f0] bg-opacity-95 shadow-lg rounded-t-3xl p-6 transition-transform transform translate-y-full">
@@ -313,28 +287,27 @@
         <button id="closeWeatherMenu" class="text-gray-500 hover:text-[#DA8359] hover:scale-105 text-2xl">✕</button>
     </div>
 
-    <div class="flex items-center justify-evenly mt-4 space-x-2">
-        <div class="flex flex-col  text-[1rem]">
-            <img id="weather-icon" class="w-16 h-16" src="/projects/2/static/img/cloud.png" alt="Weather Icon" />
-            <p id="weather-condition" class="font-medium text-gray-700 mt-2">Loading...</p>
-            <p id="temperature" class="font-bold text-gray-900 text-lg">--°C</p>
-        </div>
-
-
-        <div id="weather-details" class="text-gray-800 text-md">
-            <div class="flex justify-between">
-                <p id="feels-like">️--°C</p>
-            </div>
-            <div class="flex justify-between mt-1">
-                <p id="humidity">--%</p>
-            </div>
-            <div class="flex justify-between mt-1">
-                <p id="wind-speed">-- km/h</p>
-            </div>
+    <div class="flex items-center mt-4 space-x-4">
+        <img id="weather-icon" class="w-16 h-16" src="/icons/cloud.png" alt="Weather Icon" />
+        <div>
+            <h3 id="weather-condition" class="text-lg font-medium text-gray-700">Loading...</h3>
+            <p id="temperature" class="text-lg font-bold text-gray-900">--°C</p>
         </div>
     </div>
 
-    <div id="weather-quote" class="mb-24 mt-6 rounded-lg text-gray-700 font-medium">
+    <div id="weather-details" class="mt-4 p-4 text-gray-700 text-lg">
+        <div class="flex justify-between">
+            <p id="feels-like">️--°C</p>
+        </div>
+        <div class="flex justify-between mt-1">
+            <p id="humidity">--%</p>
+        </div>
+        <div class="flex justify-between mt-1">
+            <p id="wind-speed">-- km/h</p>
+        </div>
+    </div>
+
+    <div id="weather-quote" class="mb-20 p-4 rounded-lg text-gray-700 font-medium">
         Checking the skies for you... Hang tight!
     </div>
 </div>
@@ -354,13 +327,8 @@
                 <p id="userScore" class="text-lg font-bold text-gray-900">1200 XP</p>
             </div>
         </div>
-        <button class="items-center font-semibold text-xs lg:text-lg p-1 rounded-full text-[#DA8359] hover:bg-[#DA8359] hover:text-white transition-all ml-auto"
-        id = 'logOutButton'>
+        <button class="items-center font-semibold text-xs lg:text-lg p-1 rounded-full text-[#DA8359] hover:bg-[#DA8359] hover:text-white transition-all ml-auto">
             Log Out
-        </button>
-        <button class="items-center font-semibold text-xs lg:text-lg p-1 rounded-full text-[#DA8359] hover:bg-[#DA8359] hover:text-white transition-all ml-auto"
-        id = 'logInButton'>
-            Log In
         </button>
     </div>
 
@@ -384,58 +352,6 @@
         </div>
     </div>
 </div>
-
-<!--help button-->
-<button id="help-button"
-        class="fixed top-2.5 right-2.5 bg-white text-[#A5B68D] w-10 h-10 shadow-lg rounded hover:scale-110 transition z-50 text-xl font-semibold flex items-center justify-center"
-        title="Help">
-    ?
-</button>
-
-<!--help modal-->
-<div id="help-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 hidden backdrop-blur-md z-50">
-    <div class="bg-[#f7f3f0] shadow-2xl rounded-2xl w-11/12 max-w-md p-6 relative">
-        <button id="help-modal-close" class="absolute top-4 right-4 text-[#3A4D39] hover:text-[#DA8359] hover:scale-105 text-2xl focus:outline-none" aria-label="Close">
-            &times;
-        </button>
-
-        <h3 class="text-xl font-semibold text-[#3A4D39] text-center">How to Use Stride Smart</h3>
-        <div class="mt-5 space-y-4 text-sm text-[#3A4D39] leading-relaxed">
-            <div>
-                <strong>Filters:</strong>
-                <ul class="list-disc pl-5 mt-1 space-y-1">
-                    <li>Select criteria that matter to you: safety, clean air, thermal comfort, nature paths, etc.</li>
-                    <li>You can select multiple filters depending on your preferences.</li>
-                    <li><span class="font-semibold">If no filters are selected, Stride Smart will return the fastest available route.</span></li>
-                </ul>
-            </div>
-
-            <div>
-                <strong>How to calculate a custom route:</strong>
-                <ol class="list-decimal pl-5 mt-1 space-y-1">
-                    <li>Open the <span class="font-semibold">Filters</span> menu and choose the criteria you want.</li>
-                    <li>Close the filter menu to return to the map.</li>
-                    <li>Enter your destination using the place picker or directions input.</li>
-                    <li>Stride Smart will generate a route based on your selected filters.</li>
-                </ol>
-            </div>
-
-            <div>
-                <strong>Overlays:</strong>
-                <ul class="list-disc pl-5 mt-1 space-y-1">
-                    <li>Visualize the data used for routing (e.g. pollution levels, heat zones, hazards).</li>
-                    <li>Overlays <span class="font-semibold text-[#DA8359]">do not affect</span> your route, they are informational only.</li>
-                    <li>Use them to understand your surroundings or validate the route’s reasoning.</li>
-                </ul>
-            </div>
-        </div>
-
-        <button id="help-ok-btn" class="mt-6 w-full bg-[#DA8359] text-white font-bold py-2 rounded-lg transition-all duration-300 hover:bg-[#A5B68D] active:translate-y-1">
-            Got it!
-        </button>
-    </div>
-</div>
-
 
 <!--manages the main menu at the bottom of the screen-->
 <div class="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-lg bg-[#3A4D39] shadow-lg rounded-full p-2 pl-6 pr-6 flex justify-between items-center">
@@ -466,22 +382,5 @@
     </button>
 </div>
 
-<script type="module" src="{{ url_for('static', filename='js/map_scripts/main-map.js') }}" defer></script>
-<script>
-    const helpButton = document.getElementById("help-button");
-    const helpModal = document.getElementById("help-modal");
-    const helpClose = document.getElementById("help-modal-close");
-    const helpOkBtn = document.getElementById("help-ok-btn");
-
-    helpButton.addEventListener("click", () => {
-        helpModal.classList.remove("hidden");
-    });
-
-    [helpClose, helpOkBtn].forEach(btn => {
-        btn.addEventListener("click", () => {
-            helpModal.classList.add("hidden");
-        });
-    });
-</script>
-</body>
+<script type="module" src="{{ url_for('static', filename='js/map_scripts/main-map.js') }}" defer></script></body>
 </html>
