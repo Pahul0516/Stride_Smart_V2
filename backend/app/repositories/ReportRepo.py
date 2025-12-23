@@ -42,9 +42,9 @@ class ReportRepo:
         try:
             conn = psycopg2.connect(
             host = "localhost",
-            dbname = "Maps_DB",
+            dbname = "maps_db",
             user = "postgres",
-            password = "Qwertyuiop12"
+            password = "Qwertyuiop12!"
             )
             photos_bytes = [bytes(photo) for photo in photos]
             print('photos bytes:',photos_bytes)
@@ -61,3 +61,37 @@ class ReportRepo:
         except Exception as e:
             conn.rollback()
             return e
+
+    def delete_report(self, report_id):
+        try:
+            conn = psycopg2.connect(
+                host="localhost",
+                dbname="maps_db",
+                user="postgres",
+                password="Qwertyuiop12!"
+            )
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM reports WHERE report_id = %s", (report_id,))
+            conn.commit()
+            cursor.close()
+            conn.close()
+        except Exception as e:
+            conn.rollback()
+            return e
+
+    def get_reports_by_user_id(self, user_id):
+        try:
+            conn = psycopg2.connect(
+                host="localhost",
+                dbname="maps_db",
+                user="postgres",
+                password="Qwertyuiop12!"
+            )
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM reports WHERE user_id = %s", (user_id,))
+            reports = cursor.fetchall()
+            cursor.close()
+            conn.close()
+            return reports
+        except Exception as e:
+            return []

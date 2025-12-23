@@ -28,7 +28,7 @@ async function googleLogin(userName,email)
     const requestData={ userName, email };
     console.log('resuqest data: ',requestData);
     try {
-        const response = await fetch("http://127.0.0.1:5001/googleLogin", {
+        const response = await fetch("/projects/2/googleLogin", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -42,7 +42,7 @@ async function googleLogin(userName,email)
             alert("Logged in successfully!");
             console.log("Server Response:", result);
             setSessionDetails(result);
-            window.location.href = "http://127.0.0.1:5001/map";
+            window.location.href = "/projects/2/map";
 
         } else {
             alert("Registration failed: " + (result.message || "Unknown error"));
@@ -57,6 +57,7 @@ async function googleLogin(userName,email)
 //function for setting user data before switching pages
 async function setSessionDetails(result)
 {
+    console.log('setez detalii');
     sessionStorage.setItem("account_id", result[0]);
     sessionStorage.setItem("username", result[1]);
     sessionStorage.setItem("email",result[2]);
@@ -69,7 +70,7 @@ export async function logOut()
     sessionStorage.removeItem("username");
     sessionStorage.removeItem("email");
     sessionStorage.removeItem("points");
-    window.location.href = "http://127.0.0.1:5001/login";
+    window.location.href = "/projects/2/login";
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -97,7 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const requestData = { email, password };
 
         try {
-            const response = await fetch("http://127.0.0.1:5001/login", {
+            const response = await fetch("/projects/2/login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -112,7 +113,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 alert("Logged in successfully!");
                 //keep data about logged in user
                 setSessionDetails(result);
-                window.location.href = "http://127.0.0.1:5001/map";
+                console.log('set session details!');
+                window.location.href = "/projects/2/map";
             } else {
                 alert("Registration failed: " + (result));
             }

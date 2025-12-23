@@ -10,6 +10,8 @@ from app.api.Frontend.front import frontend_bp
 from app.api.Api_login.loginEndpoint import login_bp
 from app.api.Api_login.createAccountEndpoint import create_account_bp
 from app.api.Api_reports.reportsEndpoint import report_bp
+from app.api.Api_overlays.accessibilityTiles import accessible_overlay_bp
+from app.api.Api_overlays.accessibilityTiles import get_air_quality_overlay_bp
 
 def register_routes(app: Flask):
     app.register_blueprint(green_routes_bp)
@@ -19,7 +21,9 @@ def register_routes(app: Flask):
     app.register_blueprint(thermal_comfort_route_bp)
     app.register_blueprint(combined_route_bp)
     app.register_blueprint(tourist_route_bp)
-    app.register_blueprint(frontend_bp)
+    app.register_blueprint(frontend_bp, url_prefix='/projects/2')
     app.register_blueprint(login_bp)
     app.register_blueprint(create_account_bp)
     app.register_blueprint(report_bp)
+    app.register_blueprint(accessible_overlay_bp)
+    app.register_blueprint(get_air_quality_overlay_bp)

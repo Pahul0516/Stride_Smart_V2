@@ -5,10 +5,10 @@ from app.repositories.AccountRepo import AccountRepo
 
 create_account_bp = Blueprint('createAccount', __name__)
 
-@create_account_bp.route('/createAccount',methods=['POST'])
+@create_account_bp.route('/projects/2/createAccount',methods=['POST'])
 def createAccount():
     print('reached backend logic of the api')
-    accountRepo= AccountRepo('localhost','Maps_DB','postgres','Qwertyuiop12')
+    accountRepo= AccountRepo('localhost','maps_db','postgres','Qwertyuiop12!')
     accountService=AccountService(accountRepo)
     data = request.json
     userName=data.get('userName')

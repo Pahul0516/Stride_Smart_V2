@@ -1,13 +1,40 @@
-import {activeTouristCategories, markers, removeMarkers, setupTouristPopup} from "./tourist.js";
-import {map, googleMap, initGooglePlacePicker} from "./map.js";
+import {activeTouristCategories, markers, removeMarkers, setupTouristPopup} from "/projects/2/static/js/map_scripts/tourist.js";
+import {map, googleMap, initGooglePlacePicker} from "/projects/2/static/js/map_scripts/map.js";
 import {
     deactivateTouristButton,
-    resetButtonStyle
-} from "./menu.js";
+    resetButtonStyle,
+    activeFilters
+} from "/projects/2/static/js/map_scripts/menu.js";
+import {fetchReports, clearReportsFromMap} from "/projects/2/static/js/map_scripts/reports.js";
+import {bucketList} from "/projects/2/static/js/map_scripts/tourist.js";
 
 export let activeLayer = [null, null];
+export let overlayLayers = {};
 export let circleLayers = [];
+export let reportMarkers = []
 export let gmpxActive = true;
+export let routeLayer;
+export let dataLayer1;
+export let isOverlay=false;
+let bucketList_markers=[]
+
+export function setRouteLayer(layer)
+{
+    if(layer==null)
+    {
+        routeLayer.setMap(null);
+    }
+    else
+    {
+        routeLayer=layer;
+        if(isOverlay==false) {
+            routeLayer.setMap(map.innerMap);
+        }
+        else
+            routeLayer.setMap(googleMap);
+    }
+}
+
 
 export function setupOverlays() {
     document.querySelectorAll('.overlay-option').forEach(button => {
@@ -28,29 +55,39 @@ export function setupOverlays() {
                     toggleRasterOverlay(button, "thermal_comfort", getCurrentSeasonAndTime());
                     break;
                 case 'clean-air-o':
-                    toggleOverlay(button, "../data/air_quality.geojson", "air_quality");
+                    toggleOverlay(button, "/projects/2/static/data/air_quality.geojson", "air_quality");
                     break;
                 case 'nature-path-o':
-                    toggleOverlay(button, "../data/filtered_cluj_polygons.geojson", "green");
+                    toggleOverlay(button, "/projects/2/static/data/green_areas_filtered.geojson", "green");
                     break;
                 case 'accessible-o':
                     toggleRasterOverlay(button, "accessibility");
                     break;
                 case 'safety-trail-o':
-                    toggleOverlay(button, "../data/road_crash_density.geojson", "safety");
+                    toggleOverlay(button, "/projects/2/static/data/road_crash_density.geojson", "safety");
                     break;
                 case 'discover-explore-o':
-                    toggleOverlay(button, "../data/tourist_data.json", "tourist");
+                    toggleOverlay(button, "/projects/2/static/data/tourist_data.json", "tourist");
                     break;
                 case 'reports-o':
-                    toggleOverlay(button, "../data/reports.geojson", "reports");
+                    toggleOverlay(button, "", "reports");
                     break;
                 default:
                     console.warn("Unknown category: " + category);
             }
         });
     });
+    const discoverExploreButton = document.querySelector('[data-category="discover-explore-f"]');
+    discoverExploreButton.addEventListener('click', () => {
+        if(activeFilters.has("discover-explore-f")){
+            displayBucketList(bucketList);
+        }
+        else
+            removeBucketListMarkers();
+
+        });
 }
+
 
 export async function toggleOverlay(button, filepath, layerName) {
     await addOverlayLayer(button, filepath, layerName);
@@ -67,7 +104,7 @@ function toggleRasterOverlay(button, type, season = "none") {
     if (!googleMap) {
         googleMap = new google.maps.Map(googleMapsContainer, {
             center: { lat: 46.770439, lng: 23.591423 },
-            zoom: 15,
+            zoom: 0,
             disableDefaultUI: true,
             mapId: "563dd7b6a140b929",
             gestureHandling: "greedy",
@@ -80,24 +117,32 @@ function toggleRasterOverlay(button, type, season = "none") {
     const tileLayer = new google.maps.ImageMapType({
         getTileUrl: function (coord, zoom) {
             let y_flipped = (1 << zoom) - coord.y - 1;
-            return `http://127.0.0.1:5000/tiles/${type}/${season}/${zoom}/${coord.x}/${y_flipped}.png`;
+            return `/projects/2/static/tiles/${type}/${season}/${zoom}/${coord.x}/${y_flipped}.png`;
         },
         tileSize: new google.maps.Size(256, 256),
         opacity: 0.6
     });
 
     googleMap.overlayMapTypes.push(tileLayer);
+    isOverlay=true;
+    console.log('isOverlay: ',isOverlay);
+
     activeLayer = [button, tileLayer];
 }
 
 export function handleOverlayButton(button) {
     if (activeLayer[0] !== null && activeLayer[0] !== button) {
+        console.log(activeLayer[0]);
         resetButtonStyle(activeLayer[0]);
     }
 
     if (activeLayer[0] === button) {
         resetButtonStyle(button);
+        isOverlay=false;
+        console.log('is overlay: ',isOverlay);
     } else {
+        isOverlay=true;
+        console.log('isOverlay: ',isOverlay);
         button.classList.remove("bg-white");
         button.classList.add("bg-[#A5B68D]");
         button.classList.remove("text-gray-700");
@@ -109,162 +154,190 @@ export function handleOverlayButton(button) {
 
 async function addOverlayLayer(button, filepath, layerName) {
     try {
-        if(layerName === "tourist"){
+        if (layerName === "tourist") {
             activeLayer[0] = button;
             setupTouristPopup();
             return;
         }
-        const response = await fetch(filepath);
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-
-        let geojsonData = await response.json();
 
         const dataLayer = new google.maps.Data();
-        dataLayer.addGeoJson(geojsonData);
 
-        dataLayer.setStyle(feature => {
-            const geometry = feature.getGeometry();
-            if (!geometry) {
-                console.error("Feature missing geometry:", feature);
-                return { visible: false };
-            }
-
-            const geometryType = geometry.getType();
-
-            if (geometryType === "Point") {
-                if (layerName === "air_quality") {
-                    const airQuality = feature.getProperty("AirQuality");
-                    const circleColor = getAirQualityColor(airQuality);
-                    const circleRadius = airQuality * 25;
-                    const coords = geometry.get();
-                    const circle = new google.maps.Circle({
-                        strokeColor: circleColor,
-                        strokeOpacity: 0,
-                        strokeWeight: 0,
-                        fillColor: circleColor,
-                        fillOpacity: 0.4,
-                        map: map.innerMap,
-                        center: { lat: coords.lat(), lng: coords.lng() },
-                        radius: circleRadius,
-                        clickable: false
-                    });
-                    circleLayers.push(circle);
-                    return { visible: false };
-                } else if (layerName === "safety") {
-                    const safetyLevel = feature.getProperty("grad");
-                    const fillColor = getSafetyColor(safetyLevel);
-                    const coords = geometry.get();
-                    const circle = new google.maps.Circle({
-                        strokeColor: fillColor,
-                        strokeOpacity: 1,
-                        strokeWeight: 1.2,
-                        fillColor: fillColor,
-                        fillOpacity: 0.4,
-                        map: map.innerMap,
-                        center: { lat: coords.lat(), lng: coords.lng() },
-                        radius: 125,
-                        clickable: false
-                    });
-
-                    circleLayers.push(circle);
-                    return { visible: false };
-                }
-            } else if (geometryType !== "Polygon" && geometryType !== "MultiPolygon") {
-                console.error("Unexpected geometry type:", geometryType);
-                return { visible: false };
-            }
-
-            if (layerName === "green") {
-                if (!geojsonData.processed) {
-
-                    geojsonData.features = geojsonData.features
-                        .filter(feature => {
-                            return feature.geometry && feature.geometry.type;
-                        })
-                        .map(feature => {
-                            try {
-                                const bufferDistance = 5;
-
-                                let bufferedFeature = turf.buffer(feature, bufferDistance, { units: 'meters', steps: 10 });
-
-                                const tolerance = 0.000000000001;
-                                return turf.simplify(bufferedFeature, { tolerance, highQuality: false });
-
-                            } catch (error) {
-                                console.error("Error buffering feature:", feature, error);
-                                return feature;
-                            }
-                        });
-
-                    geojsonData.processed = true;
-                }
-
-                return {
-                    fillColor: 'rgba(25,161,25,0.84)',
-                    strokeColor: 'black',
-                    strokeWeight: 0,
-                    fillOpacity: 0.4,
-                    clickable: false
-                };
-            }
-
-            return {
-                fillColor: 'rgba(128, 128, 128, 0.4)',
-                strokeColor: 'black',
-                strokeWeight: 1,
-                fillOpacity: 0.4,
-                clickable: false
-            };
-        });
+        if (layerName === "air_quality") {
+            await loadAirQualityData();
+        }
+        else if(layerName === "reports"){
+            await fetchReports();
+        }
+        else {
+            await loadGeoJsonLayer(dataLayer, filepath, layerName);
+        }
 
         dataLayer.setMap(map.innerMap);
+        // if(routeLayer!=null){
+        //     console.log('am route layer');
+        //     routeLayer.setMap(map.innerMap);
+        // }
+        // else
+        // {
+        //     console.log('route layer este null');
+        // }
+        // console.log('da');
         activeLayer = [button, dataLayer];
 
         console.log(`Overlay added: ${layerName}`);
     } catch (error) {
-        console.error(`Error loading overlay layer (${layerName}):`, error);
+        console.error(`Error loading overlay layer (${layerName}):, error`);
     }
 }
 
-function extractCoordinates(geometry, geometryType) {
+async function loadAirQualityData() {
     try {
-        if (geometryType === "Polygon") {
-            if (geometry.coordinates) {
-                return geometry.coordinates[0];
-            }
-        } else if (geometryType === "MultiPolygon") {
-            if (geometry.coordinates) {
-                return geometry.coordinates[0][0];
-            }
-        }
+        const response = await fetch("/projects/2/get-air-quality-overlay");
+        const data = await response.json();
 
-        if (geometry.getType && geometry.getType() === "Polygon") {
-            const path = geometry.getAt(0);
-            const coordinates = [];
-            for (let i = 0; i < path.getLength(); i++) {
-                const latLng = path.getAt(i);
-                coordinates.push([latLng.lng(), latLng.lat()]);
+        data.forEach(point => {
+            if (isNaN(point.latitude) || isNaN(point.longitude)) {
+                console.error("Invalid air quality data point:", point);
+                return;
             }
-            return coordinates;
-        } else if (geometry.getType && geometry.getType() === "MultiPolygon") {
-            console.error("MultiPolygon extraction is not implemented for Google Maps geometries.");
-            return null;
-        }
 
-        console.error("Unsupported geometry type:", geometryType);
-        return null;
+            const circle = new google.maps.Circle({
+                strokeColor: getAirQualityColorFromPM(point.pm25, point.pm10),
+                strokeOpacity: 0.8,
+                strokeWeight: 1,
+                fillColor: getAirQualityColorFromPM(point.pm25, point.pm10),
+                fillOpacity: 0.5,
+                map: map.innerMap,
+                center: { lat: parseFloat(point.latitude), lng: parseFloat(point.longitude) },
+                radius: 250,
+                clickable: false
+            });
+            circleLayers.push(circle);
+        });
+
+        console.log("Air quality data loaded.");
     } catch (error) {
-        console.error("Error extracting coordinates:", error);
-        return null;
+        console.error("Error fetching air quality data:", error);
     }
 }
 
-function getAirQualityColor(airQuality) {
-    if (airQuality === 1) return 'rgba(0,255,0,0.8)'; //Clean air
-    if (airQuality === 2) return 'rgba(255,213,0,0.8)'; //Moderately polluted air
-    if (airQuality === 3) return 'rgba(236,131,45,0.8)'; //Polluted air
-    if (airQuality === 4) return 'rgba(255,47,0,0.8)'; //Very polluted air
-    return 'rgba(128,128,128,0.6)';
+async function loadGeoJsonLayer(dataLayer, filepath, layerName) {
+    const response = await fetch(filepath);
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+    let geojsonData = await response.json();
+    dataLayer.addGeoJson(geojsonData);
+    dataLayer.setStyle(feature => styleGeoJsonFeature(feature, geojsonData, layerName));
+}
+
+function styleGeoJsonFeature(feature, geojsonData, layerName) {
+    const geometry = feature.getGeometry();
+    if (!geometry) {
+        console.error("Feature missing geometry:", feature);
+        return { visible: false };
+    }
+
+    const geometryType = geometry.getType();
+
+    if (geometryType === "Point" && layerName === "safety") {
+        return styleSafetyFeature(feature);
+    }
+
+    if (["Polygon", "MultiPolygon"].includes(geometryType)) {
+        return layerName === "green" ? styleGreenFeature(geojsonData) : defaultStyle();
+    }
+
+    console.error("Unexpected geometry type:", geometryType);
+    return { visible: false };
+}
+
+function styleSafetyFeature(feature) {
+    const safetyLevel = feature.getProperty("grad");
+    const fillColor = getSafetyColor(safetyLevel);
+    const coords = feature.getGeometry().get();
+
+    const circle = new google.maps.Circle({
+        strokeColor: fillColor,
+        strokeOpacity: 1,
+        strokeWeight: 1.2,
+        fillColor: fillColor,
+        fillOpacity: 0.4,
+        map: map.innerMap,
+        center: { lat: coords.lat(), lng: coords.lng() },
+        radius: 125,
+        clickable: false
+    });
+
+    circleLayers.push(circle);
+    return { visible: false };
+}
+
+function styleGreenFeature(geojsonData) {
+    if (!geojsonData.processed) {
+        geojsonData.features = geojsonData.features
+            .filter(feature => feature.geometry && feature.geometry.type)
+            .map(feature => processGreenFeature(feature));
+
+        geojsonData.processed = true;
+    }
+
+    return {
+        fillColor: 'rgba(25,161,25,0.84)',
+        strokeColor: 'black',
+        strokeWeight: 0,
+        fillOpacity: 0.4,
+        clickable: false
+    };
+}
+
+function processGreenFeature(feature) {
+    try {
+        const bufferDistance = 5;
+        let bufferedFeature = turf.buffer(feature, bufferDistance, { units: 'meters', steps: 10 });
+
+        const tolerance = 0.000000000001;
+        return turf.simplify(bufferedFeature, { tolerance, highQuality: false });
+    } catch (error) {
+        console.error("Error processing green feature:", feature, error);
+        return feature;
+    }
+}
+
+function defaultStyle() {
+    return {
+        fillColor: 'rgba(128, 128, 128, 0.4)',
+        strokeColor: 'black',
+        strokeWeight: 1,
+        fillOpacity: 0.4,
+        clickable: false
+    };
+}
+
+function getAirQualityColorFromPM(pm25, pm10) {
+    function getColorForPM25(value) {
+        if (value >= 0 && value <= 15) return "#00A000";
+        if (value > 15 && value <= 25) return "#554C00";
+        if (value > 25 && value <= 50) return "#E07026";
+        if (value > 50) return "#E0003C";
+        return "#000000";
+    }
+
+    function getColorForPM10(value) {
+        if (value >= 0 && value <= 30) return "#00A000";
+        if (value > 30 && value <= 50) return "#554C00";
+        if (value > 50 && value <= 100) return "#E07026";
+        if (value > 100) return "#E0003C";
+        return "#000000";
+    }
+
+    const pm25Color = getColorForPM25(pm25);
+    const pm10Color = getColorForPM10(pm10);
+
+    const colorPriority = ["#00A000", "#554C00", "#E07026", "#E0003C"];
+
+    return colorPriority.includes(pm10Color) && colorPriority.indexOf(pm10Color) > colorPriority.indexOf(pm25Color)
+        ? pm10Color
+        : pm25Color;
 }
 
 function getSafetyColor(safetyLevel) {
@@ -273,6 +346,7 @@ function getSafetyColor(safetyLevel) {
     if (safetyLevel === 3) return 'rgba(255,0,0,0.7)';
     return 'rgba(128,128,128,0.5)';
 }
+
 
 export function clearAllOverlays() {
     if(activeLayer[0] && activeLayer[0] !== document.querySelector('[data-category="discover-explore-o"]')) {
@@ -287,6 +361,8 @@ export function clearAllOverlays() {
 
     circleLayers.forEach(circle => circle.setMap(null));
     circleLayers = [];
+    reportMarkers.forEach(marker => marker.setMap(null));
+    reportMarkers = [];
 
     const googleMapsContainer = document.getElementById("google-maps-container");
 
@@ -295,7 +371,10 @@ export function clearAllOverlays() {
         map.style.display = "block";
         gmpxActive = true;
     }
+    clearReportsFromMap();
+    isOverlay=false;
 }
+
 
 export function clearTouristOverlay(){
     const touristPopup = document.getElementById("touristPopup");
@@ -345,4 +424,31 @@ function getCurrentSeasonAndTime() {
     }
 
     return `${season}_${timeSlot}`;
+}
+
+async function displayBucketList(bucketList)
+{
+        console.log('adding markers...');
+         bucketList.forEach(location => {
+             const category=location.category;
+             const iconUrl = `static/img/${category}2.png`;
+
+             const marker = new google.maps.Marker({
+                 position: { lat: location.latitude, lng: location.longitude },
+                 map: map.innerMap,
+                 title: location.name,
+                 category: location.category,
+                 icon: { url: iconUrl, scaledSize: new google.maps.Size(30, 30) }
+             });
+
+             bucketList_markers.push(marker);
+         });
+}
+
+export async function removeBucketListMarkers()
+{
+    bucketList_markers.forEach(marker => {
+        marker.setMap(null);
+    });
+    bucketList_markers=[];
 }

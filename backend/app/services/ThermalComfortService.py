@@ -1,19 +1,17 @@
 import networkx as nx
 import osmnx as ox
 
-class ThermalComfort:
+class ThermalComfortPath:
     G = None
     path = None
-    custom_graph=None
     start_node = None
     goal_node = None
-    alpha = 0.5
-    beta = 0.5
+    alpha = 0.6
+    beta = 0.4
 
-    def __init__(self, G,custom_graph):
+    def __init__(self, G):
         self.G = G
-        self.custom_graph=custom_graph
-
+    
     def set_alpha(self, alpha):
         self.alpha = alpha
 
@@ -27,14 +25,14 @@ class ThermalComfort:
 
             # Retrieve 'ComfortIndex' from the custom graph
             # Assuming `self.custom_graph` is your custom graph
-            if self.custom_graph.has_edge(u, v):
-                comfort_index = float(self.custom_graph[u][v].get('comfort_index', 0.0))  # Default to 0.0 if missing
+            if self.G.has_edge(u, v):
+                comfort_index = float(self.G[u][v].get('thermal_index', 0.0))  # Default to 0.0 if missing
             else:
                 comfort_index = 0.0  # Penalize if no edge exists in the custom graph
 
             # Normalize the values
             L = (length - 0.24) / (3201.74 - 0.24)
-            A = 1-comfort_index
+            A = comfort_index
 
             # Weighted cost
             W = self.alpha * L + self.beta * A
@@ -49,7 +47,7 @@ class ThermalComfort:
         (x1, y1) = self.G.nodes[u]['x'], self.G.nodes[u]['y']
         (x2, y2) = self.G.nodes[v]['x'], self.G.nodes[v]['y']
         return ((x2 - x1) * 2 + (y2 - y1) * 2) ** 0.5  # Euclidean distance
-    def get_path(self,start_coords,goal_coords,alpha = 0.5, beta = 0.5):
+    def get_path(self,start_coords,goal_coords,alpha = 0.6, beta = 0.4):
         self.set_alpha(alpha)
         self.set_beta(beta)
         # Find the nearest nodes to the start and goal coordinates

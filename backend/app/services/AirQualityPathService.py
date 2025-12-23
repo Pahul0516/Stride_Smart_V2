@@ -10,9 +10,8 @@ class AirQualityPath:
     alpha = 0.5
     beta = 0.5
 
-    def __init__(self, G,custom_graph):
+    def __init__(self, G):
         self.G = G
-        self.custom_graph=custom_graph
 
     def set_alpha(self, alpha):
         self.alpha = alpha
@@ -23,17 +22,12 @@ class AirQualityPath:
     def custom_cost(self, u, v, data):
         try:
             length = data[0].get('length', float('inf'))
-
-            # Retrieve 'AirQuality' from the custom graph
-            # Assuming `self.custom_graph` is your custom graph
-            if self.custom_graph.has_edge(u, v):
-                air_quality = float(self.custom_graph[u][v].get('AirQuality', 0.0))  # Default to 4.0 if missing
-            else:
-                air_quality = 0.0  # Penalize if no edge exists in the custom graph
+            air_quality = data[0].get('air_mark', 1)
 
             # Normalize the values
             L = (length - 0.24) / (3201.74 - 0.24)
-            A = (air_quality - 0.0) / (4.0 - 0.0)
+            #A = (air_quality - 0.0) / (4.0 - 0.0)
+            A=air_quality
 
             # Weighted cost
             W = self.alpha * L + self.beta * A

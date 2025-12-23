@@ -4,8 +4,9 @@ from flask_cors import CORS
 # from .config.settings import Config
 # from .models.database import db
 # from .routes import register_routes
-from app.domain.entities import CustomGraph
+from app.repositories.GraphRepo import CustomGraph
 from app.routes import register_routes
+from app.services.scheduler import Scheduler
 
 def create_app():
 
@@ -14,13 +15,18 @@ def create_app():
     Aplication = Flask(
         __name__,
         template_folder=os.path.join(BASE_DIR, "../../frontend/templates"),
-        static_folder=os.path.join(BASE_DIR, "../../frontend/static")
-	#static_url_path='/projects/2/static'  # This changes Flask's URL for static files
+        static_folder=os.path.join(BASE_DIR, "../../frontend/static"),
+	    static_url_path='/projects/2/static'  # This changes Flask's URL for static files
     )
     CORS(Aplication)
     
-    # customGraph = CustomGraph()
-    # Aplication.config["CustomGraph"] = customGraph.get_graph()
+    print('instantinating custom graph...')
+    customGraph = CustomGraph()
+    scheduler=Scheduler(customGraph.G)
+    scheduler.start_thermal_comfort_thread()
+    scheduler.start_air_quality_thread()
+
+    Aplication.config["CustomGraph"] = customGraph.get_graph()
     register_routes(Aplication)
     
     return Aplication

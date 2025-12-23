@@ -1,0 +1,16 @@
+[2025-04-12 13:24:44 +0300] [45915] [INFO] Starting gunicorn 21.2.0
+[2025-04-12 13:24:44 +0300] [45915] [INFO] Listening at: http://127.0.0.1:5001 (45915)
+[2025-04-12 13:24:44 +0300] [45915] [INFO] Using worker: sync
+[2025-04-12 13:24:44 +0300] [45916] [INFO] Booting worker with pid: 45916
+instantinating custom graph...
+generating graph
+graph generated
+connection established
+[2025-04-12 13:25:56 +0300] [45915] [INFO] Handling signal: hup
+[2025-04-12 13:25:56 +0300] [45915] [INFO] Hang up: Master
+[2025-04-12 13:25:56 +0300] [45945] [INFO] Booting worker with pid: 45945
+[2025-04-12 13:25:56 +0300] [45915] [ERROR] Worker (pid:45916) was sent SIGHUP!
+instantinating custom graph...
+generating graph
+graph generated
+connection established

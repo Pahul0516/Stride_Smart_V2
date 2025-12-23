@@ -1,4 +1,4 @@
-import { map } from "./map.js";
+import { map } from "/projects/2/static/js/map_scripts/map.js";
 import { activateTouristButton, deactivateTouristButton } from "./menu.js";
 
 export let markers = [];
@@ -77,7 +77,7 @@ function attachChipListeners() {
 
 async function fetchTouristData(category) {
     try {
-        const response = await fetch('../data/tourist_data.json');
+        const response = await fetch('/projects/2/static/data/tourist_data.json');
         if (!response.ok) throw new Error('Network response was not ok');
         const data = await response.json();
         return data.filter(item => item.category === category);
@@ -90,7 +90,7 @@ async function fetchTouristData(category) {
 function addMarkers(category, locations) {
     locations.forEach(location => {
         const isInBucketList = bucketList.some(item => item.latitude === location.latitude && item.longitude === location.longitude);
-        const iconUrl = isInBucketList ? `../icons/${category}2.png` : `../icons/${category}.png`;
+        const iconUrl = isInBucketList ? `/projects/2/static/img/${category}2.png` : `/projects/2/static/img/${category}.png`;
 
         const marker = new google.maps.Marker({
             position: { lat: location.latitude, lng: location.longitude },
@@ -181,7 +181,7 @@ function setupAddToBucketListPopup(location) {
             removeFromBucketList(location.name);
             if (marker) {
                 marker.setIcon({
-                    url: `../icons/${location.category}.png`,
+                    url: `/projects/2/static/img/${location.category}.png`,
                     scaledSize: new google.maps.Size(30, 30)
                 });
             }
@@ -201,7 +201,7 @@ function setupAddToBucketListPopup(location) {
             addToBucketList(location);
             if (marker) {
                 marker.setIcon({
-                    url: `../icons/${location.category}2.png`,
+                    url: `/projects/2/static/img/${location.category}2.png`,
                     scaledSize: new google.maps.Size(30, 30)
                 });
             }
@@ -280,7 +280,7 @@ function updateBucketListUI() {
             "transition-all", "duration-200"
         );
 
-        const iconUrl = `../icons/${location.category}.png`;
+        const iconUrl = `/projects/2/static/img/${location.category}.png`;
 
         const categorySpan = document.createElement("span");
         categorySpan.classList.add("w-12", "flex", "justify-center", "items-center");
@@ -332,8 +332,8 @@ function updateMarkers() {
         );
 
         const iconUrl = isInBucketList
-            ? `../icons/${marker.category}2.png`
-            : `../icons/${marker.category}.png`;
+            ? `/projects/2/static/img/${marker.category}2.png`
+            : `/projects/2/static/img/${marker.category}.png`;
 
         marker.setIcon({ url: iconUrl, scaledSize: new google.maps.Size(30, 30) });
     });
